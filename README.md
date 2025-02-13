@@ -18,7 +18,20 @@ Once a message appears in your Minecraft chat confirming that you have properly 
 
 # Important Command Info
 Valid key names:
-
+attack,
+use,
+forward,
+left,
+back,
+right,
+jump,
+sneak,
+sprint,
+drop,
+inventory,
+pickItem,
+togglePerspective,
+swapHands.
 
 # Commands
 Note: In-game, the commands are prefixed with `/`, but viewers typing commands into Twitch chat should prefix their commands with `!` instead.
