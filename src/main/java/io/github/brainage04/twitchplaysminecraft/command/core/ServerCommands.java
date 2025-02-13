@@ -8,13 +8,13 @@ import net.minecraft.registry.RegistryKeys;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class ServerModCommands {
+public class ServerCommands {
     public static void initialize() {
         // voting commands
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
                         literal("setgoal")
                                 .then(argument("advancement", RegistryKeyArgumentType.registryKey(RegistryKeys.ADVANCEMENT))
-                                        .suggests(ModSuggestionProviders.ADVANCEMENT_SUGGESTIONS)
+                                        //.suggests(ModSuggestionProviders.ADVANCEMENT_SUGGESTIONS)
                                         .executes(context ->
                                                 SetGoalCommand.execute(
                                                         context.getSource(),

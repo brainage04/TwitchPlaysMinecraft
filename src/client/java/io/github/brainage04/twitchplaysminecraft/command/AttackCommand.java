@@ -2,8 +2,8 @@ package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.MathUtils;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -33,7 +33,7 @@ public class AttackCommand {
             if (target.isDead()) {
                 isRunning = false;
                 target = null;
-                new FeedbackBuilder().source(client)
+                new ClientFeedbackBuilder().source(client)
                         .text("Mob has died.")
                         .messageType(MessageType.SUCCESS)
                         .execute();
@@ -87,7 +87,7 @@ public class AttackCommand {
         );
 
         if (nearbyLivingEntities.isEmpty()) {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .text("There are no living entities within 16 blocks!")
                     .messageType(MessageType.ERROR)
                     .execute();

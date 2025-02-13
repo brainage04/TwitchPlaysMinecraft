@@ -1,7 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 public class DropCommand {
@@ -10,7 +10,7 @@ public class DropCommand {
             source.getPlayer().dropSelectedItem(false);
         }
 
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text("Dropped %d items.".formatted(count))
                 .execute();

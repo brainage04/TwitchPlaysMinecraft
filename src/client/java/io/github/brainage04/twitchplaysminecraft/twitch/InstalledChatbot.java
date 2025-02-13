@@ -4,8 +4,8 @@ import com.github.philippheuer.credentialmanager.domain.DeviceAuthorization;
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.auth.domain.TwitchScopes;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -34,7 +34,7 @@ public class InstalledChatbot {
                 if (player == null) return;
 
                 FabricClientCommandSource source = ((FabricClientCommandSource) player.networkHandler.getCommandSource());
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.INFO)
                         .text("Attempting to execute command: /%s".formatted(finalCommand))
                         .execute();

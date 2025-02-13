@@ -14,7 +14,7 @@ import net.minecraft.client.MinecraftClient;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
-public class ModCommands {
+public class ClientCommands {
     public static void initialize() {
         // config commands
         ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) ->
@@ -98,7 +98,6 @@ public class ModCommands {
                 )
         );
 
-        JumpPlaceCommand.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("jumpplace")
                                 .then(argument("count", IntegerArgumentType.integer())
@@ -171,7 +170,7 @@ public class ModCommands {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("look")
                                 .then(argument("direction", StringArgumentType.string())
-                                        .suggests(ModSuggestionProviders.LOOK_DIRECTION_SUGGESTIONS)
+                                        .suggests(ClientSuggestionProviders.LOOK_DIRECTION_SUGGESTIONS)
                                         .then(argument("degrees", IntegerArgumentType.integer(1))
                                                 .executes(context ->
                                                         LookCommand.execute(
@@ -255,7 +254,7 @@ public class ModCommands {
                                 .then(argument("first", IntegerArgumentType.integer())
                                         .then(argument("second", IntegerArgumentType.integer())
                                                 .then(argument("action", StringArgumentType.string())
-                                                        .suggests(ModSuggestionProviders.MOVE_ACTION_SUGGESTIONS)
+                                                        .suggests(ClientSuggestionProviders.MOVE_ACTION_SUGGESTIONS)
                                                         .executes(context ->
                                                                 MoveItemCommand.execute(
                                                                         context.getSource(),

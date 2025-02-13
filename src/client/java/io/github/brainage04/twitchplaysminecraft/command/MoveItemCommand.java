@@ -1,14 +1,14 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 
-import static io.github.brainage04.twitchplaysminecraft.command.core.ModSuggestionProviders.lookDirectionSuggestionsStringArray;
+import static io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders.lookDirectionSuggestionsStringArray;
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.millisecondsBetweenSteps;
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.startNewCurrentInteractionThread;
 import static io.github.brainage04.twitchplaysminecraft.util.ThreadUtils.sleepSafely;
@@ -31,7 +31,7 @@ public class MoveItemCommand {
     public static int execute(FabricClientCommandSource source, int first, int second, String actionTypeString) {
         ActionType actionType = getActionTypeSafely(actionTypeString);
         if (actionType == null) {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("Invalid action type! Valid action types: %s.".formatted(String.join(", ", lookDirectionSuggestionsStringArray)))
                     .execute();
@@ -40,7 +40,7 @@ public class MoveItemCommand {
 
         if (source.getClient().currentScreen == null) {
             if (first == second) {
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.ERROR)
                         .text("First and second slot indices must be different!")
                         .execute();
@@ -48,7 +48,7 @@ public class MoveItemCommand {
             }
 
             if (first < 0 || first > 8) {
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.ERROR)
                         .text("First index must range from 0-8!")
                         .execute();
@@ -56,7 +56,7 @@ public class MoveItemCommand {
             }
 
             if (second < 0 || second > 8) {
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.ERROR)
                         .text("Second index must range from 0-8!")
                         .execute();
@@ -64,6 +64,7 @@ public class MoveItemCommand {
             }
 
             // swap hotbar slots (using off hand)
+            // todo: test without thread?
             startNewCurrentInteractionThread(new Thread(() -> {
                 source.getPlayer().getInventory().selectedSlot = first;
                 source.getClient().execute(() -> source.getClient().options.swapHandsKey.setPressed(true));
@@ -78,7 +79,7 @@ public class MoveItemCommand {
             // swap inventory slots
             Slot slot1 = handledScreen.getScreenHandler().getSlot(first);
             if (!slot1.hasStack()) {
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.ERROR)
                         .text("There is nothing in slot %d".formatted(slot1.id))
                         .execute();
@@ -87,7 +88,7 @@ public class MoveItemCommand {
 
             Slot slot2 = handledScreen.getScreenHandler().getSlot(second);
             if (slot2.canInsert(slot1.getStack())) {
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.ERROR)
                         .text("You cannot move items to slot %d as this is an output slot!".formatted(slot1.id))
                         .execute();
@@ -95,6 +96,7 @@ public class MoveItemCommand {
             }
             boolean shouldSwap = slot2.hasStack();
 
+            // todo: test without thread?
             startNewCurrentInteractionThread(new Thread(() -> {
                 handledScreen.onMouseClick(slot1, slot1.id, 0, SlotActionType.PICKUP);
 
@@ -109,7 +111,7 @@ public class MoveItemCommand {
                 handledScreen.onMouseClick(slot1, slot1.id, 0, SlotActionType.PICKUP);
             }));
         } else {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("Current screen does not have an inventory!")
                     .execute();

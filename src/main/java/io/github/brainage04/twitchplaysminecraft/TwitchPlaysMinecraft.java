@@ -1,5 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft;
 
+import io.github.brainage04.twitchplaysminecraft.command.core.ServerCommands;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -13,6 +14,8 @@ public class TwitchPlaysMinecraft implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ServerCommands.initialize();
+
 		LOGGER.info("{} initialized (server side).", MOD_NAME);
 	}
 }

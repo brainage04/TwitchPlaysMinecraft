@@ -95,6 +95,6 @@ public class HUDRenderer implements HudRenderCallback {
         TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
 
         CommandQueueHud.render(renderer, context, getConfig().commandQueueConfig);
-        AdvancementTrackingHud.render(renderer, context, getConfig().advancementTrackingConfig);
+        //AdvancementTrackingHud.render(renderer, context, getConfig().advancementTrackingConfig);
     }
 }

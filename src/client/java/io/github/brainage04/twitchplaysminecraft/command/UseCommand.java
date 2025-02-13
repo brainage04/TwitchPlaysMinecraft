@@ -1,8 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
@@ -28,14 +28,14 @@ public class UseCommand {
         currentUses++;
 
         if (currentUses < maxUses) {
-            new FeedbackBuilder().source(client)
+            new ClientFeedbackBuilder().source(client)
                     .messageType(MessageType.INFO)
                     .text("Used %d/%d...".formatted(currentUses, maxUses))
                     .execute();
         } else {
             stop();
             new KeyBindingBuilder().keys(client.options.useKey).pressed(false).execute();
-            new FeedbackBuilder().source(client)
+            new ClientFeedbackBuilder().source(client)
                     .messageType(MessageType.SUCCESS)
                     .text("Used item %d times.".formatted(maxUses))
                     .execute();
@@ -50,7 +50,7 @@ public class UseCommand {
             Hand hand = client.player.preferredHand == null ? Hand.MAIN_HAND : client.player.preferredHand;
             ItemStack stack = client.player.getStackInHand(hand);
             if (stack.isEmpty()) {
-                new FeedbackBuilder().source(client)
+                new ClientFeedbackBuilder().source(client)
                         .messageType(MessageType.ERROR)
                         .text("No item in hand to use!")
                         .execute();
@@ -88,7 +88,7 @@ public class UseCommand {
         Hand hand = source.getPlayer().preferredHand == null ? Hand.MAIN_HAND : source.getPlayer().preferredHand;
         ItemStack stack = source.getPlayer().getStackInHand(hand);
         if (stack.isEmpty()) {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("No item in hand to use!")
                     .execute();
@@ -96,7 +96,7 @@ public class UseCommand {
             return 0;
         }
 
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text(Text.literal("Attempting to use ")
                         .append(source.getPlayer().getMainHandStack().getFormattedName())

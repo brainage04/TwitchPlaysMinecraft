@@ -1,6 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft;
 
-import io.github.brainage04.twitchplaysminecraft.command.core.ModCommands;
+import io.github.brainage04.twitchplaysminecraft.command.core.ClientCommands;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.event.ModTickEvents;
 import io.github.brainage04.twitchplaysminecraft.event.ModWorldEvents;
@@ -17,7 +17,7 @@ import static io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft.*;
 public class TwitchPlaysMinecraftClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
-		ModCommands.initialize();
+		ClientCommands.initialize();
 		ModTickEvents.initialize();
 		ModWorldEvents.initialize();
 

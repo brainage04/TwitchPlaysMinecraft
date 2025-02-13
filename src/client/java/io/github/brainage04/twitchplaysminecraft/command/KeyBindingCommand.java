@@ -1,8 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
@@ -40,7 +40,7 @@ public class KeyBindingCommand {
             return keyFunction.apply(source.getClient().options);
         } else {
             String validKeys = String.join(", ", KEY_BINDINGS.keySet());
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("No such key \"%s\" found! Valid keys: %s.".formatted(keyName, validKeys))
                     .execute();
@@ -61,7 +61,7 @@ public class KeyBindingCommand {
         KeyBinding key = getKeyBinding(source, keyName);
         if (key == null) return 0;
 
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text("Holding key for %d ticks...".formatted(ticks))
                 .execute();

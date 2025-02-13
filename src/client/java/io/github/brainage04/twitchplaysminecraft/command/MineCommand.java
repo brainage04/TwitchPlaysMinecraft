@@ -3,8 +3,8 @@ package io.github.brainage04.twitchplaysminecraft.command;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
@@ -41,7 +41,7 @@ public class MineCommand {
             if (blocks.isEmpty()) {
                 isMining = false;
                 ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient(clientPlayerEntity.client));
-                new FeedbackBuilder().source(clientPlayerEntity.client)
+                new ClientFeedbackBuilder().source(clientPlayerEntity.client)
                         .messageType(MessageType.SUCCESS)
                         .text("Finished mining blocks.")
                         .execute();
@@ -83,7 +83,7 @@ public class MineCommand {
         }
 
         if (blocks.isEmpty()) {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("No blocks found!")
                     .execute();
@@ -93,7 +93,7 @@ public class MineCommand {
         isMining = true;
         GameOptions options = source.getClient().options;
         new KeyBindingBuilder().source(source).keys(options.attackKey, options.sneakKey, options.forwardKey).execute();
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.ERROR)
                 .text(Text.literal("Player is now mining %d ".formatted(count))
                         .append(block.getName())

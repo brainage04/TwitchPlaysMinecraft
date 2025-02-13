@@ -1,7 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.network.ClientPlayerEntity;
 
@@ -26,7 +26,7 @@ public class LookCommand {
     public static int execute(FabricClientCommandSource source, String lookDirectionString, int degrees) {
         LookDirection lookDirection = getLookDirectionSafely(lookDirectionString.toUpperCase());
         if (lookDirection == null) {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("Invalid direction! Valid directions: %s.".formatted(String.join(", ", Arrays.stream(LookDirection.values()).map(Enum::name).toArray(String[]::new))))
                     .execute();
@@ -51,7 +51,7 @@ public class LookCommand {
                 break;
         }
 
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
                 .text("Now looking %d degrees to the %s.".formatted(degrees, lookDirectionString.toLowerCase()))
                 .execute();

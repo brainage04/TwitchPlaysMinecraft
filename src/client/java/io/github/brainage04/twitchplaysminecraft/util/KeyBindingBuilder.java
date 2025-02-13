@@ -1,7 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
@@ -61,7 +61,7 @@ public class KeyBindingBuilder {
             if (printLogs) {
                 Text[] keyNames = Arrays.stream(keys).map(key -> Text.translatable(key.getTranslationKey())).toArray(Text[]::new);
 
-                new FeedbackBuilder().source(source)
+                new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.SUCCESS)
                         .text(Text.literal("Player is %s holding the ".formatted(message))
                                 .append(combineTextArray(keyNames))

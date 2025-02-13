@@ -3,8 +3,8 @@ package io.github.brainage04.twitchplaysminecraft.command;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.TreeDetector;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
@@ -35,7 +35,7 @@ public class MineTreeCommand {
             }
 
             if (tree.isEmpty()) {
-                new FeedbackBuilder().source(clientPlayerEntity.client)
+                new ClientFeedbackBuilder().source(clientPlayerEntity.client)
                         .messageType(MessageType.SUCCESS)
                         .text("Finished mining tree.")
                         .execute();
@@ -69,7 +69,7 @@ public class MineTreeCommand {
         }
 
         if (tree.isEmpty()) {
-            new FeedbackBuilder().source(source)
+            new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("No tree could be found within %d blocks! Please try again.".formatted(radius))
                     .execute();
@@ -79,7 +79,7 @@ public class MineTreeCommand {
         isMining = true;
         new KeyBindingBuilder().source(source).keys(source.getClient().options.attackKey).execute();
 
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text("Player is now mining a tree...")
                 .execute();

@@ -1,8 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.FeedbackBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
@@ -34,7 +34,7 @@ public class StripMineCommand {
             if (client.player == null) return;
 
             if (blocksBroken >= blocksBrokenLimit) {
-                new FeedbackBuilder().source(client)
+                new ClientFeedbackBuilder().source(client)
                         .messageType(MessageType.SUCCESS)
                         .text("%d blocks have been mined. Stopping...".formatted(blocksBrokenLimit))
                         .execute();
@@ -44,7 +44,7 @@ public class StripMineCommand {
 
             ticksSinceLastBlockBreak++;
             if (ticksSinceLastBlockBreak >= 100) {
-                new FeedbackBuilder().source(client)
+                new ClientFeedbackBuilder().source(client)
                         .messageType(MessageType.ERROR)
                         .text("No blocks mined for 5 seconds! Stopping...")
                         .execute();
@@ -71,7 +71,7 @@ public class StripMineCommand {
         }
         text += "...";
 
-        new FeedbackBuilder().source(source)
+        new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text(text)
                 .execute();

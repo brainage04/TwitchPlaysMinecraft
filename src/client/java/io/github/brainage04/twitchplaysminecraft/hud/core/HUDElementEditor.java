@@ -34,7 +34,7 @@ public class HUDElementEditor extends Screen {
     private Integer previousMenuBackgroundBlurriness;
 
     public HUDElementEditor() {
-        super(Text.of(TwitchPlaysMinecraft.MOD_ID + " Element Editor"));
+        super(Text.of(TwitchPlaysMinecraft.MOD_NAME + " Element Editor"));
 
         this.elementList = loadElementSettings();
 
