@@ -1,0 +1,30 @@
+interactive twitch bot
+    reads chat commands and translates them into in-game actions in Minecraft - done
+    provides useful feedback based on the success and the effects of the commands
+        Minecraft chat feedback - done
+        Twitch chat feedback - done
+
+commands will be categorized into 4 groups (what exactly does this mean?)
+    movement (forward, backward, left, right, jump) - needs testing
+    interaction (mine, place, craft, use items)
+        mine - needs refactoring
+        place - done
+        craft - needs testing
+        use items - done
+        combat (attack, block, run, equip armor) - needs testing
+        voting commands (where to explore next, what to build)
+            todo:
+                !lookforstructure <structure> - votes to look for the specified structure. Uses /locate internally and walks in the general direction of the nearest structure to make experience less boring.
+                !lookforbiome <biome> - votes to look for the specified biome.
+                !buildhouse - votes for building a house.
+                !buildnetherportal - votes for building a nether portal.
+                !fillendportalframe - If within 8 blocks of an end portal frame block, detect if end portal frame is valid, then if the player has enough eyes, then finally actually use the eyes to light the portal
+
+goals - todo
+    note: probably best to use an advancement for goals that don't have advancements.
+        for structure detection, take a look at the nether portal and end portal frame code?
+    build a house
+    build a nether portal - advancement (we need to go deeper?)
+    fill an end portal frame with ender eyes - advancement (the end??)
+    explore all biomes - advancement (adventuring time)
+    kill the ender dragon - advancement (the end.?)

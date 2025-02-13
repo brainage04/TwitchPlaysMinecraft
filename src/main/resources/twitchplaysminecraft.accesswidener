@@ -1,0 +1,26 @@
+accessWidener v2 named
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookResults alternatesWidget Lnet/minecraft/client/gui/screen/recipebook/RecipeAlternativesWidget;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookResults resultButtons Ljava/util/List;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookResults resultCollection Lnet/minecraft/client/gui/screen/recipebook/RecipeResultCollection;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookResults resultCollections Ljava/util/List;
+accessible field net/minecraft/client/gui/screen/ingame/RecipeBookScreen recipeBook Lnet/minecraft/client/gui/screen/recipebook/RecipeBookWidget;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookWidget currentTab Lnet/minecraft/client/gui/screen/recipebook/RecipeGroupButtonWidget;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookWidget recipeBook Lnet/minecraft/client/recipebook/ClientRecipeBook;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookWidget recipeFinder Lnet/minecraft/recipe/RecipeFinder;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookWidget recipesArea Lnet/minecraft/client/gui/screen/recipebook/RecipeBookResults;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookWidget searchField Lnet/minecraft/client/gui/widget/TextFieldWidget;
+accessible method net/minecraft/client/gui/screen/recipebook/RecipeBookWidget setOpen (Z)V
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookWidget toggleCraftableButton Lnet/minecraft/client/gui/widget/ToggleButtonWidget;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeResultCollection entries Ljava/util/List;
+accessible class net/minecraft/client/gui/screen/recipebook/RecipeAlternativesWidget$CraftingAlternativeButtonWidget
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeAlternativesWidget alternativeButtons Ljava/util/List;
+accessible method net/minecraft/block/AbstractBlock onUse (Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;
+accessible method net/minecraft/block/CraftingTableBlock onUse (Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;
+accessible field net/minecraft/client/gui/screen/recipebook/RecipeBookResults lastClickedRecipe Lnet/minecraft/recipe/NetworkRecipeId;
+accessible method net/minecraft/client/gui/screen/ingame/RecipeBookScreen onMouseClick (Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V
+accessible class net/minecraft/client/gui/screen/recipebook/RecipeAlternativesWidget$AlternativeButtonWidget
+accessible method net/minecraft/client/gui/screen/ingame/HandledScreen onMouseClick (Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V
+accessible method net/minecraft/client/MinecraftClient doItemUse ()V
+accessible field net/minecraft/client/network/ClientPlayerEntity client Lnet/minecraft/client/MinecraftClient;
+accessible method net/minecraft/client/MinecraftClient doAttack ()Z
+accessible field net/minecraft/client/network/ClientAdvancementManager advancementProgresses Ljava/util/Map;

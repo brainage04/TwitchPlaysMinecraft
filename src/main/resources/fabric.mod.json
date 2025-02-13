@@ -1,0 +1,49 @@
+{
+	"schemaVersion": 1,
+	"id": "twitchplaysminecraft",
+	"version": "${version}",
+	"name": "TwitchPlaysMinecraft",
+	"description": "A mod that allows Twitch viewers to collectively play Minecraft.",
+	"authors": [
+		"brainage04",
+		"CaptainPuffy"
+	],
+	"contact": {
+		"homepage": "https://github.com/brainage04/TwitchPlaysMinecraft",
+		"sources": "https://github.com/brainage04/TwitchPlaysMinecraft"
+	},
+	"license": "MIT",
+	"icon": "assets/twitchplaysminecraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft"
+		],
+		"client": [
+			"io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraftClient"
+		],
+		"fabric-datagen": [
+			"io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraftDataGenerator"
+		],
+		"modmenu": [
+			"io.github.brainage04.twitchplaysminecraft.modmenu.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"twitchplaysminecraft.mixins.json",
+		{
+			"config": "twitchplaysminecraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	},
+	"accessWidener" : "twitchplaysminecraft.accesswidener"
+}

@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "io.github.brainage04.twitchplaysminecraft.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"MixinHandledScreen",
+		"MixinInGameHud",
+		"MixinMinecraftClient",
+		"MixinRecipeBookScreen",
+		"MixinScreen"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
