@@ -6,6 +6,10 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 
 public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSource> {
+    public ClientFeedbackBuilder() {
+        source = SourceUtils.getSourceFromClient();
+    }
+
     @Override
     protected void sendFeedback() {
         source.sendFeedback(text);
@@ -17,7 +21,7 @@ public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSo
     }
 
     public FeedbackBuilder<FabricClientCommandSource> source(MinecraftClient client) {
-        this.source = SourceUtils.getSourceFromClient(client);
+        source = SourceUtils.getSourceFromClient(client);
         return this;
     }
 }

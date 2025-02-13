@@ -1,10 +1,10 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
-import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.item.BlockItem;
 
@@ -25,7 +25,12 @@ public class JumpPlaceCommand {
             new ClientFeedbackBuilder().messageType(MessageType.SUCCESS)
                     .text("Placed %d/%d.".formatted(blocksPlaced, blocksPlacedLimit))
                     .execute();
-            ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient());
+
+            GameOptions options = MinecraftClient.getInstance().options;
+            new KeyBindingBuilder().keys(options.useKey, options.jumpKey)
+                    .pressed(false)
+                    .execute();
+
             isRunning = false;
             blocksPlaced = 0;
             blocksPlacedLimit = Integer.MAX_VALUE;
@@ -41,18 +46,17 @@ public class JumpPlaceCommand {
             return 0;
         }
 
-        // todo: execute command that moves player to the centre of a block
-        //  (might not be needed, needs testing with edge cases)
-
         // look straight down
         source.getPlayer().setPitch(90);
 
-        // hold jump and right click
         GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source).keys(options.useKey, options.jumpKey).execute();
+        new KeyBindingBuilder().source(source)
+                .keys(options.useKey, options.jumpKey)
+                .execute();
 
         isRunning = true;
         blocksPlacedLimit = count;
+
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text("Jumping and placing %d blocks...".formatted(count))
