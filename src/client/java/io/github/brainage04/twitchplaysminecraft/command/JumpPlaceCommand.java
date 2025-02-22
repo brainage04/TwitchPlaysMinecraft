@@ -2,9 +2,9 @@ package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.item.BlockItem;
 
@@ -26,10 +26,7 @@ public class JumpPlaceCommand {
                     .text("Placed %d/%d.".formatted(blocksPlaced, blocksPlacedLimit))
                     .execute();
 
-            GameOptions options = MinecraftClient.getInstance().options;
-            new KeyBindingBuilder().keys(options.useKey, options.jumpKey)
-                    .pressed(false)
-                    .execute();
+            ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient());
 
             isRunning = false;
             blocksPlaced = 0;

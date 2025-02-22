@@ -24,3 +24,7 @@ accessible method net/minecraft/client/MinecraftClient doItemUse ()V
 accessible field net/minecraft/client/network/ClientPlayerEntity client Lnet/minecraft/client/MinecraftClient;
 accessible method net/minecraft/client/MinecraftClient doAttack ()Z
 accessible field net/minecraft/client/network/ClientAdvancementManager advancementProgresses Ljava/util/Map;
+accessible field net/minecraft/predicate/entity/LootContextPredicate conditions Ljava/util/List;
+accessible field net/minecraft/predicate/entity/LootContextPredicate combinedCondition Ljava/util/function/Predicate;
+accessible field net/minecraft/predicate/ComponentPredicate components Ljava/util/List;
+accessible class net/minecraft/predicate/StatePredicate$Condition

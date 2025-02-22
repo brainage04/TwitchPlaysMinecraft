@@ -38,22 +38,22 @@ public class LookCommand {
 
         switch (lookDirection) {
             case UP:
-                player.setYaw(player.getYaw() - degrees);
-                break;
-            case DOWN:
-                player.setYaw(player.getYaw() + degrees);
-                break;
-            case LEFT:
                 player.setPitch(player.getPitch() - degrees);
                 break;
-            case RIGHT:
+            case DOWN:
                 player.setPitch(player.getPitch() + degrees);
+                break;
+            case LEFT:
+                player.setYaw(player.getYaw() - degrees);
+                break;
+            case RIGHT:
+                player.setYaw(player.getYaw() + degrees);
                 break;
         }
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
-                .text("Now looking %d degrees to the %s.".formatted(degrees, lookDirectionString.toLowerCase()))
+                .text("Now looking %s %d degrees.".formatted(lookDirectionString.toLowerCase(), degrees))
                 .execute();
 
         return 1;

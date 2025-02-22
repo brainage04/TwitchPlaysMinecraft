@@ -1,40 +1,57 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
 public class StringUtils {
-    public static String camelToSnakeCase(String input) {
-        StringBuilder output = new StringBuilder(input.length());
+    public static String screamingSnakeCaseToPascalCase(String string) {
+        char[] input = string.toCharArray();
+        char[] output = new char[input.length];
+        output[0] = input[0];
 
-        output.append(Character.toLowerCase(input.charAt(0)));
+        for (int i = 1; i < string.length(); i++) {
+            if (input[i] == '_') {
+                output[i] = ' ';
+                if (i + 1 < input.length) {
+                    i++;
+                    output[i] = input[i];
+                    continue;
+                }
+            }
 
-        for (int i = 1; i < input.length(); i++) {
-            char currentChar = input.charAt(i);
-
-            if (Character.isUpperCase(currentChar)) {
-                output.append("_").append(Character.toLowerCase(currentChar));
+            if (input[i] >= 'A' && input[i] <= 'Z') {
+                output[i] = (char) (input[i] | 32); // Bitwise lowercase (A -> a)
             } else {
-                output.append(currentChar);
+                output[i] = input[i]; // Non-letters unchanged
             }
         }
 
-        return output.toString();
+        return new String(output);
     }
 
-    public static String makeFirstLetterUppercase(String input) {
-        return Character.toUpperCase(input.charAt(0)) + input.substring(1);
-    }
-
-    public static String combineStringArray(String[] strings) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = 0; i < strings.length; i++) {
-            stringBuilder.append(strings[i]);
-            if (i < strings.length - 2) {
-                stringBuilder.append(", ");
-            } else if (i < strings.length - 1) {
-                stringBuilder.append(" and ");
-            }
+    public static char toUpperCase(char c) {
+        if (c >= 'a' && c <= 'z') {
+            return (char) (c & ~32); // Bitwise uppercase (a -> A)
         }
 
-        return stringBuilder.toString();
+        return c;
+    }
+
+    public static String snakeCaseToPascalCase(String string) {
+        char[] input = string.toCharArray();
+        char[] output = new char[input.length];
+        output[0] = toUpperCase(input[0]);
+
+        for (int i = 1; i < string.length(); i++) {
+            if (input[i] == '_') {
+                output[i] = ' ';
+                if (i + 1 < input.length) {
+                    i++;
+                    output[i] = toUpperCase(input[i]);
+                    continue;
+                }
+            }
+
+            output[i] = input[i];
+        }
+
+        return new String(output);
     }
 }

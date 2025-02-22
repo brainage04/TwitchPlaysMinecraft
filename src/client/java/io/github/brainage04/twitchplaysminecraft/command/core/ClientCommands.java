@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.*;
+import io.github.brainage04.twitchplaysminecraft.command.argument.ClientIdentifierArgumentType;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -18,7 +19,7 @@ public class ClientCommands {
     public static void initialize() {
         // config commands
         ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) ->
-                dispatcher.register(ClientCommandManager.literal(TwitchPlaysMinecraft.MOD_ID + "config")
+                dispatcher.register(ClientCommandManager.literal(TwitchPlaysMinecraft.MOD_ID_SHORT + "config")
                         .executes(context -> {
                             MinecraftClient.getInstance().send(() -> context.getSource().getClient().setScreen(
                                     AutoConfig.getConfigScreen(ModConfig.class, context.getSource().getClient().currentScreen).get()
@@ -29,7 +30,7 @@ public class ClientCommands {
         ));
 
         ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) ->
-                dispatcher.register(ClientCommandManager.literal(TwitchPlaysMinecraft.MOD_ID + "gui")
+                dispatcher.register(ClientCommandManager.literal(TwitchPlaysMinecraft.MOD_ID_SHORT + "gui")
                         .executes(context -> {
                             MinecraftClient.getInstance().send(() -> context.getSource().getClient().setScreen(
                                     new HUDElementEditor()
@@ -70,16 +71,6 @@ public class ClientCommands {
                                                                 IntegerArgumentType.getInteger(context, "count")
                                                         )
                                                 )
-                                        )
-                                )
-                )
-        );
-        MineTreeCommand.initialize();
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("minetree")
-                                .executes(context ->
-                                        MineTreeCommand.execute(
-                                                context.getSource()
                                         )
                                 )
                 )
@@ -167,6 +158,7 @@ public class ClientCommands {
                                 )
                 )
         );
+
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("look")
                                 .then(argument("direction", StringArgumentType.string())
@@ -178,6 +170,30 @@ public class ClientCommands {
                                                                 StringArgumentType.getString(context, "direction"),
                                                                 IntegerArgumentType.getInteger(context, "degrees")
                                                         )
+                                                )
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("lookatblock")
+                                .then(argument("blockName", StringArgumentType.string())
+                                        .executes(context ->
+                                                LookAtBlockCommand.execute(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "blockName")
+                                                )
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("lookatentity")
+                                .then(argument("entityName", StringArgumentType.string())
+                                        .executes(context ->
+                                                LookAtEntityCommand.execute(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "entityName")
                                                 )
                                         )
                                 )
@@ -286,6 +302,18 @@ public class ClientCommands {
                                 )
                 )
         );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("hotbar")
+                                .then(argument("slot", IntegerArgumentType.integer())
+                                        .executes(context ->
+                                                HotbarCommand.execute(
+                                                        context.getSource(),
+                                                        IntegerArgumentType.getInteger(context, "slot")
+                                                )
+                                        )
+                                )
+                )
+        );
 
         // key commands
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
@@ -344,6 +372,50 @@ public class ClientCommands {
                 )
         );
 
-
+        // voting commands
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("setgoal")
+                                .then(argument("advancementId", ClientIdentifierArgumentType.identifier())
+                                        .suggests(ClientIdentifierArgumentType::suggestSelectableAdvancements)
+                                        .executes(context ->
+                                                SetGoalCommand.execute(
+                                                        context.getSource(),
+                                                        ClientIdentifierArgumentType.getIdentifier(context, "advancementId")
+                                                )
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("currentgoal")
+                                .executes(context ->
+                                        CurrentGoalCommand.execute(
+                                                context.getSource()
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("getgoalinfo")
+                                .then(argument("advancementId", ClientIdentifierArgumentType.identifier())
+                                        .suggests(ClientIdentifierArgumentType::suggestAllAdvancements)
+                                        .executes(context ->
+                                                GetGoalInfoCommand.execute(
+                                                        context.getSource(),
+                                                        ClientIdentifierArgumentType.getIdentifier(context, "advancementId")
+                                                )
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("availablegoals")
+                                .executes(context ->
+                                        AvailableGoalsCommand.execute(
+                                                context.getSource()
+                                        )
+                                )
+                )
+        );
     }
 }
