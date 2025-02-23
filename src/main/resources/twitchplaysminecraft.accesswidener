@@ -28,3 +28,4 @@ accessible field net/minecraft/predicate/entity/LootContextPredicate conditions 
 accessible field net/minecraft/predicate/entity/LootContextPredicate combinedCondition Ljava/util/function/Predicate;
 accessible field net/minecraft/predicate/ComponentPredicate components Ljava/util/List;
 accessible class net/minecraft/predicate/StatePredicate$Condition
+accessible class net/minecraft/predicate/entity/LocationPredicate$PositionRange
