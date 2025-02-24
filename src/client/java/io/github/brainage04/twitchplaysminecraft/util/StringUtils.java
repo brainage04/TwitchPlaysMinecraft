@@ -1,31 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
 public class StringUtils {
-    public static String screamingSnakeCaseToPascalCase(String string) {
-        char[] input = string.toCharArray();
-        char[] output = new char[input.length];
-        output[0] = input[0];
-
-        for (int i = 1; i < string.length(); i++) {
-            if (input[i] == '_') {
-                output[i] = ' ';
-                if (i + 1 < input.length) {
-                    i++;
-                    output[i] = input[i];
-                    continue;
-                }
-            }
-
-            if (input[i] >= 'A' && input[i] <= 'Z') {
-                output[i] = (char) (input[i] | 32); // Bitwise lowercase (A -> a)
-            } else {
-                output[i] = input[i]; // Non-letters unchanged
-            }
-        }
-
-        return new String(output);
-    }
-
     public static char toUpperCase(char c) {
         if (c >= 'a' && c <= 'z') {
             return (char) (c & ~32); // Bitwise uppercase (a -> A)
@@ -34,24 +9,66 @@ public class StringUtils {
         return c;
     }
 
-    public static String snakeCaseToPascalCase(String string) {
-        char[] input = string.toCharArray();
-        char[] output = new char[input.length];
-        output[0] = toUpperCase(input[0]);
+    public static char toLowerCase(char c) {
+        if (c >= 'A' && c <= 'Z') {
+            return (char) (c | 32); // Bitwise lowercase (A -> a));
+        }
 
-        for (int i = 1; i < string.length(); i++) {
-            if (input[i] == '_') {
-                output[i] = ' ';
-                if (i + 1 < input.length) {
+        return c;
+    }
+
+    public static String screamingSnakeCaseToPascalCase(String input) {
+        StringBuilder output = new StringBuilder(input.length());
+        output.append(toUpperCase(input.charAt(0)));
+
+        for (int i = 1; i < input.length(); i++) {
+            if (input.charAt(i) == '_') {
+                output.append(' ');
+                if (i + 1 < input.length()) {
                     i++;
-                    output[i] = toUpperCase(input[i]);
+                    output.append(toUpperCase(input.charAt(i)));
                     continue;
                 }
             }
 
-            output[i] = input[i];
+            output.append(toLowerCase(input.charAt(i)));
         }
 
-        return new String(output);
+        return output.toString();
+    }
+
+    public static String snakeCaseToPascalCase(String input, boolean firstCapitalOnly) {
+        StringBuilder output = new StringBuilder(input.length());
+        output.append(toUpperCase(input.charAt(0)));
+
+        for (int i = 1; i < input.length(); i++) {
+            if (input.charAt(i) == '_') {
+                output.append(' ');
+                if (!firstCapitalOnly && i + 1 < input.length()) {
+                    i++;
+                    output.append(toUpperCase(input.charAt(i)));
+                    continue;
+                }
+            }
+
+            output.append(input.charAt(i));
+        }
+
+        return output.toString();
+    }
+
+    public static String pascalCaseToHumanReadable(String input) {
+        StringBuilder output = new StringBuilder(input.length());
+        output.append(toUpperCase(input.charAt(0)));
+
+        for (int i = 1; i < input.length(); i++) {
+            if (input.charAt(i) >= 'A' && input.charAt(i) <= 'Z') {
+                output.append(' ');
+            }
+
+            output.append(input.charAt(i));
+        }
+
+        return output.toString();
     }
 }

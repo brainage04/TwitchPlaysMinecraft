@@ -20,8 +20,7 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject public AdvancementTrackingConfig advancementTrackingConfig = new AdvancementTrackingConfig();
 
     public static class CommandQueueConfig {
-        @ConfigEntry.Gui.CollapsibleObject
-        public CoreSettings coreSettings;
+        @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public CommandQueueConfig() {
             this.coreSettings = new CoreSettings(0, "Command Queue HUD", true, 5, 5, ElementAnchor.TOPLEFT, false, 100);
@@ -29,8 +28,7 @@ public class ModConfig implements ConfigData {
     }
 
     public static class AdvancementTrackingConfig {
-        @ConfigEntry.Gui.CollapsibleObject
-        public CoreSettings coreSettings;
+        @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public AdvancementTrackingConfig() {
             this.coreSettings = new CoreSettings(1, "Advancement Tracking HUD", true, 5, 5, ElementAnchor.TOPRIGHT, false, 100);
@@ -38,10 +36,8 @@ public class ModConfig implements ConfigData {
     }
 
     public static class CoreSettings {
-        @ConfigEntry.Gui.Excluded
-        public int elementId;
-        @ConfigEntry.Gui.Excluded
-        public String elementName;
+        @ConfigEntry.Gui.Excluded public int elementId;
+        @ConfigEntry.Gui.Excluded public String elementName;
 
         public boolean enabled;
         public int x;

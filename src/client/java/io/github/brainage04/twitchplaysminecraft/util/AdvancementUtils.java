@@ -1,5 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
+import io.github.brainage04.twitchplaysminecraft.hud.AdvancementTrackingHud;
+import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.AdvancementProgress;
 import net.minecraft.advancement.PlacedAdvancement;
@@ -13,11 +15,34 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdvancementUtils {
-    public static PlacedAdvancement currentAdvancement = getAdvancementById(Identifier.ofVanilla("story/mine_stone"));
+    private static PlacedAdvancement currentAdvancement = null;
+
+    public static PlacedAdvancement getCurrentAdvancement() {
+        return currentAdvancement;
+    }
+
+    public static void setCurrentAdvancement(PlacedAdvancement currentAdvancement) {
+        AdvancementUtils.currentAdvancement = currentAdvancement;
+        AdvancementTrackingHud.updateLines();
+    }
 
     public static Text getAdvancementName(PlacedAdvancement placedAdvancement) {
-        return placedAdvancement.getAdvancement().name()
-                .orElse(Text.literal(AdvancementUtils.currentAdvancement.getAdvancementEntry().id().toString()));
+        if (placedAdvancement.getAdvancement().name().isPresent()) {
+            return placedAdvancement.getAdvancement().name().get();
+        } else if (placedAdvancement.getAdvancement().display().isPresent()) {
+            return placedAdvancement.getAdvancement().display().get().getTitle();
+        }
+
+        return Text.literal(AdvancementUtils.getCurrentAdvancement().getAdvancementEntry().id().toString());
+    }
+
+    public static Text getAdvancementDescription(PlacedAdvancement placedAdvancement) {
+        if (placedAdvancement.getAdvancement().display().isPresent()) {
+            AdvancementDisplay display = placedAdvancement.getAdvancement().display().get();
+            return display.getDescription();
+        }
+
+        return null;
     }
 
     public static PlacedAdvancement getAdvancementById(Identifier id) {

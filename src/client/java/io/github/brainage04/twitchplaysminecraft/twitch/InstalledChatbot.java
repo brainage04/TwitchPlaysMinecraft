@@ -5,6 +5,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.auth.domain.TwitchScopes;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.hud.CommandQueueHud;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
@@ -15,7 +16,7 @@ import java.util.*;
 import static io.github.brainage04.twitchplaysminecraft.util.MapUtils.getMostCommonString;
 
 public class InstalledChatbot {
-    static final List<String> commandQueue = new ArrayList<>();
+    private static final List<String> commandQueue = new ArrayList<>();
     private static final Map<String, Integer> argumentCounts = new HashMap<>();
     private static String finalCommand = "";
 
@@ -23,9 +24,14 @@ public class InstalledChatbot {
         return commandQueue;
     }
 
+    public static void addToCommandQueue(String command) {
+        getCommandQueue().add(command);
+        CommandQueueHud.updateLines();
+    }
+
     // todo: figure out why this is causing infinite recursion
     public static void processCommandQueue() {
-        for (String command : commandQueue) {
+        for (String command : getCommandQueue()) {
             String[] args = command.substring(finalCommand.length()).split("\\s+", 2);
 
             // command parsing is finished when arguments are showing up empty
@@ -40,7 +46,7 @@ public class InstalledChatbot {
                         .execute();
                 player.networkHandler.sendChatCommand(finalCommand);
 
-                commandQueue.clear();
+                getCommandQueue().clear();
 
                 return;
             }

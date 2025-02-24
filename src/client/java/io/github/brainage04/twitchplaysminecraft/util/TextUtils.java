@@ -2,6 +2,7 @@ package io.github.brainage04.twitchplaysminecraft.util;
 
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class TextUtils {
     public static MutableText combineTextArray(Text[] texts) {
@@ -17,5 +18,9 @@ public class TextUtils {
         }
 
         return output;
+    }
+
+    public static MutableText getTranslatableFromId(Identifier id, String key) {
+        return Text.translatable(key.formatted(id.getNamespace(), id.getPath()));
     }
 }

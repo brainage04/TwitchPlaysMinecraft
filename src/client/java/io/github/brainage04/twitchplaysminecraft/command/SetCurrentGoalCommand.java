@@ -8,7 +8,7 @@ import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class SetGoalCommand {
+public class SetCurrentGoalCommand {
     public static int execute(FabricClientCommandSource source, Identifier advancementId) {
         PlacedAdvancement placedAdvancement = AdvancementUtils.getAdvancementById(advancementId);
         if (placedAdvancement == null) {
@@ -33,12 +33,12 @@ public class SetGoalCommand {
             return 0;
         }
 
-        AdvancementUtils.currentAdvancement = placedAdvancement;
+        AdvancementUtils.setCurrentAdvancement(placedAdvancement);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
                 .text(Text.literal("Advancement ")
-                        .append(AdvancementUtils.getAdvancementName(AdvancementUtils.currentAdvancement))
+                        .append(AdvancementUtils.getAdvancementName(AdvancementUtils.getCurrentAdvancement()))
                         .append(" set as new goal."))
                 .execute();
 

@@ -7,7 +7,7 @@ import net.minecraft.util.Formatting;
 
 public abstract class FeedbackBuilder<T extends CommandSource> {
     protected T source;
-    protected MutableText text = Text.literal("");
+    protected MutableText text = Text.empty();
     private MessageType messageType = MessageType.NONE;
 
     public FeedbackBuilder<T> source(T source) {

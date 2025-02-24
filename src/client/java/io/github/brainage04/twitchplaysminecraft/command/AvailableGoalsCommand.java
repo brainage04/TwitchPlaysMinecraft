@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class AvailableGoalsCommand {
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
-                .text("The following goals can be selected:")
+                .text(Text.literal("The following goals can be selected:").formatted(Formatting.BOLD))
                 .execute();
 
         for (PlacedAdvancement placedAdvancement : availableAdvancements) {
@@ -33,10 +34,14 @@ public class AvailableGoalsCommand {
 
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.INFO)
-                    .text(Text.literal("> %s: ".formatted(placedAdvancement.getAdvancementEntry().id().toString()))
-                            .append(advancementDisplay.getTitle())
+                    .text(Text.empty().append(AdvancementUtils.getAdvancementName(placedAdvancement))
                             .append(" - ")
                             .append(advancementDisplay.getDescription()))
+                    .execute();
+
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.INFO)
+                    .text(Text.literal("> ID: %s".formatted(placedAdvancement.getAdvancementEntry().id().toString())))
                     .execute();
         }
 

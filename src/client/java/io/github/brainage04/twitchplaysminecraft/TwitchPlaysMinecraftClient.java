@@ -5,6 +5,7 @@ import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.event.ModTickEvents;
 import io.github.brainage04.twitchplaysminecraft.event.ModWorldEvents;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDRenderer;
+import io.github.brainage04.twitchplaysminecraft.keybind.ModKeys;
 import io.github.brainage04.twitchplaysminecraft.twitch.InstalledChatbot;
 import io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -18,6 +19,7 @@ public class TwitchPlaysMinecraftClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		ClientCommands.initialize();
+		ModKeys.registerKeys();
 		ModTickEvents.initialize();
 		ModWorldEvents.initialize();
 

@@ -12,7 +12,7 @@ import com.github.twitch4j.common.util.ThreadUtils;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import static io.github.brainage04.twitchplaysminecraft.twitch.InstalledChatbot.commandQueue;
+import static io.github.brainage04.twitchplaysminecraft.twitch.InstalledChatbot.addToCommandQueue;
 
 public class Bot {
     private static final String CLIENT_ID = "xccyzcvcaybxti6jqqq1ts3qqtlmge";
@@ -58,7 +58,7 @@ public class Bot {
             // only process commands (messages with "!" prefix)
             if (!event.getMessage().startsWith("!")) return;
 
-            commandQueue.add(event.getMessage().substring(1));
+            addToCommandQueue(event.getMessage().substring(1));
         });
     }
 }

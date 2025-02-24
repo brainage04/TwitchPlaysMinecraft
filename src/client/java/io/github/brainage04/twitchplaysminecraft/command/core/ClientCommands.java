@@ -374,22 +374,9 @@ public class ClientCommands {
 
         // voting commands
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("setgoal")
-                                .then(argument("advancementId", ClientIdentifierArgumentType.identifier())
-                                        .suggests(ClientIdentifierArgumentType::suggestSelectableAdvancements)
-                                        .executes(context ->
-                                                SetGoalCommand.execute(
-                                                        context.getSource(),
-                                                        ClientIdentifierArgumentType.getIdentifier(context, "advancementId")
-                                                )
-                                        )
-                                )
-                )
-        );
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("currentgoal")
+                        literal("availablegoals")
                                 .executes(context ->
-                                        CurrentGoalCommand.execute(
+                                        AvailableGoalsCommand.execute(
                                                 context.getSource()
                                         )
                                 )
@@ -409,9 +396,31 @@ public class ClientCommands {
                 )
         );
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("availablegoals")
+                        literal("getcurrentgoal")
                                 .executes(context ->
-                                        AvailableGoalsCommand.execute(
+                                        GetCurrentGoalCommand.execute(
+                                                context.getSource()
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("setcurrentgoal")
+                                .then(argument("advancementId", ClientIdentifierArgumentType.identifier())
+                                        .suggests(ClientIdentifierArgumentType::suggestSelectableAdvancements)
+                                        .executes(context ->
+                                                SetCurrentGoalCommand.execute(
+                                                        context.getSource(),
+                                                        ClientIdentifierArgumentType.getIdentifier(context, "advancementId")
+                                                )
+                                        )
+                                )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("clearcurrentgoal")
+                                .executes(context ->
+                                        ClearCurrentGoalCommand.execute(
                                                 context.getSource()
                                         )
                                 )

@@ -22,11 +22,11 @@ public class RomanNumber {
         map.put(1, "I");
     }
 
-    public static String toRoman(int number) {
-        int l =  map.floorKey(number);
-        if (number == l) {
-            return map.get(number);
+    public static String toRoman(Number number) {
+        int l =  map.floorKey(number.intValue());
+        if (number.intValue() == l) {
+            return map.get(number.intValue());
         }
-        return map.get(l) + toRoman(number - l);
+        return map.get(l) + toRoman(number.intValue() - l);
     }
 }
