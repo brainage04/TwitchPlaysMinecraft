@@ -5,11 +5,13 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.*;
 import io.github.brainage04.twitchplaysminecraft.command.argument.ClientIdentifierArgumentType;
+import io.github.brainage04.twitchplaysminecraft.command.commandqueue.CommandQueueCommands;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
@@ -426,5 +428,48 @@ public class ClientCommands {
                                 )
                 )
         );
+
+        // other commands
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("regenerateauthurl")
+                                .executes(context ->
+                                        RegenerateAuthUrlCommand.execute(
+                                                context.getSource()
+                                        )
+                                )
+                )
+        );
+
+        // dev env commands
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal("commandqueue")
+                                    .then(literal("add")
+                                            .then(argument("command", StringArgumentType.string())
+                                                    .executes(context ->
+                                                            CommandQueueCommands.executeAdd(
+                                                                    context.getSource(),
+                                                                    StringArgumentType.getString(context, "command")
+                                                            )
+                                                    )
+                                            )
+                                    )
+                                    .then(literal("clear")
+                                            .executes(context ->
+                                                    CommandQueueCommands.executeClear(
+                                                            context.getSource()
+                                                    )
+                                            )
+                                    )
+                                    .then(literal("process")
+                                            .executes(context ->
+                                                    CommandQueueCommands.executeProcess(
+                                                            context.getSource()
+                                                    )
+                                            )
+                                    )
+                    )
+            );
+        }
     }
 }

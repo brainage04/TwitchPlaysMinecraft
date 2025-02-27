@@ -31,8 +31,8 @@ public class LookAtEntityCommand {
         ClientPlayerEntity player = source.getClient().player;
         if (player == null) return 0;
 
-        // find nearest mobs (within 16 blocks)
-        int radius = 16;
+        // find nearest mobs (within 20 blocks)
+        int radius = 20;
         List<LivingEntity> nearbyLivingEntities = EntityUtils.getLivingEntities(player, radius);
 
         if (nearbyLivingEntities.isEmpty()) {

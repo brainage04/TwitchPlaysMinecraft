@@ -34,7 +34,7 @@ public class AdvancementTrackingHud {
     }
 
     public static void render(TextRenderer renderer, DrawContext context, ModConfig.AdvancementTrackingConfig config) {
-        if (!config.coreSettings.enabled) return;
+        if (!config.coreSettings.displayEnabled) return;
 
         if (lines.isEmpty()) updateLines();
 

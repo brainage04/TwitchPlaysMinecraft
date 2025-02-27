@@ -13,6 +13,7 @@ public class StripMineCommand {
     private static int blocksBroken = 0;
     private static int blocksBrokenLimit = Integer.MAX_VALUE;
     private static int ticksSinceLastBlockBreak = 0;
+    private static final int secondsSinceLastBlockBreakLimit = 15;
 
     private static void stop() {
         isMining = false;
@@ -43,10 +44,10 @@ public class StripMineCommand {
             }
 
             ticksSinceLastBlockBreak++;
-            if (ticksSinceLastBlockBreak >= 100) {
+            if (ticksSinceLastBlockBreak >= secondsSinceLastBlockBreakLimit * 20) {
                 new ClientFeedbackBuilder().source(client)
                         .messageType(MessageType.ERROR)
-                        .text("No blocks mined for 5 seconds! Stopping...")
+                        .text("No blocks mined for %d seconds! Stopping...".formatted(secondsSinceLastBlockBreakLimit))
                         .execute();
 
                 stop();

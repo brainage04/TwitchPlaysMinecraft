@@ -32,7 +32,7 @@ public class CommandQueueHud {
     }
 
     public static void render(TextRenderer renderer, DrawContext context, ModConfig.CommandQueueConfig config) {
-        if (!config.coreSettings.enabled) return;
+        if (!config.coreSettings.displayEnabled) return;
 
         if (lines.isEmpty()) updateLines();
 

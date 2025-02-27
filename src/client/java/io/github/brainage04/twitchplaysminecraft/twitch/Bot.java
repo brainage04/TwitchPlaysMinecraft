@@ -9,10 +9,14 @@ import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.util.ThreadUtils;
+import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static io.github.brainage04.twitchplaysminecraft.twitch.InstalledChatbot.addToCommandQueue;
+import static io.github.brainage04.twitchplaysminecraft.util.ConfigUtils.getConfig;
 
 public class Bot {
     private static final String CLIENT_ID = "xccyzcvcaybxti6jqqq1ts3qqtlmge";
@@ -22,6 +26,7 @@ public class Bot {
     private final DeviceFlowController controller;
     private final CredentialManager credentialManager;
     private ITwitchClient client;
+    private String username;
 
     public TwitchIdentityProvider getIdentityProvider() {
         return identityProvider;
@@ -53,12 +58,33 @@ public class Bot {
                 .withEnableHelix(true)
                 .withDefaultAuthToken(credential)
                 .build();
+        username = credential.getUserName();
 
         client.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
             // only process commands (messages with "!" prefix)
             if (!event.getMessage().startsWith("!")) return;
 
-            addToCommandQueue(event.getMessage().substring(1));
+            String command = event.getMessage().substring(1);
+
+            if (getConfig().commandQueueConfig.enabled) {
+                addToCommandQueue(command);
+            } else {
+                ClientPlayNetworkHandler clientPlayNetworkHandler = MinecraftClient.getInstance().getNetworkHandler();
+                if (clientPlayNetworkHandler == null) return;
+                clientPlayNetworkHandler.sendChatCommand(command);
+            }
         });
+    }
+
+    public void sendChatMessage(String message) {
+        if (username.isEmpty()) {
+            TwitchPlaysMinecraft.LOGGER.error("Username is empty - this shouldn't happen!");
+            return;
+        }
+
+        if (!client.getChat().isChannelJoined(username)) {
+            client.getChat().joinChannel(username);
+        }
+        client.getChat().sendMessage(username, message);
     }
 }

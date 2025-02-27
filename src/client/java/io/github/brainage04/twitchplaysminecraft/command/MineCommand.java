@@ -24,30 +24,58 @@ import net.minecraft.world.World;
 import java.util.*;
 
 public class MineCommand {
-    private static final int radius = 8;
-
     private static boolean isMining = false;
-    private static TreeSet<BlockPos> blocks = new TreeSet<>();
+    private static final TreeSet<BlockPos> blocks = new TreeSet<>();
+    private static int ticksSinceLastBlockBreak = 0;
+    private static final int secondsSinceLastBlockBreakLimit = 15;
+
+    private static void stop() {
+        isMining = false;
+        ticksSinceLastBlockBreak = 0;
+    }
 
     public static void initialize() {
         ClientPlayerBlockBreakEvents.AFTER.register(((clientWorld, clientPlayerEntity, blockPos, blockState) -> {
             if (!isMining) return;
 
+            ticksSinceLastBlockBreak = 0;
+
             if (blocks.isEmpty()) {
-                isMining = false;
-                ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient(clientPlayerEntity.client));
                 new ClientFeedbackBuilder().source(clientPlayerEntity.client)
                         .messageType(MessageType.SUCCESS)
                         .text("Finished mining blocks.")
                         .execute();
+
+                ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient(clientPlayerEntity.client));
+
+                stop();
             }
         }));
         
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isMining) return;
             if (client.player == null) return;
-            if (client.world == null) return;
-            if (blocks.isEmpty()) return;
+
+            ticksSinceLastBlockBreak++;
+            if (ticksSinceLastBlockBreak >= secondsSinceLastBlockBreakLimit * 20) {
+                new ClientFeedbackBuilder().source(client)
+                        .messageType(MessageType.ERROR)
+                        .text("No blocks mined for %d seconds! Stopping...".formatted(secondsSinceLastBlockBreakLimit))
+                        .execute();
+
+                stop();
+            }
+
+            if (blocks.isEmpty()) {
+                new ClientFeedbackBuilder().source(client)
+                        .messageType(MessageType.ERROR)
+                        .text("Still mining with no blocks left to mine - this shouldn't happen!")
+                        .execute();
+
+                stop();
+
+                return;
+            }
 
             BlockPos desiredBlockPos = blocks.first();
 
@@ -58,10 +86,10 @@ public class MineCommand {
         });
     }
 
-    // todo: wtf do i do with this again?
-    public static TreeSet<BlockPos> getLogsInTree(World world, BlockPos start, int limit) {
-        Block desiredBlock = world.getBlockState(start).getBlock();
-        TreeSet<BlockPos> blocks = new TreeSet<>(Comparator.comparingInt(start::getManhattanDistance));
+    public static void updateBlocks(ClientPlayerEntity player, Block desiredBlock, int limit) {
+        World world = player.getWorld();
+        BlockPos start = player.getBlockPos();
+
         Set<BlockPos> visited = new HashSet<>();
         Queue<BlockPos> queue = new LinkedList<>();
 
@@ -93,41 +121,16 @@ public class MineCommand {
 
             visited.add(pos);
         }
-
-        return blocks;
     }
 
-    private static TreeSet<BlockPos> getBlocks(ClientPlayerEntity player, Block block, int limit) {
-        BlockPos center = player.getBlockPos();
-        TreeSet<BlockPos> blocks = new TreeSet<>(Comparator.comparingInt(center::getManhattanDistance));
-
-        for (int x = center.getX() - radius; x < center.getX() + radius; x++) {
-            for (int y = center.getY() - radius; y < center.getY() + radius; y++) {
-                for (int z = center.getZ() - radius; z < center.getZ() + radius; z++) {
-                    BlockPos blockPos = new BlockPos(x, y, z);
-
-                    if (player.clientWorld.getBlockState(blockPos).isOf(block)) {
-                        blocks.add(blockPos);
-                    }
-                }
-            }
-        }
-
-        while (blocks.size() > limit) {
-            blocks.removeLast();
-        }
-
-        return blocks;
-    }
-
-    private static final String[] INVALID_BLOCKS = new String[]{
+    private static final List<String> INVALID_BLOCKS = List.of(
             "air",
             "water",
             "lava"
-    };
+    );
 
     public static int execute(FabricClientCommandSource source, String blockName, int count) {
-        if (Arrays.stream(INVALID_BLOCKS).anyMatch(blockName.toLowerCase()::matches)) {
+        if (INVALID_BLOCKS.contains(blockName.toLowerCase())) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("You cannot mine \"%s\"! Please try again.".formatted(blockName))
@@ -144,13 +147,45 @@ public class MineCommand {
             return 0;
         }
 
-        blocks = getBlocks(source.getPlayer(), block, count);
+        // check for blocks within reach (radius of 3)
+        // when block is found, perform flood fill algorithm to get all blocks in the same vein
+        // repeat process and increment radius up to 20
+
+        int radius = 3;
+        updateBlocks(source.getPlayer(), block, count);
+        if (blocks.size() < count) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.INFO)
+                    .text(Text.literal("Less than %d ".formatted(count))
+                            .append(block.getName())
+                            .append(" blocks found within 3 blocks. Checking up to 20 blocks..."))
+                    .execute();
+
+            radius++;
+            while (radius <= 20) {
+                updateBlocks(source.getPlayer(), block, count);
+                if (blocks.size() >= count) break;
+
+                radius++;
+            }
+        }
+
         if (blocks.isEmpty()) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("No blocks found!")
+                    .text(Text.literal("No ")
+                            .append(block.getName())
+                            .append(" blocks found!"))
                     .execute();
+
             return 0;
+        } else if (blocks.size() < count) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.INFO)
+                    .text(Text.literal("Only %d/%d ".formatted(blocks.size(), count))
+                            .append(block.getName())
+                            .append(" blocks found."))
+                    .execute();
         }
 
         GameOptions options = source.getClient().options;
@@ -161,12 +196,13 @@ public class MineCommand {
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
-                .text(Text.literal("Player is now mining %d ".formatted(count))
+                .text(Text.literal("Player is now mining %d ".formatted(blocks.size()))
                         .append(block.getName())
-                        .append("s..."))
+                        .append(" blocks..."))
                 .execute();
 
         isMining = true;
+
 
         return 1;
     }

@@ -38,7 +38,7 @@ public class LookAtBlockCommand {
                     .messageType(MessageType.INFO)
                     .text(Text.literal("No ")
                             .append(block.getName())
-                            .append(" found within 3 blocks. Checking up to 20 blocks..."))
+                            .append(" block found within 3 blocks. Checking up to 20 blocks..."))
                     .execute();
 
             radius++;
@@ -55,7 +55,7 @@ public class LookAtBlockCommand {
                     .messageType(MessageType.ERROR)
                     .text(Text.literal("No ")
                             .append(block.getName())
-                            .append(" found within 20 blocks!"))
+                            .append(" block found within 20 blocks!"))
                     .execute();
             return 0;
         }

@@ -2,7 +2,6 @@ package io.github.brainage04.twitchplaysminecraft.datagen;
 
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
-import io.github.brainage04.twitchplaysminecraft.util.LangUtils;
 import io.github.brainage04.twitchplaysminecraft.util.StringUtils;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
@@ -16,9 +15,9 @@ public class EnglishLangProvider extends FabricLanguageProvider {
         super(dataOutput, registryLookup);
     }
 
-    private final String prefix = "text.autoconfig.%s.option".formatted(TwitchPlaysMinecraft.MOD_ID);
+    private final String autoConfigPrefix = "text.autoconfig.%s.option".formatted(TwitchPlaysMinecraft.MOD_ID);
 
-    private void generatedReflectedTranslations(Class<?> clazz, String baseKey, TranslationBuilder translationBuilder) {
+    private void generateReflectedTranslations(Class<?> clazz, String baseKey, TranslationBuilder translationBuilder) {
         for (Field field : clazz.getFields()) {
             String newBaseKey = "%s.%s".formatted(baseKey, field.getName());
 
@@ -28,7 +27,12 @@ public class EnglishLangProvider extends FabricLanguageProvider {
             if (field.getType().isEnum()) continue;
             if (field.getType() == String.class) continue;
 
-            generatedReflectedTranslations(field.getType(), newBaseKey, translationBuilder);
+            generateReflectedTranslations(field.getType(), newBaseKey, translationBuilder);
+        }
+    }
+    private void addAutomaticTranslations(String[] keys, String packageName, TranslationBuilder translationBuilder) {
+        for (String key : keys) {
+            translationBuilder.add("%s.%s.%s".formatted(packageName, TwitchPlaysMinecraft.MOD_ID, key), StringUtils.pascalCaseToHumanReadable(key));
         }
     }
 
@@ -37,21 +41,20 @@ public class EnglishLangProvider extends FabricLanguageProvider {
         // config editor
         translationBuilder.add(
                 "text.autoconfig.%s.title".formatted(TwitchPlaysMinecraft.MOD_ID),
-                "BrainageHUD Config Editor"
+                "%s Config Editor".formatted(TwitchPlaysMinecraft.MOD_NAME)
         );
 
         // keybinds
-        translationBuilder.add(
-                LangUtils.CONFIG_KEYBIND_KEY,
-                "Open Config"
-        );
-
-        translationBuilder.add(
-                LangUtils.GUI_KEYBIND_KEY,
-                "Edit GUI"
+        addAutomaticTranslations(
+                new String[]{
+                        "openConfigEditor",
+                        "openElementEditor"
+                },
+                "keybind",
+                translationBuilder
         );
 
         // config
-        generatedReflectedTranslations(ModConfig.class, prefix, translationBuilder);
+        generateReflectedTranslations(ModConfig.class, autoConfigPrefix, translationBuilder);
     }
 }

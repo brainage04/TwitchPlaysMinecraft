@@ -20,9 +20,11 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject public AdvancementTrackingConfig advancementTrackingConfig = new AdvancementTrackingConfig();
 
     public static class CommandQueueConfig {
+        public boolean enabled;
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public CommandQueueConfig() {
+            this.enabled = true;
             this.coreSettings = new CoreSettings(0, "Command Queue HUD", true, 5, 5, ElementAnchor.TOPLEFT, false, 100);
         }
     }
@@ -31,7 +33,7 @@ public class ModConfig implements ConfigData {
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public AdvancementTrackingConfig() {
-            this.coreSettings = new CoreSettings(1, "Advancement Tracking HUD", true, 5, 5, ElementAnchor.TOPRIGHT, false, 100);
+            this.coreSettings = new CoreSettings(1, "Advancement Tracking HUD", true, -5, 5, ElementAnchor.TOPRIGHT, false, 100);
         }
     }
 
@@ -39,7 +41,7 @@ public class ModConfig implements ConfigData {
         @ConfigEntry.Gui.Excluded public int elementId;
         @ConfigEntry.Gui.Excluded public String elementName;
 
-        public boolean enabled;
+        public boolean displayEnabled;
         public int x;
         public int y;
         public ElementAnchor elementAnchor;
@@ -47,11 +49,11 @@ public class ModConfig implements ConfigData {
         public boolean overrideGlobalBackdropOpacity;
         @ConfigEntry.BoundedDiscrete(min = 0, max = 255) public int backdropOpacity;
 
-        public CoreSettings(int elementId, String elementName, boolean enabled, int x, int y, ElementAnchor elementAnchor, boolean overrideGlobalBackdropOpacity, int backdropOpacity) {
+        public CoreSettings(int elementId, String elementName, boolean displayEnabled, int x, int y, ElementAnchor elementAnchor, boolean overrideGlobalBackdropOpacity, int backdropOpacity) {
             this.elementId = elementId;
             this.elementName = elementName;
 
-            this.enabled = enabled;
+            this.displayEnabled = displayEnabled;
             this.x = x;
             this.y = y;
             this.elementAnchor = elementAnchor;

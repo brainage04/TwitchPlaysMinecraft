@@ -6,19 +6,22 @@ import com.github.twitch4j.auth.domain.TwitchScopes;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.hud.CommandQueueHud;
+import io.github.brainage04.twitchplaysminecraft.util.CommandUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 
 import java.util.*;
 
-import static io.github.brainage04.twitchplaysminecraft.util.MapUtils.getMostCommonString;
-
 public class InstalledChatbot {
+    private static Bot bot;
     private static final List<String> commandQueue = new ArrayList<>();
-    private static final Map<String, Integer> argumentCounts = new HashMap<>();
-    private static String finalCommand = "";
+    private static String activationUri = "";
+
+    public static Bot getBot() {
+        return bot;
+    }
 
     public static List<String> getCommandQueue() {
         return commandQueue;
@@ -29,51 +32,91 @@ public class InstalledChatbot {
         CommandQueueHud.updateLines();
     }
 
-    // todo: figure out why this is causing infinite recursion
-    public static void processCommandQueue() {
-        for (String command : getCommandQueue()) {
-            String[] args = command.substring(finalCommand.length()).split("\\s+", 2);
+    public static void clearCommandQueue() {
+        getCommandQueue().clear();
+        CommandQueueHud.updateLines();
+    }
 
-            // command parsing is finished when arguments are showing up empty
-            if (args[0].isEmpty()) {
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                if (player == null) return;
+    public static String getActivationUri() {
+        return activationUri;
+    }
 
-                FabricClientCommandSource source = ((FabricClientCommandSource) player.networkHandler.getCommandSource());
-                new ClientFeedbackBuilder().source(source)
-                        .messageType(MessageType.INFO)
-                        .text("Attempting to execute command: /%s".formatted(finalCommand))
-                        .execute();
-                player.networkHandler.sendChatCommand(finalCommand);
+    public static MutableText getAuthText() {
+        return Text.literal("In order for viewers to receive command feedback via Twitch chat, you must authorise TPM Bot to send messages on your behalf by clicking ")
+                .append(Text.literal("here")
+                        .setStyle(
+                                Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+                                                InstalledChatbot.getActivationUri()))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Text.literal("Opens the URL to authorise TPM Bot in your default browser when clicked."))))
+                        .formatted(Formatting.UNDERLINE))
+                .append(".");
+    }
 
-                getCommandQueue().clear();
-
-                return;
-            }
-
-            argumentCounts.put(args[0], argumentCounts.getOrDefault(args[0], 0) + 1);
-        }
-
-        finalCommand += getMostCommonString(argumentCounts);
-        argumentCounts.clear();
-        processCommandQueue();
+    public static MutableText getRegenText() {
+        return Text.literal("\"")
+                .append(Text.literal("INCORRECT CODE!").formatted(Formatting.RED))
+                .append("\"? Request a new one by clicking ")
+                .append(Text.literal("here")
+                        .setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                        "/regenerateauthurl"))
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        Text.literal("Runs \"/regenerateauthurl\" when clicked."))))
+                        .formatted(Formatting.UNDERLINE))
+                .append(" or with \"/regenerateauthurl\".");
     }
 
     public static void intitialize() {
         // https://gist.github.com/iProdigy/76bc18a8e601243aa021f31fb2a4d121
-        Bot bot = new Bot();
-        DeviceAuthorization req = bot.getController().startOAuth2DeviceAuthorizationGrantType(
-                bot.getIdentityProvider(),
+        bot = new Bot();
+        DeviceAuthorization req = getBot().getController().startOAuth2DeviceAuthorizationGrantType(
+                getBot().getIdentityProvider(),
                 Arrays.asList(TwitchScopes.CHAT_READ, TwitchScopes.CHAT_EDIT),
                 resp -> {
                     OAuth2Credential token = resp.getCredential();
                     if (token != null) {
-                        bot.start(token);
+                        getBot().start(token);
+
+                        MinecraftClient client = MinecraftClient.getInstance();
+                        if (client == null) return;
+                        new ClientFeedbackBuilder().source(client)
+                                .messageType(MessageType.SUCCESS)
+                                .text("TPM Bot has now been authorized.")
+                                .execute();
+                        InstalledChatbot.activationUri = "";
                     } else {
                         TwitchPlaysMinecraft.LOGGER.warn("Could not obtain device flow token due to {}", resp.getError());
                     }
                 }
         );
-        TwitchPlaysMinecraft.LOGGER.info("The user should now visit: {}", req.getCompleteUri());
+        activationUri = req.getCompleteUri();
+        TwitchPlaysMinecraft.LOGGER.info("The user should now visit: {}", getActivationUri());
+    }
+
+    public static void regenerate() {
+        intitialize();
+
+        if (MinecraftClient.getInstance().player == null) return;
+
+        new ClientFeedbackBuilder().source(MinecraftClient.getInstance())
+                .messageType(MessageType.INFO)
+                .text(getAuthText())
+                .execute();
+        new ClientFeedbackBuilder().source(MinecraftClient.getInstance())
+                .messageType(MessageType.INFO)
+                .text(getRegenText())
+                .execute();
+    }
+
+    public static void processCommandQueue(MinecraftClient client) {
+        String command = CommandUtils.getMostPopularCommand(getCommandQueue());
+        new ClientFeedbackBuilder().source(client)
+                .messageType(MessageType.INFO)
+                .text("Most popular command: %s".formatted(command));
+
+        if (client.getNetworkHandler() == null) return;
+        client.getNetworkHandler().sendChatCommand(command);
+
+        clearCommandQueue();
     }
 }
