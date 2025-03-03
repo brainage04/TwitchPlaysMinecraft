@@ -1,6 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.enums.ActionType;
+import io.github.brainage04.twitchplaysminecraft.util.EnumUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -8,32 +10,18 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 
-import static io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders.lookDirectionSuggestionsStringArray;
+import static io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders.cardinalDirectionSuggestionStrings;
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.millisecondsBetweenSteps;
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.startNewCurrentInteractionThread;
 import static io.github.brainage04.twitchplaysminecraft.util.ThreadUtils.sleepSafely;
 
 public class MoveItemCommand {
-    public enum ActionType {
-        MOVE,
-        SWAP,
-        QUICKMOVE
-    }
-
-    private static ActionType getActionTypeSafely(String name) {
-        try {
-            return ActionType.valueOf(name);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
     public static int execute(FabricClientCommandSource source, int first, int second, String actionTypeString) {
-        ActionType actionType = getActionTypeSafely(actionTypeString);
+        ActionType actionType = EnumUtils.getEnumSafely(ActionType.class, actionTypeString);
         if (actionType == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("Invalid action type! Valid action types: %s.".formatted(String.join(", ", lookDirectionSuggestionsStringArray)))
+                    .text("Invalid action type! Valid action types: %s.".formatted(String.join(", ", cardinalDirectionSuggestionStrings)))
                     .execute();
             return 0;
         }

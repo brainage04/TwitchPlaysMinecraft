@@ -5,6 +5,7 @@ import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
+@SuppressWarnings("SameReturnValue")
 public class HotbarCommand {
     public static int execute(FabricClientCommandSource source, int index) {
         new KeyBindingBuilder().source(source)

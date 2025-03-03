@@ -5,11 +5,11 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 
 public class RegistryUtils {
-    public static String getKeyName(RegistryKey<?> key, boolean firstCapitalOnly) {
-        return StringUtils.snakeCaseToPascalCase(key.getValue().getPath(), firstCapitalOnly);
+    public static String getKeyName(RegistryKey<?> key) {
+        return StringUtils.snakeCaseToHumanReadable(key.getValue().getPath(), true, false);
     }
 
-    public static String getEntryName(RegistryEntry<?> entry, boolean firstCapitalOnly) {
-        return StringUtils.snakeCaseToPascalCase(Identifier.of(entry.getIdAsString()).getPath(), firstCapitalOnly);
+    public static String getEntryName(RegistryEntry<?> entry) {
+        return StringUtils.snakeCaseToHumanReadable(Identifier.of(entry.getIdAsString()).getPath(), true, false);
     }
 }

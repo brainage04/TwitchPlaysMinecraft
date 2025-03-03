@@ -1,20 +1,12 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.EnumUtils;
+import io.github.brainage04.twitchplaysminecraft.util.enums.LookDirection;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.network.ClientPlayerEntity;
-
-import java.util.Arrays;
 
 public class LookCommand {
-    public enum LookDirection {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT
-    }
-
     private static LookDirection getLookDirectionSafely(String value) {
         try {
             return LookDirection.valueOf(value);
@@ -28,28 +20,13 @@ public class LookCommand {
         if (lookDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("Invalid direction! Valid directions: %s.".formatted(String.join(", ", Arrays.stream(LookDirection.values()).map(Enum::name).toArray(String[]::new))))
+                    .text("Invalid direction! Valid directions: %s.".formatted(EnumUtils.joinEnumValues(LookDirection.class)))
                     .execute();
             return 0;
         }
 
-        ClientPlayerEntity player = source.getClient().player;
-        if (player == null) return 0;
-
-        switch (lookDirection) {
-            case UP:
-                player.setPitch(player.getPitch() - degrees);
-                break;
-            case DOWN:
-                player.setPitch(player.getPitch() + degrees);
-                break;
-            case LEFT:
-                player.setYaw(player.getYaw() - degrees);
-                break;
-            case RIGHT:
-                player.setYaw(player.getYaw() + degrees);
-                break;
-        }
+        if (source.getClient().player == null) return 0;
+        lookDirection.consumer.accept(source.getClient().player, degrees);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)

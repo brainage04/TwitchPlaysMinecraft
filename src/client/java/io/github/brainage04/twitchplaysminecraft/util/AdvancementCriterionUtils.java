@@ -155,7 +155,7 @@ public class AdvancementCriterionUtils {
         for (LootCondition condition : predicate.conditions) {
             Identifier conditionId = Registries.LOOT_CONDITION_TYPE.getId(condition.getType());
             if (conditionId == null) continue;
-            textList.add(Text.literal(StringUtils.screamingSnakeCaseToPascalCase(conditionId.getPath())));
+            textList.add(Text.literal(StringUtils.snakeCaseToHumanReadable(conditionId.getPath(), true, true)));
         }
     }
 
@@ -185,7 +185,7 @@ public class AdvancementCriterionUtils {
             if (componentId == null) continue;
 
             textList.add(Text.literal("> ")
-                    .append(StringUtils.snakeCaseToPascalCase(componentId.getPath(), true))
+                    .append(StringUtils.snakeCaseToHumanReadable(componentId.getPath(), true, true))
                     .append(": ")
                     .append(component.value().toString()));
         }
@@ -242,7 +242,7 @@ public class AdvancementCriterionUtils {
         textList.add(Text.literal("Structures:"));
 
         for (RegistryEntry<Structure> entry : predicate) {
-            textList.add(Text.literal(RegistryUtils.getEntryName(entry, false)));
+            textList.add(Text.literal(RegistryUtils.getEntryName(entry)));
         }
     }
 
@@ -251,12 +251,12 @@ public class AdvancementCriterionUtils {
 
         if (from != null) {
             text.append("from the ")
-                        .append(RegistryUtils.getKeyName(from, false))
+                        .append(RegistryUtils.getKeyName(from))
                         .append(" Dimension");
         }
         if (to != null) {
             text.append("to the ")
-                        .append(RegistryUtils.getKeyName(to, false))
+                        .append(RegistryUtils.getKeyName(to))
                         .append(" Dimension");
         }
 
@@ -293,7 +293,7 @@ public class AdvancementCriterionUtils {
         parsePositionRange(predicate.position().orElse(null));
         parseBiomes(predicate.biomes().orElse(null));
         parseStructures(predicate.structures().orElse(null));
-        predicate.dimension().ifPresent(registryKey -> textList.add(Text.literal("Dimension: %s".formatted(RegistryUtils.getKeyName(registryKey, false)))));
+        predicate.dimension().ifPresent(registryKey -> textList.add(Text.literal("Dimension: %s".formatted(RegistryUtils.getKeyName(registryKey)))));
         predicate.smokey().ifPresent(p -> textList.add(Text.literal("Smokey: %s".formatted(p.toString()))));
         predicate.light().ifPresent(p -> textList.add(Text.literal("Light level: %s".formatted(MathUtils.parseNumberRange(p.range())))));
         parseBlockPredicate(predicate.block().orElse(null));

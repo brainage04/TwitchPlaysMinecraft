@@ -46,9 +46,27 @@ public class ClientCommands {
         AttackCommand.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("attack")
-                                .executes(context ->
-                                        AttackCommand.execute(
-                                                context.getSource()
+                                .then(literal("stop")
+                                        .executes(context ->
+                                                AttackCommand.stop(
+                                                        context.getSource()
+                                                )
+                                        )
+                                )
+                                .then(literal("start")
+                                        .executes(context ->
+                                                AttackCommand.execute(
+                                                        context.getSource()
+                                                )
+                                        )
+                                        .then(argument("entity", ClientIdentifierArgumentType.identifier())
+                                                .suggests(ClientSuggestionProviders.ENTITY_TYPES)
+                                                .executes(context ->
+                                                        AttackCommand.execute(
+                                                                context.getSource(),
+                                                                ClientIdentifierArgumentType.getIdentifier(context, "entity")
+                                                        )
+                                                )
                                         )
                                 )
                 )
@@ -101,6 +119,23 @@ public class ClientCommands {
                                                 )
                                         )
                                 )
+                )
+        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("bridge")
+                                .then(argument("direction", StringArgumentType.string())
+                                        .suggests(ClientSuggestionProviders.CARDINAL_DIRECTION_SUGGESTIONS)
+                                        .then(argument("count", IntegerArgumentType.integer())
+                                                .executes(context ->
+                                                        BridgeCommand.execute(
+                                                                context.getSource(),
+                                                                StringArgumentType.getString(context, "direction"),
+                                                                IntegerArgumentType.getInteger(context, "count")
+                                                        )
+                                                )
+                                        )
+                                )
+
                 )
         );
 
@@ -322,7 +357,7 @@ public class ClientCommands {
                         literal("presskey")
                                 .then(argument("key", StringArgumentType.string())
                                         .executes(context ->
-                                                KeyBindingCommand.executeTimedHold(
+                                                KeyBindingCommands.executeTimedHold(
                                                         context.getSource(),
                                                         StringArgumentType.getString(context, "key"),
                                                         250
@@ -335,14 +370,14 @@ public class ClientCommands {
                         literal("holdkey")
                                 .then(argument("key", StringArgumentType.string())
                                         .executes(context ->
-                                                KeyBindingCommand.executeHold(
+                                                KeyBindingCommands.executeHold(
                                                         context.getSource(),
                                                         StringArgumentType.getString(context, "key")
                                                 )
                                         )
                                         .then(argument("seconds", IntegerArgumentType.integer())
                                                 .executes(context ->
-                                                        KeyBindingCommand.executeTimedHold(
+                                                        KeyBindingCommands.executeTimedHold(
                                                                 context.getSource(),
                                                                 StringArgumentType.getString(context, "key"),
                                                                 IntegerArgumentType.getInteger(context, "seconds") * 1000
@@ -356,7 +391,7 @@ public class ClientCommands {
                         literal("releasekey")
                                 .then(argument("key", StringArgumentType.string())
                                         .executes(context ->
-                                                KeyBindingCommand.executeRelease(
+                                                KeyBindingCommands.executeRelease(
                                                         context.getSource(),
                                                         StringArgumentType.getString(context, "key")
                                                 )
@@ -368,7 +403,8 @@ public class ClientCommands {
                         literal("releaseallkeys")
                                 .executes(context ->
                                         ReleaseAllKeysCommand.execute(
-                                                context.getSource()
+                                                context.getSource(),
+                                                true
                                         )
                                 )
                 )

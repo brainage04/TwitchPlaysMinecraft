@@ -4,6 +4,7 @@ import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageTy
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
+@SuppressWarnings("SameReturnValue")
 public class DropCommand {
     public static int execute(FabricClientCommandSource source, int count) {
         for (int i = 0; i < count; i++) {

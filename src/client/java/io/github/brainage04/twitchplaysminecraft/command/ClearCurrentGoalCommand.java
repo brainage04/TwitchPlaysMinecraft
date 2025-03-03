@@ -5,6 +5,7 @@ import io.github.brainage04.twitchplaysminecraft.util.AdvancementUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
+@SuppressWarnings("SameReturnValue")
 public class ClearCurrentGoalCommand {
     public static int execute(FabricClientCommandSource source) {
         AdvancementUtils.setCurrentAdvancement(null);

@@ -1,5 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.mixin.client;
 
+import io.github.brainage04.twitchplaysminecraft.command.BridgeCommand;
 import io.github.brainage04.twitchplaysminecraft.command.JumpPlaceCommand;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
@@ -16,6 +17,7 @@ public class MixinClientPlayerInteractionManager {
     @Inject(method = "interactBlock", at = @At("RETURN"))
     private void onInteractBlock(ClientPlayerEntity player, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
         if (cir.getReturnValue() == ActionResult.SUCCESS) {
+            BridgeCommand.incrementBlocksPlaced();
             JumpPlaceCommand.incrementBlocksPlaced();
         }
     }

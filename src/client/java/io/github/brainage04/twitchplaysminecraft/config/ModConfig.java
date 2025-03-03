@@ -5,7 +5,8 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
-@SuppressWarnings({"unused"})
+// todo: check if CanBeFinal is needed (check if making fields final fucks anything up)
+@SuppressWarnings({"unused", "CanBeFinal"})
 @Config(name = TwitchPlaysMinecraft.MOD_ID)
 public class ModConfig implements ConfigData {
     public boolean textShadows = true;
@@ -19,6 +20,7 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject public CommandQueueConfig commandQueueConfig = new CommandQueueConfig();
     @ConfigEntry.Gui.CollapsibleObject public AdvancementTrackingConfig advancementTrackingConfig = new AdvancementTrackingConfig();
 
+    @SuppressWarnings("CanBeFinal")
     public static class CommandQueueConfig {
         public boolean enabled;
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
@@ -37,6 +39,7 @@ public class ModConfig implements ConfigData {
         }
     }
 
+    @SuppressWarnings("CanBeFinal")
     public static class CoreSettings {
         @ConfigEntry.Gui.Excluded public int elementId;
         @ConfigEntry.Gui.Excluded public String elementName;

@@ -16,7 +16,7 @@ public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSo
         source.sendFeedback(text);
 
         if (source.getClient().player == null) return;
-        source.getClient().player.playSound(soundEvent, 1, 1);
+        source.getClient().player.playSound(soundEvent, volume, pitch);
 
         if (!sendInTwitchChat) return;
         InstalledChatbot.getBot().sendChatMessage(text.getString());

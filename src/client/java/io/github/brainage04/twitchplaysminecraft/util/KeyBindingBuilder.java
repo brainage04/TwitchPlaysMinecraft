@@ -4,6 +4,7 @@ import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageTy
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
 
@@ -26,6 +27,11 @@ public class KeyBindingBuilder {
 
     public KeyBindingBuilder source(MinecraftClient client) {
         this.source = SourceUtils.getSourceFromClient(client);
+        return this;
+    }
+
+    public KeyBindingBuilder source(ClientPlayerEntity player) {
+        this.source = SourceUtils.getSourceFromClient(player);
         return this;
     }
 

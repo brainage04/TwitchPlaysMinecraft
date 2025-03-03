@@ -1,5 +1,9 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +26,7 @@ public class CommandUtils {
         currentInteractionThread.start();
     }
 
+    @SuppressWarnings("ExtractMethodRecommender")
     public static String getMostPopularCommand(List<String> commands) {
         // Map to store command base (without numbers) and their occurrences/info
         Map<String, CommandInfo> commandMap = new HashMap<>();
@@ -89,5 +94,23 @@ public class CommandUtils {
                 numberCount++;
             }
         }
+    }
+
+    /**
+     * Checks if the player from a given {@code FabricClientCommandSource} exists.
+     * @return {@code true} if all prerequisites are met, {@code false} otherwise.
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean checkPrerequisites(FabricClientCommandSource source) {
+        if (source.getPlayer() == null) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("Player is null!")
+                    .execute();
+
+            return false;
+        }
+
+        return true;
     }
 }

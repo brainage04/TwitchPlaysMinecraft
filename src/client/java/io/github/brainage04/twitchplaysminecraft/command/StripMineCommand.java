@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
 import net.minecraft.client.option.GameOptions;
 
+@SuppressWarnings("SameReturnValue")
 public class StripMineCommand {
     private static boolean isMining = false;
     private static int blocksBroken = 0;

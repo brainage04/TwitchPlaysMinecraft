@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 import static java.util.Map.entry;
 
-public class KeyBindingCommand {
+public class KeyBindingCommands {
     private static final Map<String, Function<GameOptions, KeyBinding>> KEY_BINDINGS = new LinkedHashMap<>(
             Map.ofEntries(
                     entry("attack", o -> o.attackKey),

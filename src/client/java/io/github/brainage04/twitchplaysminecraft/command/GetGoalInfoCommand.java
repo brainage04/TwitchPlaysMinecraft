@@ -15,6 +15,7 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("SameReturnValue")
 public class GetGoalInfoCommand {
     private static void sendCriteriaAndRequirements(FabricClientCommandSource source, PlacedAdvancement placedAdvancement) {
         Map<String, AdvancementCriterion<?>> criteria = placedAdvancement.getAdvancement().criteria();

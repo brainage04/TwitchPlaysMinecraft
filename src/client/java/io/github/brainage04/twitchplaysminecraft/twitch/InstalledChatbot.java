@@ -54,9 +54,9 @@ public class InstalledChatbot {
     }
 
     public static MutableText getRegenText() {
-        return Text.literal("\"")
+        return Text.empty()
                 .append(Text.literal("INCORRECT CODE!").formatted(Formatting.RED))
-                .append("\"? Request a new one by clicking ")
+                .append("? Request a new one by clicking ")
                 .append(Text.literal("here")
                         .setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                         "/regenerateauthurl"))
@@ -109,10 +109,20 @@ public class InstalledChatbot {
     }
 
     public static void processCommandQueue(MinecraftClient client) {
+        if (getCommandQueue().isEmpty()) {
+            new ClientFeedbackBuilder().source(client)
+                    .messageType(MessageType.ERROR)
+                    .text("No commands in queue!")
+                    .execute();
+
+            return;
+        }
+
         String command = CommandUtils.getMostPopularCommand(getCommandQueue());
         new ClientFeedbackBuilder().source(client)
                 .messageType(MessageType.INFO)
-                .text("Most popular command: %s".formatted(command));
+                .text("Most popular command: %s".formatted(command))
+                .execute();
 
         if (client.getNetworkHandler() == null) return;
         client.getNetworkHandler().sendChatCommand(command);

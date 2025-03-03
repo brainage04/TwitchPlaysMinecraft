@@ -30,6 +30,7 @@ public class EnglishLangProvider extends FabricLanguageProvider {
             generateReflectedTranslations(field.getType(), newBaseKey, translationBuilder);
         }
     }
+    @SuppressWarnings("SameParameterValue")
     private void addAutomaticTranslations(String[] keys, String packageName, TranslationBuilder translationBuilder) {
         for (String key : keys) {
             translationBuilder.add("%s.%s.%s".formatted(packageName, TwitchPlaysMinecraft.MOD_ID, key), StringUtils.pascalCaseToHumanReadable(key));

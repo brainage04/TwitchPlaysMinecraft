@@ -36,10 +36,6 @@ public class Bot {
         return controller;
     }
 
-    public ITwitchClient getClient() {
-        return client;
-    }
-
     public Bot() {
         identityProvider = new TwitchIdentityProvider(CLIENT_ID, null, null);
         executor = ThreadUtils.getDefaultScheduledThreadPoolExecutor("t4j-bot", Runtime.getRuntime().availableProcessors());
