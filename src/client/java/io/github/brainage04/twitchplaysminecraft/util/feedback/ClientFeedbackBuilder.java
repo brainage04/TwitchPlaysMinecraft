@@ -22,6 +22,7 @@ public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSo
         InstalledChatbot.getBot().sendChatMessage(text.getString());
     }
 
+    // todo: i don't think i actually need this
     public FeedbackBuilder<FabricClientCommandSource> source(FabricClientCommandSource source) {
         this.source = source;
         return this;

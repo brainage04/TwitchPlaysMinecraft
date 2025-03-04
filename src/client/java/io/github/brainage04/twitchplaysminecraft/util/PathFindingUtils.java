@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.util.enums;
+package io.github.brainage04.twitchplaysminecraft.util;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;

@@ -16,8 +16,7 @@ commands will be categorized into 4 groups (what exactly does this mean?)
             todo:
                 !lookforstructure <structure> - votes to look for the specified structure. Uses /locate internally and walks in the general direction of the nearest structure to make experience less boring.
                 !lookforbiome <biome> - votes to look for the specified biome.
-                !buildhouse - votes for building a house.
-                !buildnetherportal - votes for building a nether portal.
+                !buildnetherportal - Builds a nether portal.
                 !fillendportalframe - If within 8 blocks of an end portal frame block, detect if end portal frame is valid, then if the player has enough eyes, then finally actually use the eyes to light the portal
 
 goals - todo

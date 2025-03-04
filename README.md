@@ -100,3 +100,7 @@ One of the core parts of this mod is setting goals for viewers to collectively a
 
 As you may have noticed, some of these goals already exist as advancements (e.g. Adventuring Time, The End.) in the base game.
 For this reason, advancements are used for goals, and goals that do not have advancements in the base game are added by this mod.
+
+# Todo
+Allow disabling of individual commands (they can still be executed via Minecraft chat, but not Twitch chat)
+Remove server-side stuff (mod should be client-side only)

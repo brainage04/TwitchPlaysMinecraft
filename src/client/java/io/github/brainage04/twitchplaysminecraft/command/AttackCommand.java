@@ -3,7 +3,6 @@ package io.github.brainage04.twitchplaysminecraft.command;
 import io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders;
 import io.github.brainage04.twitchplaysminecraft.util.*;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
-import io.github.brainage04.twitchplaysminecraft.util.enums.PathFindingUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -115,6 +114,7 @@ public class AttackCommand {
                 PathFindingUtils.visualizePath(client.player, path);
 
                 Vec3d nextPos = path.get(pathIndex).toCenterPos();
+                // todo: test using path.get(pathIndex + 1) if it exists. Might be smoother
                 PathFindingUtils.guidePlayerAlongPath(client.player, nextPos);
                 if (client.player.squaredDistanceTo(nextPos) < 0.5) pathIndex++;
                 if (pathIndex >= path.size()) {
