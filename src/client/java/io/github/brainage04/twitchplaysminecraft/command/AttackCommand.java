@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.item.ItemStack;
@@ -92,7 +93,7 @@ public class AttackCommand {
                         .text("No hits landed for 15 seconds! Cancelling attack...")
                         .execute();
 
-                stop(SourceUtils.getSource(client));
+                stop(SourceUtils.getSource(client.player));
 
                 return;
             }
@@ -103,7 +104,7 @@ public class AttackCommand {
                         .text("Mob has died.")
                         .execute();
 
-                stop(SourceUtils.getSource(client));
+                stop(SourceUtils.getSource(client.player));
 
                 return;
             }
@@ -118,7 +119,7 @@ public class AttackCommand {
                 PathFindingUtils.guidePlayerAlongPath(client.player, nextPos);
                 if (client.player.squaredDistanceTo(nextPos) < 0.5) pathIndex++;
                 if (pathIndex >= path.size()) {
-                    new ClientFeedbackBuilder().source(SourceUtils.getSource(client))
+                    new ClientFeedbackBuilder().source(SourceUtils.getSource(client.player))
                             .messageType(MessageType.INFO)
                             .text("Finished path finding but mob is not close enough to hit. Regenerating path...")
                             .execute();
@@ -226,6 +227,9 @@ public class AttackCommand {
     }
 
     public static int execute(FabricClientCommandSource source, Identifier entityClassId) {
+        EntityType<?> entityType = Registries.ENTITY_TYPE.get(entityClassId);
+        //noinspection ConstantValue
+        if (entityType == null) return 0;
         Class<? extends Entity> entityClass = Registries.ENTITY_TYPE.get(entityClassId).getBaseClass();
 
         if (LivingEntity.class.isAssignableFrom(entityClass)) {

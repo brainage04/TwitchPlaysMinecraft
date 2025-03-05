@@ -17,14 +17,13 @@ import java.util.Comparator;
 import java.util.List;
 
 public class LookAtEntityCommand {
-    @SuppressWarnings("ConstantConditions")
     public static int execute(FabricClientCommandSource source, String entityString) {
         ClientPlayerEntity player = source.getClient().player;
         if (player == null) return 0;
 
         entityString = entityString.toLowerCase();
         EntityType<?> entityType = Registries.ENTITY_TYPE.get(Identifier.of(entityString));
-        // ConstantConditions warning is for this specific line
+        //noinspection ConstantValue
         if (entityType == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.SUCCESS)

@@ -5,6 +5,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
+@SuppressWarnings("CanBeFinal")
 @Config(name = TwitchPlaysMinecraft.MOD_ID)
 public class ModConfig implements ConfigData {
     public boolean textShadows = true;
@@ -69,7 +70,6 @@ public class ModConfig implements ConfigData {
         }
     }
 
-    @SuppressWarnings("CanBeFinal")
     public static class CoreSettings {
         @ConfigEntry.Gui.Excluded public int elementId;
         @ConfigEntry.Gui.Excluded public String elementName;

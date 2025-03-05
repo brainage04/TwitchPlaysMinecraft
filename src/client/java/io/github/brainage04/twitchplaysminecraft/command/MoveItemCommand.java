@@ -16,7 +16,7 @@ import static io.github.brainage04.twitchplaysminecraft.util.ThreadUtils.sleepSa
 
 public class MoveItemCommand {
     public static int execute(FabricClientCommandSource source, int first, int second, String actionTypeString) {
-        ActionType actionType = EnumUtils.getEnumSafely(ActionType.class, actionTypeString);
+        ActionType actionType = EnumUtils.getValueSafely(ActionType.class, actionTypeString);
         if (actionType == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)

@@ -41,7 +41,7 @@ public class BridgeCommand {
     }
 
     public static int execute(FabricClientCommandSource source, String cardinalDirectionString, int count) {
-        CardinalDirection cardinalDirection = EnumUtils.getEnumSafely(CardinalDirection.class, cardinalDirectionString.toLowerCase());
+        CardinalDirection cardinalDirection = EnumUtils.getValueSafely(CardinalDirection.class, cardinalDirectionString.toLowerCase());
         if (cardinalDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)

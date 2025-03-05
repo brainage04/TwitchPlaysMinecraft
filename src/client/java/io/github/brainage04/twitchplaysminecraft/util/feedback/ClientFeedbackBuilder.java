@@ -6,6 +6,7 @@ import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 
 public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSource> {
     public ClientFeedbackBuilder() {
@@ -32,8 +33,14 @@ public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSo
         return this;
     }
 
+    // todo: get rid of this
     public FeedbackBuilder<FabricClientCommandSource> source(MinecraftClient client) {
         source = SourceUtils.getSource(client);
+        return this;
+    }
+
+    public FeedbackBuilder<FabricClientCommandSource> source(ClientPlayerEntity player) {
+        source = SourceUtils.getSource(player);
         return this;
     }
 

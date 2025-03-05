@@ -70,7 +70,7 @@ public class Bot {
             String command = event.getMessage().substring(1);
 
             String commandName = command.split(" ")[0];
-            ToggleableCommand toggleableCommand = EnumUtils.getEnumSafely(ToggleableCommand.class, commandName);
+            ToggleableCommand toggleableCommand = EnumUtils.getValueSafely(ToggleableCommand.class, commandName);
             if (toggleableCommand != null) {
                 if (!toggleableCommand.enabled) {
                     new ClientFeedbackBuilder().source(networkHandler)

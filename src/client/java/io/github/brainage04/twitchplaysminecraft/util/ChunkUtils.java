@@ -17,6 +17,7 @@ public class ChunkUtils {
 
             for (BlockEntity blockEntity : chunk.blockEntities.values()) {
                 if (blockEntity.getType() == type) {
+                    //noinspection unchecked
                     blockEntities.add((T) blockEntity);
                 }
             }

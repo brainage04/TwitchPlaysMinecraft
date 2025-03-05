@@ -41,12 +41,12 @@ public class MineCommand {
             ticksSinceLastBlockBreak = 0;
 
             if (blocks.isEmpty()) {
-                new ClientFeedbackBuilder().source(clientPlayerEntity.client)
+                new ClientFeedbackBuilder().source(clientPlayerEntity)
                         .messageType(MessageType.SUCCESS)
                         .text("Finished mining blocks.")
                         .execute();
 
-                ReleaseAllKeysCommand.execute(SourceUtils.getSource(clientPlayerEntity.client));
+                ReleaseAllKeysCommand.execute(SourceUtils.getSource(clientPlayerEntity));
 
                 stop();
             }

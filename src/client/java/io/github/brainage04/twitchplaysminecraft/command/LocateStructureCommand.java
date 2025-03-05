@@ -11,7 +11,7 @@ public class LocateStructureCommand {
     public static int execute(FabricClientCommandSource source, String structureString) {
         if (source.getWorld() == null) return 0;
 
-        ImportantStructures structure = EnumUtils.getEnumSafely(ImportantStructures.class, structureString);
+        ImportantStructures structure = EnumUtils.getValueSafely(ImportantStructures.class, structureString);
         if (structure == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.SUCCESS)

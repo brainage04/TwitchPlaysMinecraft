@@ -12,7 +12,7 @@ public class MoveCommand {
 
 
     public static int executeTime(FabricClientCommandSource source, String movementDirectionString, int amount) {
-        MovementDirection movementDirection = EnumUtils.getEnumSafely(MovementDirection.class, movementDirectionString);
+        MovementDirection movementDirection = EnumUtils.getValueSafely(MovementDirection.class, movementDirectionString);
         if (movementDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.SUCCESS)
@@ -43,7 +43,7 @@ public class MoveCommand {
     }
 
     public static int executeDistance(FabricClientCommandSource source, String movementDirectionString, int amount) {
-        MovementDirection movementDirection = EnumUtils.getEnumSafely(MovementDirection.class, movementDirectionString);
+        MovementDirection movementDirection = EnumUtils.getValueSafely(MovementDirection.class, movementDirectionString);
         if (movementDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.SUCCESS)

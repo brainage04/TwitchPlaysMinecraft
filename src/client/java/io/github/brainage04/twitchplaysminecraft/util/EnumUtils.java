@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class EnumUtils {
-    public static <T extends Enum<T> & NamedEnum> T getEnumSafely(Class<T> enumClass, String name) {
+    public static <T extends Enum<T> & NamedEnum> T getValueSafely(Class<T> enumClass, String name) {
         for (T value : enumClass.getEnumConstants()) {
             if (Objects.equals(value.getName(), name)) return value;
         }
