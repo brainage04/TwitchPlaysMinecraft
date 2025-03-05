@@ -1,7 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.hud.core;
 
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
-import io.github.brainage04.twitchplaysminecraft.hud.AdvancementTrackingHud;
+import io.github.brainage04.twitchplaysminecraft.hud.GoalHud;
 import io.github.brainage04.twitchplaysminecraft.hud.CommandQueueHud;
 import io.github.brainage04.twitchplaysminecraft.util.RenderUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -95,6 +95,6 @@ public class HUDRenderer implements HudRenderCallback {
         TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
 
         CommandQueueHud.render(renderer, context, getConfig().commandQueueConfig);
-        AdvancementTrackingHud.render(renderer, context, getConfig().advancementTrackingConfig);
+        GoalHud.render(renderer, context, getConfig().goalConfig);
     }
 }

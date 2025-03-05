@@ -16,9 +16,4 @@ public enum LookDirection implements NamedEnum {
     LookDirection(BiConsumer<ClientPlayerEntity, Integer> consumer) {
         this.consumer = consumer;
     }
-
-    @Override
-    public String getName() {
-        return this.toString().toLowerCase();
-    }
 }

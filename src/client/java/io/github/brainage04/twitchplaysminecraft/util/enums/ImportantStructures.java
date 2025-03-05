@@ -1,16 +1,22 @@
 package io.github.brainage04.twitchplaysminecraft.util.enums;
 
+import io.github.brainage04.twitchplaysminecraft.util.LocateUtils;
 import io.github.brainage04.twitchplaysminecraft.util.enums.core.NamedEnum;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.function.Function;
 
 public enum ImportantStructures implements NamedEnum {
-    VILLAGE,
-    LAVA_POOL,
-    BASTION,
-    NETHER_FORTRESS,
-    END_PORTAL;
+    VILLAGE(LocateUtils::locateVillage),
+    LAVA_POOL(LocateUtils::locateLavaPool),
+    BASTION(LocateUtils::locateBastion),
+    NETHER_FORTRESS(LocateUtils::locateNetherFortress),
+    END_PORTAL(LocateUtils::locateEndPortal);
 
-    @Override
-    public String getName() {
-        return this.toString().toLowerCase();
+    public final Function<FabricClientCommandSource, BlockPos> function;
+
+    ImportantStructures(Function<FabricClientCommandSource, BlockPos> function) {
+        this.function = function;
     }
 }

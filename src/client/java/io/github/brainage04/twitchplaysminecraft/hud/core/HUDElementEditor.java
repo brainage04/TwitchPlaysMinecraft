@@ -60,7 +60,7 @@ public class HUDElementEditor extends Screen {
     private List<ModConfig.CoreSettings> loadElementSettings() {
         return new ArrayList<>(List.of(
                 getConfig().commandQueueConfig.coreSettings,
-                getConfig().advancementTrackingConfig.coreSettings
+                getConfig().goalConfig.coreSettings
         ));
     }
 
@@ -130,7 +130,7 @@ public class HUDElementEditor extends Screen {
     public void close() {
         // update config values
         getConfig().commandQueueConfig.coreSettings = elementList.get(0);
-        getConfig().advancementTrackingConfig.coreSettings = elementList.get(1);
+        getConfig().goalConfig.coreSettings = elementList.get(1);
 
         saveConfig();
 

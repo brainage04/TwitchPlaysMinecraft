@@ -5,8 +5,6 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
-// todo: check if CanBeFinal is needed (check if making fields final fucks anything up)
-@SuppressWarnings({"unused", "CanBeFinal"})
 @Config(name = TwitchPlaysMinecraft.MOD_ID)
 public class ModConfig implements ConfigData {
     public boolean textShadows = true;
@@ -17,24 +15,56 @@ public class ModConfig implements ConfigData {
     public int elementPadding = 2;
     public int screenMargin = 5;
 
+    @ConfigEntry.Gui.CollapsibleObject public ToggleCommandsConfig toggleCommandsConfig = new ToggleCommandsConfig();
     @ConfigEntry.Gui.CollapsibleObject public CommandQueueConfig commandQueueConfig = new CommandQueueConfig();
-    @ConfigEntry.Gui.CollapsibleObject public AdvancementTrackingConfig advancementTrackingConfig = new AdvancementTrackingConfig();
+    @ConfigEntry.Gui.CollapsibleObject public GoalConfig goalConfig = new GoalConfig();
 
-    @SuppressWarnings("CanBeFinal")
+    public static class ToggleCommandsConfig {
+        public boolean enableAttackCommand = true;
+        public boolean enableMineCommand = true;
+        public boolean enableStripMineCommand = true;
+        public boolean enableJumpPlaceCommand = true;
+        public boolean enableBridgeCommand = true;
+        public boolean enableUseCommand = true;
+        public boolean enableDropCommand = true;
+        public boolean enableDropHeldItemCommand = true;
+        public boolean enableLookCommand = true;
+        public boolean enableLookAtBlockCommand = true;
+        public boolean enableLookAtEntityCommand = true;
+        public boolean enableCraftCommand = true;
+        public boolean enableMoveItemCommand = true;
+        public boolean enableOpenInventoryCommand = true;
+        public boolean enableCloseScreenCommand = true;
+        public boolean enableHotbarCommand = true;
+        public boolean enableMoveCommand = true;
+        public boolean enablePressKeyCommand = true;
+        public boolean enableHoldKeyCommand = true;
+        public boolean enableReleaseKeyCommand = true;
+        public boolean enableReleaseAllKeysCommand = true;
+        public boolean enableAvailableGoalsCommand = true;
+        public boolean enableGetGoalInfoCommand = true;
+        public boolean enableGetCurrentGoalCommand = true;
+        public boolean enableSetCurrentGoalCommand = true;
+        public boolean enableClearCurrentGoalCommand = true;
+        public boolean enableLocateStructureCommand = true;
+        public boolean enableRegenerateAuthUrlCommand = true;
+        public boolean enableCommandQueueCommand = true;
+    }
+
     public static class CommandQueueConfig {
-        public boolean enabled;
+        public boolean enabled = true;
+        public int intervalInSeconds = 5;
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public CommandQueueConfig() {
-            this.enabled = true;
             this.coreSettings = new CoreSettings(0, "Command Queue HUD", true, 5, 5, ElementAnchor.TOPLEFT, false, 100);
         }
     }
 
-    public static class AdvancementTrackingConfig {
+    public static class GoalConfig {
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
-        public AdvancementTrackingConfig() {
+        public GoalConfig() {
             this.coreSettings = new CoreSettings(1, "Advancement Tracking HUD", true, -5, 5, ElementAnchor.TOPRIGHT, false, 100);
         }
     }
@@ -80,58 +110,6 @@ public class ModConfig implements ConfigData {
         private final String name;
 
         ElementAnchor(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
-    }
-
-    public enum ClicksPerSecondFormat {
-        NONE("None"),
-        LEFT_CLICK("Left Click"),
-        RIGHT_CLICK("Right Click"),
-        BOTH("Both");
-
-        private final String name;
-
-        ClicksPerSecondFormat(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
-    }
-
-    public enum DurabilityFormat {
-        NONE("None"),
-        ONE_NUMBER("One Number"),
-        BOTH_NUMBERS("Both Numbers"),
-        PERCENTAGE("Percentage");
-
-        private final String name;
-
-        DurabilityFormat(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
-    }
-
-    public enum KillDeathRatioFormat {
-        BOTH_NUMBERS("Both Numbers"),
-        SIMPLIFIED("Simplified");
-
-        private final String name;
-
-        KillDeathRatioFormat(String name) {
             this.name = name;
         }
 

@@ -1,7 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
-import io.github.brainage04.twitchplaysminecraft.util.CommandUtils;
 import io.github.brainage04.twitchplaysminecraft.util.EntityUtils;
 import io.github.brainage04.twitchplaysminecraft.util.MathUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
@@ -20,7 +19,8 @@ import java.util.List;
 public class LookAtEntityCommand {
     @SuppressWarnings("ConstantConditions")
     public static int execute(FabricClientCommandSource source, String entityString) {
-        if (!CommandUtils.checkPrerequisites(source)) return 0;
+        ClientPlayerEntity player = source.getClient().player;
+        if (player == null) return 0;
 
         entityString = entityString.toLowerCase();
         EntityType<?> entityType = Registries.ENTITY_TYPE.get(Identifier.of(entityString));
@@ -32,8 +32,6 @@ public class LookAtEntityCommand {
                     .execute();
             return 0;
         }
-
-        ClientPlayerEntity player = source.getClient().player;
 
         // find nearest mobs (within 20 blocks)
         int radius = 20;

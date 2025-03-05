@@ -10,6 +10,10 @@ import com.github.twitch4j.auth.providers.TwitchIdentityProvider;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.util.ThreadUtils;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.EnumUtils;
+import io.github.brainage04.twitchplaysminecraft.util.enums.ToggleableCommand;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 
@@ -57,17 +61,31 @@ public class Bot {
         username = credential.getUserName();
 
         client.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
+            ClientPlayNetworkHandler networkHandler = MinecraftClient.getInstance().getNetworkHandler();
+            if (networkHandler == null) return;
+
             // only process commands (messages with "!" prefix)
             if (!event.getMessage().startsWith("!")) return;
 
             String command = event.getMessage().substring(1);
 
+            String commandName = command.split(" ")[0];
+            ToggleableCommand toggleableCommand = EnumUtils.getEnumSafely(ToggleableCommand.class, commandName);
+            if (toggleableCommand != null) {
+                if (!toggleableCommand.enabled) {
+                    new ClientFeedbackBuilder().source(networkHandler)
+                            .messageType(MessageType.ERROR)
+                            .text("The \"%s\" command has been disabled by the streamer!")
+                            .execute();
+
+                    return;
+                }
+            }
+
             if (getConfig().commandQueueConfig.enabled) {
                 addToCommandQueue(command);
             } else {
-                ClientPlayNetworkHandler clientPlayNetworkHandler = MinecraftClient.getInstance().getNetworkHandler();
-                if (clientPlayNetworkHandler == null) return;
-                clientPlayNetworkHandler.sendChatCommand(command);
+                networkHandler.sendChatCommand(command);
             }
         });
     }

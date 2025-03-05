@@ -14,7 +14,7 @@ public class ModTickEvents {
             if (!getConfig().commandQueueConfig.enabled) return;
 
             ticks++;
-            if (ticks % 100 != 0) return;
+            if (ticks % getConfig().commandQueueConfig.intervalInSeconds * 20 != 0) return;
             if (InstalledChatbot.getCommandQueue().isEmpty()) {
                 ticks = 0;
                 return;

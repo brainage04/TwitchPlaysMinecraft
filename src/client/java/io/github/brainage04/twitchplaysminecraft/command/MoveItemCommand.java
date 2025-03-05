@@ -10,7 +10,6 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 
-import static io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders.cardinalDirectionSuggestionStrings;
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.millisecondsBetweenSteps;
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.startNewCurrentInteractionThread;
 import static io.github.brainage04.twitchplaysminecraft.util.ThreadUtils.sleepSafely;
@@ -21,7 +20,7 @@ public class MoveItemCommand {
         if (actionType == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("Invalid action type! Valid action types: %s.".formatted(String.join(", ", cardinalDirectionSuggestionStrings)))
+                    .text("Invalid action! Valid actions: %s.".formatted(EnumUtils.joinEnumValues(ActionType.class)))
                     .execute();
             return 0;
         }

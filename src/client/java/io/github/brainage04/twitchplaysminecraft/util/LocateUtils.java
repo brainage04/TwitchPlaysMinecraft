@@ -1,14 +1,25 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.entity.MobSpawnerBlockEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Heightmap;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.GenerationSettings;
 import net.minecraft.world.chunk.Chunk;
@@ -20,7 +31,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocateUtils {
-    public static BlockPos locateVillage(ClientWorld world) {
+    public static boolean dimensionsDoNotMatch(FabricClientCommandSource source, RegistryKey<World> desired, RegistryKey<World> actual) {
+        if (desired != actual) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("This structure can only be found in the %s dimension but you are in the %s dimension!".formatted(
+                            StringUtils.snakeCaseToHumanReadable(desired.getValue().getPath(), true, false),
+                            StringUtils.snakeCaseToHumanReadable(actual.getValue().getPath(), true, false)
+                    ))
+                    .execute();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // todo: add chests and other blocks (villager workstations)
+    public static BlockPos locateVillage(FabricClientCommandSource source) {
+        ClientWorld world = source.getWorld();
+        if (dimensionsDoNotMatch(source, World.OVERWORLD, world.getRegistryKey())) return null;
+
         List<VillagerEntity> villagers = EntityUtils.getEntities(VillagerEntity.class, world);
 
         for (VillagerEntity villager : villagers) {
@@ -53,7 +84,10 @@ public class LocateUtils {
         return null;
     }
 
-    public static BlockPos locateLavaPool(ClientWorld world) {
+    public static BlockPos locateLavaPool(FabricClientCommandSource source) {
+        ClientWorld world = source.getWorld();
+        if (dimensionsDoNotMatch(source, World.OVERWORLD, world.getRegistryKey())) return null;
+
         Registry<Biome> biomeRegistry = RegistryUtils.getRegistry(RegistryKeys.BIOME, world);
         List<Biome> appropriateBiomes = new ArrayList<>();
 
@@ -90,6 +124,70 @@ public class LocateUtils {
                         }
 
                         if (state.getBlock() == Blocks.LAVA) return pos;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static BlockPos locateBastion(FabricClientCommandSource source) {
+        ClientWorld world = source.getWorld();
+        if (dimensionsDoNotMatch(source, World.NETHER, world.getRegistryKey())) return null;
+
+        List<ChestBlockEntity> chests = ChunkUtils.getBlockEntities(BlockEntityType.CHEST, world);
+
+        for (ChestBlockEntity chest : chests) {
+            BlockPos underChestPos = chest.getPos().add(0, -1, 0);
+            Block underChestBlock = world.getBlockState(underChestPos).getBlock();
+
+            if (Registries.BLOCK.getId(underChestBlock).getPath().contains("blackstone")) {
+                return chest.getPos();
+            }
+        }
+
+        return null;
+    }
+
+    public static BlockPos locateNetherFortress(FabricClientCommandSource source) {
+        ClientWorld world = source.getWorld();
+        if (dimensionsDoNotMatch(source, World.NETHER, world.getRegistryKey())) return null;
+
+        for (int i = 0; i < world.getChunkManager().getLoadedChunkCount(); i++) {
+            Chunk chunk = world.getChunkManager().chunks.chunks.get(i);
+
+            for (BlockEntity blockEntity : chunk.blockEntities.values()) {
+                if (blockEntity instanceof MobSpawnerBlockEntity spawner) {
+                    if (spawner.getLogic().spawnEntry == null) continue;
+                    if (spawner.getLogic().spawnEntry.entity().getString("id").isEmpty()) continue;
+
+                    String desiredId = spawner.getLogic().spawnEntry.entity().getString("id");
+                    String actualId = Registries.ENTITY_TYPE.getId(EntityType.BLAZE).toString();
+
+                    if (desiredId.equals(actualId)) return blockEntity.getPos();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static BlockPos locateEndPortal(FabricClientCommandSource source) {
+        ClientWorld world = source.getWorld();
+        if (dimensionsDoNotMatch(source, World.OVERWORLD, world.getRegistryKey())) return null;
+
+        BlockPos center = source.getEntity().getBlockPos();
+
+        int radius = 64;
+        for (int x = -radius; x < radius; x++) {
+            for (int y = world.getBottomY(); y < world.getSeaLevel(); y++) {
+                for (int z = -radius; z < radius; z++) {
+                    BlockPos pos = center.add(x, y, z);
+                    Block block = world.getBlockState(pos).getBlock();
+
+                    if (block == Blocks.END_PORTAL_FRAME) {
+                        return pos;
                     }
                 }
             }

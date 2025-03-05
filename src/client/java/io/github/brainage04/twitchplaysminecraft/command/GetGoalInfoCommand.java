@@ -17,6 +17,8 @@ import java.util.Map;
 
 @SuppressWarnings("SameReturnValue")
 public class GetGoalInfoCommand {
+    // todo: find a use for this. verbose mode in config?
+    //  also find out why none of the advancements actually have any AdvancementCriterion or CriterionConditions
     private static void sendCriteriaAndRequirements(FabricClientCommandSource source, PlacedAdvancement placedAdvancement) {
         Map<String, AdvancementCriterion<?>> criteria = placedAdvancement.getAdvancement().criteria();
         List<Map.Entry<String, AdvancementCriterion<?>>> criteriaList = criteria.entrySet().stream().toList();

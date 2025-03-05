@@ -3,8 +3,6 @@ package io.github.brainage04.twitchplaysminecraft.util;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
 
@@ -14,7 +12,7 @@ import static io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler.s
 import static io.github.brainage04.twitchplaysminecraft.util.TextUtils.combineTextArray;
 
 public class KeyBindingBuilder {
-    private FabricClientCommandSource source = SourceUtils.getSourceFromClient();
+    private FabricClientCommandSource source = SourceUtils.getSource();
     private boolean pressed = true;
     private int extraTickDelay = 0;
     private boolean printLogs = true;
@@ -22,16 +20,6 @@ public class KeyBindingBuilder {
 
     public KeyBindingBuilder source(FabricClientCommandSource source) {
         this.source = source;
-        return this;
-    }
-
-    public KeyBindingBuilder source(MinecraftClient client) {
-        this.source = SourceUtils.getSourceFromClient(client);
-        return this;
-    }
-
-    public KeyBindingBuilder source(ClientPlayerEntity player) {
-        this.source = SourceUtils.getSourceFromClient(player);
         return this;
     }
 

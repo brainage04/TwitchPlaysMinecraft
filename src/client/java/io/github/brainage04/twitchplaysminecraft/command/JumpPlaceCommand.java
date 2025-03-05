@@ -26,7 +26,7 @@ public class JumpPlaceCommand {
                     .text("Placed %d/%d.".formatted(blocksPlaced, blocksPlacedLimit))
                     .execute();
 
-            ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient());
+            ReleaseAllKeysCommand.execute(SourceUtils.getSource());
 
             isRunning = false;
             blocksPlaced = 0;

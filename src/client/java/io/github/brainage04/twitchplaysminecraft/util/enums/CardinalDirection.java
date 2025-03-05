@@ -22,11 +22,6 @@ public enum CardinalDirection implements NamedEnum {
         return yaw;
     }
 
-    @Override
-    public String getName() {
-        return this.toString().toLowerCase();
-    }
-
     public boolean isDiagonal() {
         return this.ordinal() % 2 == 1;
     }

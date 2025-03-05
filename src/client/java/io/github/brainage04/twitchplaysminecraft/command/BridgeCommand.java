@@ -1,6 +1,5 @@
 package io.github.brainage04.twitchplaysminecraft.command;
 
-import io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
@@ -33,7 +32,7 @@ public class BridgeCommand {
                     .text("Placed %d/%d.".formatted(blocksPlaced, blocksPlacedLimit))
                     .execute();
 
-            ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient());
+            ReleaseAllKeysCommand.execute(SourceUtils.getSource());
 
             isRunning = false;
             blocksPlaced = 0;
@@ -46,7 +45,7 @@ public class BridgeCommand {
         if (cardinalDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("Invalid direction! Valid directions: %s.".formatted(String.join(", ", ClientSuggestionProviders.cardinalDirectionSuggestionStrings)))
+                    .text("Invalid direction! Valid directions: %s.".formatted(EnumUtils.joinEnumValues(CardinalDirection.class)))
                     .execute();
 
             return 0;

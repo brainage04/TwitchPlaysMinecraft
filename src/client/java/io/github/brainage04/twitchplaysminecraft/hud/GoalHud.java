@@ -2,6 +2,7 @@ package io.github.brainage04.twitchplaysminecraft.hud;
 
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.util.AdvancementUtils;
+import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
@@ -12,11 +13,18 @@ import java.util.List;
 
 import static io.github.brainage04.twitchplaysminecraft.hud.core.HUDRenderer.renderElement;
 
-public class AdvancementTrackingHud {
+// todo: text.empty.append? why...
+public class GoalHud {
     private static final List<Text> lines = new ArrayList<>();
 
     public static void updateLines() {
         lines.clear();
+
+        lines.add(Text.literal("Previously Achieved Goals").formatted(Formatting.BOLD));
+
+        for (PlacedAdvancement placedAdvancement : AdvancementUtils.getAchievedAdvancements()) {
+            lines.add(Text.empty().append(AdvancementUtils.getAdvancementName(placedAdvancement)));
+        }
 
         lines.add(Text.literal("Current Goal").formatted(Formatting.BOLD));
 
@@ -33,7 +41,7 @@ public class AdvancementTrackingHud {
         lines.add(Text.literal("ID: %s".formatted(AdvancementUtils.getCurrentAdvancement().getAdvancementEntry().id().toString())));
     }
 
-    public static void render(TextRenderer renderer, DrawContext context, ModConfig.AdvancementTrackingConfig config) {
+    public static void render(TextRenderer renderer, DrawContext context, ModConfig.GoalConfig config) {
         if (!config.coreSettings.displayEnabled) return;
 
         if (lines.isEmpty()) updateLines();

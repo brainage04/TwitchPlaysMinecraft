@@ -11,7 +11,6 @@ import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
@@ -354,6 +353,40 @@ public class ClientCommands {
 
         // key commands
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("move")
+                                .then(argument("direction", StringArgumentType.string())
+                                        .suggests(ClientSuggestionProviders.MOVEMENT_DIRECTION_SUGGESTIONS)
+                                        .executes(context ->
+                                                KeyBindingCommands.executeHold(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "key")
+                                                )
+                                        )
+                                        .then(argument("amount", IntegerArgumentType.integer())
+                                                .then(literal("blocks")
+                                                        .executes(context ->
+                                                                KeyBindingCommands.executeTimedHold(
+                                                                        context.getSource(),
+                                                                        StringArgumentType.getString(context, "key"),
+                                                                        IntegerArgumentType.getInteger(context, "amount")
+                                                                )
+                                                        )
+                                                )
+                                                .then(literal("seconds")
+                                                        .executes(context ->
+                                                                KeyBindingCommands.executeTimedHold(
+                                                                        context.getSource(),
+                                                                        StringArgumentType.getString(context, "key"),
+                                                                        IntegerArgumentType.getInteger(context, "amount")
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                )
+        );
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("presskey")
                                 .then(argument("key", StringArgumentType.string())
                                         .executes(context ->
@@ -465,6 +498,21 @@ public class ClientCommands {
                 )
         );
 
+        // locate commands
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("locatestructure")
+                                .then(argument("structure", StringArgumentType.string())
+                                        .suggests(ClientSuggestionProviders.IMPORTANT_STRUCTURES)
+                                        .executes(context ->
+                                                LocateStructureCommand.execute(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "structure")
+                                                )
+                                        )
+                                )
+                )
+        );
+
         // other commands
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("regenerateauthurl")
@@ -476,36 +524,33 @@ public class ClientCommands {
                 )
         );
 
-        // dev env commands
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                            literal("commandqueue")
-                                    .then(literal("add")
-                                            .then(argument("command", StringArgumentType.string())
-                                                    .executes(context ->
-                                                            CommandQueueCommands.executeAdd(
-                                                                    context.getSource(),
-                                                                    StringArgumentType.getString(context, "command")
-                                                            )
-                                                    )
-                                            )
-                                    )
-                                    .then(literal("clear")
-                                            .executes(context ->
-                                                    CommandQueueCommands.executeClear(
-                                                            context.getSource()
-                                                    )
-                                            )
-                                    )
-                                    .then(literal("process")
-                                            .executes(context ->
-                                                    CommandQueueCommands.executeProcess(
-                                                            context.getSource()
-                                                    )
-                                            )
-                                    )
-                    )
-            );
-        }
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("commandqueue")
+                                .then(literal("add")
+                                        .then(argument("command", StringArgumentType.string())
+                                                .executes(context ->
+                                                        CommandQueueCommands.executeAdd(
+                                                                context.getSource(),
+                                                                StringArgumentType.getString(context, "command")
+                                                        )
+                                                )
+                                        )
+                                )
+                                .then(literal("clear")
+                                        .executes(context ->
+                                                CommandQueueCommands.executeClear(
+                                                        context.getSource()
+                                                )
+                                        )
+                                )
+                                .then(literal("process")
+                                        .executes(context ->
+                                                CommandQueueCommands.executeProcess(
+                                                        context.getSource()
+                                                )
+                                        )
+                                )
+                )
+        );
     }
 }

@@ -1,6 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
-import io.github.brainage04.twitchplaysminecraft.hud.AdvancementTrackingHud;
+import io.github.brainage04.twitchplaysminecraft.hud.GoalHud;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.AdvancementProgress;
@@ -10,10 +10,12 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// todo: needs refactoring (shouldn't be refercing MinecraftClient standalone etc)
 public class AdvancementUtils {
     private static PlacedAdvancement currentAdvancement = null;
 
@@ -23,7 +25,7 @@ public class AdvancementUtils {
 
     public static void setCurrentAdvancement(PlacedAdvancement currentAdvancement) {
         AdvancementUtils.currentAdvancement = currentAdvancement;
-        AdvancementTrackingHud.updateLines();
+        GoalHud.updateLines();
     }
 
     public static Text getAdvancementName(PlacedAdvancement placedAdvancement) {
@@ -61,6 +63,21 @@ public class AdvancementUtils {
         return client.getNetworkHandler().getAdvancementHandler().getManager().getAdvancements().stream()
                 .filter(advancement -> canSelectAdvancement(player, advancement))
                 .collect(Collectors.toList());
+    }
+
+    public static List<PlacedAdvancement> getAchievedAdvancements() {
+        if (MinecraftClient.getInstance().player == null) return List.of();
+        Map<AdvancementEntry, AdvancementProgress> advancementProgresses = MinecraftClient.getInstance().player.networkHandler.getAdvancementHandler().advancementProgresses;
+
+        List<PlacedAdvancement> advancements = new ArrayList<>();
+
+        for (PlacedAdvancement placedAdvancement : getAvailableAdvancements()) {
+            if (advancementProgresses.get(placedAdvancement.getAdvancementEntry()).isDone()) {
+                advancements.add(placedAdvancement);
+            }
+        }
+
+        return advancements;
     }
 
     public static boolean canSelectAdvancement(ClientPlayerEntity player, PlacedAdvancement placedAdvancement) {

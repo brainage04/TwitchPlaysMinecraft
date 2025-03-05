@@ -46,7 +46,7 @@ public class MineCommand {
                         .text("Finished mining blocks.")
                         .execute();
 
-                ReleaseAllKeysCommand.execute(SourceUtils.getSourceFromClient(clientPlayerEntity.client));
+                ReleaseAllKeysCommand.execute(SourceUtils.getSource(clientPlayerEntity.client));
 
                 stop();
             }

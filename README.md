@@ -102,5 +102,5 @@ As you may have noticed, some of these goals already exist as advancements (e.g.
 For this reason, advancements are used for goals, and goals that do not have advancements in the base game are added by this mod.
 
 # Todo
-Allow disabling of individual commands (they can still be executed via Minecraft chat, but not Twitch chat)
+Implement stopit command (requires command refactor - all commands must share a single `isRunning` variable)
 Remove server-side stuff (mod should be client-side only)

@@ -92,7 +92,7 @@ public class AttackCommand {
                         .text("No hits landed for 15 seconds! Cancelling attack...")
                         .execute();
 
-                stop(SourceUtils.getSourceFromClient(client));
+                stop(SourceUtils.getSource(client));
 
                 return;
             }
@@ -103,7 +103,7 @@ public class AttackCommand {
                         .text("Mob has died.")
                         .execute();
 
-                stop(SourceUtils.getSourceFromClient(client));
+                stop(SourceUtils.getSource(client));
 
                 return;
             }
@@ -118,7 +118,7 @@ public class AttackCommand {
                 PathFindingUtils.guidePlayerAlongPath(client.player, nextPos);
                 if (client.player.squaredDistanceTo(nextPos) < 0.5) pathIndex++;
                 if (pathIndex >= path.size()) {
-                    new ClientFeedbackBuilder().source(SourceUtils.getSourceFromClient(client))
+                    new ClientFeedbackBuilder().source(SourceUtils.getSource(client))
                             .messageType(MessageType.INFO)
                             .text("Finished path finding but mob is not close enough to hit. Regenerating path...")
                             .execute();
@@ -168,9 +168,8 @@ public class AttackCommand {
     }
 
     public static <T extends LivingEntity> int execute(FabricClientCommandSource source, Class<T> entityClass) {
-        if (!CommandUtils.checkPrerequisites(source)) return 0;
-
         ClientPlayerEntity player = source.getPlayer();
+        if (player == null) return 0;
 
         // find nearest mobs (within 16 blocks)
         int radius = 16;
@@ -237,8 +236,7 @@ public class AttackCommand {
         } else {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("No such entity type \"%s\"! Valid types: %s.".formatted(
-                            entityClassId, String.join(", ", ClientSuggestionProviders.entityTypeStrings)))
+                    .text("Invalid entity! Valid entities: %s.".formatted(String.join(", ", ClientSuggestionProviders.entityTypeStrings)))
                     .execute();
 
             return 0;
