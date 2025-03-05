@@ -27,13 +27,11 @@ public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSo
         }
     }
 
-    // todo: i don't think i actually need this
     public FeedbackBuilder<FabricClientCommandSource> source(FabricClientCommandSource source) {
         this.source = source;
         return this;
     }
 
-    // todo: get rid of this
     public FeedbackBuilder<FabricClientCommandSource> source(MinecraftClient client) {
         source = SourceUtils.getSource(client);
         return this;

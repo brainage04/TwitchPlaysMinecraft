@@ -1,7 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.mixin.client;
 
-import io.github.brainage04.twitchplaysminecraft.command.BridgeCommand;
-import io.github.brainage04.twitchplaysminecraft.command.JumpPlaceCommand;
+import io.github.brainage04.twitchplaysminecraft.command.use.BridgeCommand;
+import io.github.brainage04.twitchplaysminecraft.command.use.JumpPlaceCommand;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.util.ActionResult;

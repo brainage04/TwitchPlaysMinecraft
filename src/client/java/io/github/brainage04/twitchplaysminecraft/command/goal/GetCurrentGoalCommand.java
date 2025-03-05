@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.command;
+package io.github.brainage04.twitchplaysminecraft.command.goal;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.AdvancementUtils;
@@ -16,7 +16,7 @@ public class GetCurrentGoalCommand {
             return 0;
         }
 
-        GetGoalInfoCommand.sendGoalFeedback(source, AdvancementUtils.getCurrentAdvancement());
+        GetGoalCommand.sendGoalFeedback(source, AdvancementUtils.getCurrentAdvancement());
 
         return 1;
     }

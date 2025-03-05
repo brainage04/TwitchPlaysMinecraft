@@ -1,5 +1,6 @@
-package io.github.brainage04.twitchplaysminecraft.command;
+package io.github.brainage04.twitchplaysminecraft.command.attack;
 
+import io.github.brainage04.twitchplaysminecraft.command.ReleaseAllKeysCommand;
 import io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders;
 import io.github.brainage04.twitchplaysminecraft.util.*;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
@@ -240,7 +241,7 @@ public class AttackCommand {
         } else {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("Invalid entity! Valid entities: %s.".formatted(String.join(", ", ClientSuggestionProviders.entityTypeStrings)))
+                    .text("Invalid entity! Valid entities: %s.".formatted(String.join(", ", ClientSuggestionProviders.livingEntityTypeStrings)))
                     .execute();
 
             return 0;

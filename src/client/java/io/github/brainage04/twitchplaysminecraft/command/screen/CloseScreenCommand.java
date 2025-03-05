@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.command;
+package io.github.brainage04.twitchplaysminecraft.command.screen;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;

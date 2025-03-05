@@ -4,8 +4,19 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.*;
+import io.github.brainage04.twitchplaysminecraft.command.admin.RegenerateAuthUrlCommand;
+import io.github.brainage04.twitchplaysminecraft.command.admin.CommandQueueCommand;
 import io.github.brainage04.twitchplaysminecraft.command.argument.ClientIdentifierArgumentType;
-import io.github.brainage04.twitchplaysminecraft.command.commandqueue.CommandQueueCommands;
+import io.github.brainage04.twitchplaysminecraft.command.attack.AttackCommand;
+import io.github.brainage04.twitchplaysminecraft.command.goal.*;
+import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
+import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
+import io.github.brainage04.twitchplaysminecraft.command.screen.CloseScreenCommand;
+import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
+import io.github.brainage04.twitchplaysminecraft.command.screen.OpenInventoryCommand;
+import io.github.brainage04.twitchplaysminecraft.command.use.BridgeCommand;
+import io.github.brainage04.twitchplaysminecraft.command.use.JumpPlaceCommand;
+import io.github.brainage04.twitchplaysminecraft.command.use.UseCommand;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -17,6 +28,7 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.arg
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class ClientCommands {
+    // todo: organise similar to readme
     public static void initialize() {
         // config commands
         ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) ->
@@ -45,6 +57,7 @@ public class ClientCommands {
         AttackCommand.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("attack")
+                                // todo: replace with stopit
                                 .then(literal("stop")
                                         .executes(context ->
                                                 AttackCommand.stop(
@@ -59,7 +72,7 @@ public class ClientCommands {
                                                 )
                                         )
                                         .then(argument("entity", ClientIdentifierArgumentType.identifier())
-                                                .suggests(ClientSuggestionProviders.ENTITY_TYPES)
+                                                .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
                                                 .executes(context ->
                                                         AttackCommand.execute(
                                                                 context.getSource(),
@@ -454,11 +467,11 @@ public class ClientCommands {
                 )
         );
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("getgoalinfo")
+                        literal("getgoal")
                                 .then(argument("advancementId", ClientIdentifierArgumentType.identifier())
                                         .suggests(ClientIdentifierArgumentType::suggestAllAdvancements)
                                         .executes(context ->
-                                                GetGoalInfoCommand.execute(
+                                                GetGoalCommand.execute(
                                                         context.getSource(),
                                                         ClientIdentifierArgumentType.getIdentifier(context, "advancementId")
                                                 )
@@ -529,7 +542,7 @@ public class ClientCommands {
                                 .then(literal("add")
                                         .then(argument("command", StringArgumentType.string())
                                                 .executes(context ->
-                                                        CommandQueueCommands.executeAdd(
+                                                        CommandQueueCommand.executeAdd(
                                                                 context.getSource(),
                                                                 StringArgumentType.getString(context, "command")
                                                         )
@@ -538,14 +551,14 @@ public class ClientCommands {
                                 )
                                 .then(literal("clear")
                                         .executes(context ->
-                                                CommandQueueCommands.executeClear(
+                                                CommandQueueCommand.executeClear(
                                                         context.getSource()
                                                 )
                                         )
                                 )
                                 .then(literal("process")
                                         .executes(context ->
-                                                CommandQueueCommands.executeProcess(
+                                                CommandQueueCommand.executeProcess(
                                                         context.getSource()
                                                 )
                                         )

@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
@@ -28,8 +29,8 @@ public class ClientSuggestionProviders {
     public static final SuggestionProvider<FabricClientCommandSource> MOVEMENT_DIRECTION_SUGGESTIONS = register("movement_direction_suggestions", EnumUtils.getEnumNames(MovementDirection.class));
     public static final SuggestionProvider<FabricClientCommandSource> IMPORTANT_STRUCTURES = register("important_structures", EnumUtils.getEnumNames(ImportantStructures.class));
 
-    public static final String[] entityTypeStrings = Registries.ENTITY_TYPE.stream().map(entityType -> EntityType.getId(entityType).toString()).toArray(String[]::new);
-    public static final SuggestionProvider<FabricClientCommandSource> ENTITY_TYPES = register("entity_types", entityTypeStrings);
+    public static final String[] livingEntityTypeStrings = Registries.ENTITY_TYPE.stream().filter(entityType -> LivingEntity.class.isAssignableFrom(entityType.getBaseClass())).map(entityType -> EntityType.getId(entityType).toString()).toArray(String[]::new);
+    public static final SuggestionProvider<FabricClientCommandSource> LIVING_ENTITY_TYPES = register("living_entity_types", livingEntityTypeStrings);
 
 
 }

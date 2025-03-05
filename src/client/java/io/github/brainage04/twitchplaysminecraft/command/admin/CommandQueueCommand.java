@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.command.commandqueue;
+package io.github.brainage04.twitchplaysminecraft.command.admin;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.twitch.InstalledChatbot;
@@ -6,7 +6,7 @@ import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBui
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 @SuppressWarnings("SameReturnValue")
-public class CommandQueueCommands {
+public class CommandQueueCommand {
     public static int executeAdd(FabricClientCommandSource source, String command) {
         InstalledChatbot.addToCommandQueue(command);
 

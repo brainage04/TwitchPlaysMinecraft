@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.command;
+package io.github.brainage04.twitchplaysminecraft.command.goal;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.*;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("SameReturnValue")
-public class GetGoalInfoCommand {
+public class GetGoalCommand {
     // todo: find a use for this. verbose mode in config?
     //  also find out why none of the advancements actually have any AdvancementCriterion or CriterionConditions
     private static void sendCriteriaAndRequirements(FabricClientCommandSource source, PlacedAdvancement placedAdvancement) {
