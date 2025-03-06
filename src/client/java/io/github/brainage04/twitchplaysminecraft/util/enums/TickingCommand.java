@@ -26,11 +26,19 @@ public enum TickingCommand implements NamedEnum {
     MOVEITEM(MoveItemCommand::isRunning, MoveItemCommand::stop),
     USE(UseCommand::isRunning, UseCommand::stop);
 
-    public final Supplier<Boolean> isRunning;
-    public final Consumer<FabricClientCommandSource> stop;
+    public final Supplier<Boolean> isRunningSupplier;
+    public final Consumer<FabricClientCommandSource> stopConsumer;
 
-    TickingCommand(Supplier<Boolean> isRunning, Consumer<FabricClientCommandSource> stop) {
-        this.isRunning = isRunning;
-        this.stop = stop;
+    TickingCommand(Supplier<Boolean> isRunningSupplier, Consumer<FabricClientCommandSource> stopConsumer) {
+        this.isRunningSupplier = isRunningSupplier;
+        this.stopConsumer = stopConsumer;
+    }
+
+    public boolean isRunning() {
+        return isRunningSupplier.get();
+    }
+
+    public void stop(FabricClientCommandSource source) {
+        stopConsumer.accept(source);
     }
 }

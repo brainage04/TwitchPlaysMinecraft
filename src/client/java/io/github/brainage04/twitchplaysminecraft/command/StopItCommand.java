@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 public class StopItCommand {
     public static int execute(FabricClientCommandSource source) {
         for (TickingCommand command : TickingCommand.values()) {
-            if (command.isRunning.get()) command.stop.accept(source);
+            if (command.isRunning()) command.stop(source);
         }
 
         new ClientFeedbackBuilder().source(source)
