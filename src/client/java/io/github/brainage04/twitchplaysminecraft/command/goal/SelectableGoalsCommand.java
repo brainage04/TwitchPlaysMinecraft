@@ -11,9 +11,9 @@ import net.minecraft.util.Formatting;
 
 import java.util.List;
 
-public class AvailableGoalsCommand {
+public class SelectableGoalsCommand {
     public static int execute(FabricClientCommandSource source) {
-        List<PlacedAdvancement> availableAdvancements = AdvancementUtils.getAvailableAdvancements();
+        List<PlacedAdvancement> availableAdvancements = AdvancementUtils.getSelectableAdvancements();
         if (availableAdvancements.isEmpty()) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)

@@ -6,9 +6,17 @@ import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.*;
 import io.github.brainage04.twitchplaysminecraft.command.admin.RegenerateAuthUrlCommand;
 import io.github.brainage04.twitchplaysminecraft.command.admin.CommandQueueCommand;
+import io.github.brainage04.twitchplaysminecraft.command.admin.StopItCommand;
 import io.github.brainage04.twitchplaysminecraft.command.argument.ClientIdentifierArgumentType;
 import io.github.brainage04.twitchplaysminecraft.command.attack.AttackCommand;
+import io.github.brainage04.twitchplaysminecraft.command.craft.CraftCommand;
+import io.github.brainage04.twitchplaysminecraft.command.drop.DropCommand;
 import io.github.brainage04.twitchplaysminecraft.command.goal.*;
+import io.github.brainage04.twitchplaysminecraft.command.key.KeyBindingCommands;
+import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.LookAtBlockCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.LookAtEntityCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.LookCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.MoveCommand;
@@ -402,7 +410,7 @@ public class ClientCommands {
                                         .executes(context ->
                                                 KeyBindingCommands.executeHold(
                                                         context.getSource(),
-                                                        StringArgumentType.getString(context, "key")
+                                                        StringArgumentType.getString(context, "direction")
                                                 )
                                         )
                                         .then(argument("amount", IntegerArgumentType.integer())
@@ -410,7 +418,7 @@ public class ClientCommands {
                                                         .executes(context ->
                                                                 KeyBindingCommands.executeTimedHold(
                                                                         context.getSource(),
-                                                                        StringArgumentType.getString(context, "key"),
+                                                                        StringArgumentType.getString(context, "direction"),
                                                                         IntegerArgumentType.getInteger(context, "amount")
                                                                 )
                                                         )
@@ -419,7 +427,7 @@ public class ClientCommands {
                                                         .executes(context ->
                                                                 KeyBindingCommands.executeTimedHold(
                                                                         context.getSource(),
-                                                                        StringArgumentType.getString(context, "key"),
+                                                                        StringArgumentType.getString(context, "direction"),
                                                                         IntegerArgumentType.getInteger(context, "amount")
                                                                 )
                                                         )
@@ -488,9 +496,9 @@ public class ClientCommands {
 
         // voting commands
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("availablegoals")
+                        literal("selectablegoals")
                                 .executes(context ->
-                                        AvailableGoalsCommand.execute(
+                                        SelectableGoalsCommand.execute(
                                                 context.getSource()
                                         )
                                 )
@@ -519,11 +527,11 @@ public class ClientCommands {
                 )
         );
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("setcurrentgoal")
+                        literal("selectcurrentgoal")
                                 .then(argument("advancementId", ClientIdentifierArgumentType.identifier())
                                         .suggests(ClientIdentifierArgumentType::suggestSelectableAdvancements)
                                         .executes(context ->
-                                                SetCurrentGoalCommand.execute(
+                                                SelectCurrentGoalCommand.execute(
                                                         context.getSource(),
                                                         ClientIdentifierArgumentType.getIdentifier(context, "advancementId")
                                                 )

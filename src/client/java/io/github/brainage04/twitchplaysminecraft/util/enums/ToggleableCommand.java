@@ -2,43 +2,60 @@ package io.github.brainage04.twitchplaysminecraft.util.enums;
 
 import io.github.brainage04.twitchplaysminecraft.util.enums.core.NamedEnum;
 
+import java.util.function.Supplier;
+
 import static io.github.brainage04.twitchplaysminecraft.util.ConfigUtils.getConfig;
 
 public enum ToggleableCommand implements NamedEnum {
-    // todo: sort properly
-    ATTACK(getConfig().toggleCommandsConfig.enableAttackCommand),
-    AVAILABLEGOALS(getConfig().toggleCommandsConfig.enableAvailableGoalsCommand),
-    BRIDGE(getConfig().toggleCommandsConfig.enableBridgeCommand),
-    CLEARCURRENTGOAL(getConfig().toggleCommandsConfig.enableClearCurrentGoalCommand),
-    CLOSESCREEN(getConfig().toggleCommandsConfig.enableCloseScreenCommand),
-    COMMANDQUEUE(getConfig().toggleCommandsConfig.enableCommandQueueCommand),
-    CRAFT(getConfig().toggleCommandsConfig.enableCraftCommand),
-    DROP(getConfig().toggleCommandsConfig.enableDropCommand),
-    DROPHELDITEM(getConfig().toggleCommandsConfig.enableDropHeldItemCommand),
-    GETCURRENTGOAL(getConfig().toggleCommandsConfig.enableGetCurrentGoalCommand),
-    GETGOALINFO(getConfig().toggleCommandsConfig.enableGetGoalInfoCommand),
-    HOLDKEY(getConfig().toggleCommandsConfig.enableHoldKeyCommand),
-    HOTBAR(getConfig().toggleCommandsConfig.enableHotbarCommand),
-    JUMPPLACE(getConfig().toggleCommandsConfig.enableJumpPlaceCommand),
-    LOCATESTRUCTURE(getConfig().toggleCommandsConfig.enableLocateStructureCommand),
-    LOOK(getConfig().toggleCommandsConfig.enableLookCommand),
-    LOOKATBLOCK(getConfig().toggleCommandsConfig.enableLookAtBlockCommand),
-    LOOKATENTITY(getConfig().toggleCommandsConfig.enableLookAtEntityCommand),
-    MINE(getConfig().toggleCommandsConfig.enableMineCommand),
-    MOVE(getConfig().toggleCommandsConfig.enableMoveCommand),
-    MOVEITEM(getConfig().toggleCommandsConfig.enableMoveItemCommand),
-    OPENINVENTORY(getConfig().toggleCommandsConfig.enableOpenInventoryCommand),
-    PRESSKEY(getConfig().toggleCommandsConfig.enablePressKeyCommand),
-    REGENERATEAUTHURL(getConfig().toggleCommandsConfig.enableRegenerateAuthUrlCommand),
-    RELEASEALLKEYS(getConfig().toggleCommandsConfig.enableReleaseAllKeysCommand),
-    RELEASEKEY(getConfig().toggleCommandsConfig.enableReleaseKeyCommand),
-    SETCURRENTGOAL(getConfig().toggleCommandsConfig.enableSetCurrentGoalCommand),
-    STRIPMINE(getConfig().toggleCommandsConfig.enableStripMineCommand),
-    USE(getConfig().toggleCommandsConfig.enableUseCommand);
+    COMMANDQUEUE(() -> getConfig().toggleCommandsConfig.enableCommandQueueCommand),
+    REGENERATEAUTHURL(() -> getConfig().toggleCommandsConfig.enableRegenerateAuthUrlCommand),
+    STOPIT(() -> getConfig().toggleCommandsConfig.enableStopItCommand),
 
-    public final boolean enabled;
+    ATTACK(() -> getConfig().toggleCommandsConfig.enableAttackCommand),
 
-    ToggleableCommand(boolean enabled) {
-        this.enabled = enabled;
+    CRAFT(() -> getConfig().toggleCommandsConfig.enableCraftCommand),
+
+    DROP(() -> getConfig().toggleCommandsConfig.enableDropCommand),
+    DROPHELDITEM(() -> getConfig().toggleCommandsConfig.enableDropHeldItemCommand),
+
+    CLEARCURRENTGOAL(() -> getConfig().toggleCommandsConfig.enableClearCurrentGoalCommand),
+    GETCURRENTGOAL(() -> getConfig().toggleCommandsConfig.enableGetCurrentGoalCommand),
+    GETGOAL(() -> getConfig().toggleCommandsConfig.enableGetGoalCommand),
+    SELECTABLEGOALS(() -> getConfig().toggleCommandsConfig.enableSelectableGoalsCommand),
+    SELECTCURRENTGOAL(() -> getConfig().toggleCommandsConfig.enableSelectCurrentGoalCommand),
+
+    PRESSKEY(() -> getConfig().toggleCommandsConfig.enablePressKeyCommand),
+    HOLDKEY(() -> getConfig().toggleCommandsConfig.enableHoldKeyCommand),
+    RELEASEKEY(() -> getConfig().toggleCommandsConfig.enableReleaseKeyCommand),
+    RELEASEALLKEYS(() -> getConfig().toggleCommandsConfig.enableReleaseAllKeysCommand),
+
+    LOOK(() -> getConfig().toggleCommandsConfig.enableLookCommand),
+    LOOKATBLOCK(() -> getConfig().toggleCommandsConfig.enableLookAtBlockCommand),
+    LOOKATENTITY(() -> getConfig().toggleCommandsConfig.enableLookAtEntityCommand),
+
+    MINE(() -> getConfig().toggleCommandsConfig.enableMineCommand),
+    STRIPMINE(() -> getConfig().toggleCommandsConfig.enableStripMineCommand),
+
+    MOVE(() -> getConfig().toggleCommandsConfig.enableMoveCommand),
+
+    CLOSESCREEN(() -> getConfig().toggleCommandsConfig.enableCloseScreenCommand),
+    MOVEITEM(() -> getConfig().toggleCommandsConfig.enableMoveItemCommand),
+    OPENINVENTORY(() -> getConfig().toggleCommandsConfig.enableOpenInventoryCommand),
+
+    BRIDGE(() -> getConfig().toggleCommandsConfig.enableBridgeCommand),
+    JUMPPLACE(() -> getConfig().toggleCommandsConfig.enableJumpPlaceCommand),
+    USE(() -> getConfig().toggleCommandsConfig.enableUseCommand),
+
+    HOTBAR(() -> getConfig().toggleCommandsConfig.enableHotbarCommand),
+    LOCATESTRUCTURE(() -> getConfig().toggleCommandsConfig.enableLocateStructureCommand);
+
+    public final Supplier<Boolean> enabledSupplier;
+
+    ToggleableCommand(Supplier<Boolean> enabledSupplier) {
+        this.enabledSupplier = enabledSupplier;
+    }
+
+    public boolean isEnabled() {
+        return this.enabledSupplier.get();
     }
 }

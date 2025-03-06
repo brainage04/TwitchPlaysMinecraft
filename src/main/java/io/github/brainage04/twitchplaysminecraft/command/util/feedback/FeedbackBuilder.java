@@ -14,7 +14,7 @@ public abstract class FeedbackBuilder<T extends CommandSource> {
     protected float volume = 1;
     protected float pitch = 1;
     private MessageType messageType = MessageType.NONE;
-    protected boolean sendInTwitchChat = false;
+    protected MessageDestination messageDestination = MessageDestination.MINECRAFT;
 
     public FeedbackBuilder<T> source(T source) {
         this.source = source;
@@ -48,8 +48,8 @@ public abstract class FeedbackBuilder<T extends CommandSource> {
         return this;
     }
 
-    public FeedbackBuilder<T> sendInTwitchChat(boolean sendInTwitchChat) {
-        this.sendInTwitchChat = sendInTwitchChat;
+    public FeedbackBuilder<T> messageDestination(MessageDestination messageDestination) {
+        this.messageDestination = messageDestination;
         return this;
     }
 

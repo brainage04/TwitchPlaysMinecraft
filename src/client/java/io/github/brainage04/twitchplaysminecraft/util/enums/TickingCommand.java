@@ -1,6 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.util.enums;
 
-import io.github.brainage04.twitchplaysminecraft.command.CraftCommand;
+import io.github.brainage04.twitchplaysminecraft.command.craft.CraftCommand;
 import io.github.brainage04.twitchplaysminecraft.command.attack.AttackCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;

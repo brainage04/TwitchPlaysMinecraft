@@ -1,6 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.command.attack;
 
-import io.github.brainage04.twitchplaysminecraft.command.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
 import io.github.brainage04.twitchplaysminecraft.command.core.ClientSuggestionProviders;
 import io.github.brainage04.twitchplaysminecraft.util.*;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
@@ -19,7 +19,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -68,11 +67,12 @@ public class AttackCommand {
             double distanceSquared = client.player.squaredDistanceTo(target);
 
             if (distanceSquared > client.player.getEntityInteractionRange()) {
+                // this has bugs so straight forward approach will do for now
+                /*
                 PathFindingUtils.visualizePath(client.player, path);
 
                 Vec3d nextPos = path.get(pathIndex).toCenterPos();
-                // todo: test using path.get(pathIndex + 1) if it exists. Might be smoother
-                PathFindingUtils.guidePlayerAlongPath(client.player, nextPos);
+                PathFindingUtils.guidePlayerAlongPath(client.player, new Vec3d(nextPos.getX(), client.player.getEyeY(), nextPos.getZ()));
                 if (client.player.squaredDistanceTo(nextPos) < 0.5) pathIndex++;
                 if (pathIndex >= path.size()) {
                     new ClientFeedbackBuilder().source(SourceUtils.getSource(client.player))
@@ -83,6 +83,10 @@ public class AttackCommand {
                     path = PathFindingUtils.calculatePathToMob(client.player, target);
                     pathIndex = 0;
                 }
+                 */
+
+                client.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target.getEyePos());
+                MinecraftClient.getInstance().options.forwardKey.setPressed(true);
 
                 return;
             }

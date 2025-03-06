@@ -8,7 +8,7 @@ import net.minecraft.advancement.PlacedAdvancement;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class SetCurrentGoalCommand {
+public class SelectCurrentGoalCommand {
     public static int execute(FabricClientCommandSource source, Identifier advancementId) {
         PlacedAdvancement placedAdvancement = AdvancementUtils.getAdvancementById(advancementId);
         if (placedAdvancement == null) {
@@ -16,13 +16,15 @@ public class SetCurrentGoalCommand {
                     .messageType(MessageType.ERROR)
                     .text("Advancement with ID \"%s\" does not exist! Please try again.".formatted(advancementId.toString()))
                     .execute();
+
             return 0;
         }
+
         if (!AdvancementUtils.canSelectAdvancement(source.getPlayer(), placedAdvancement)) {
             if (placedAdvancement.getParent() != null) {
                 new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.ERROR)
-                        .text("Prerequisite advancement \"%s\" not met!.".formatted(AdvancementUtils.getAdvancementName(placedAdvancement.getParent())))
+                        .text("Prerequisite advancement with ID \"%s\" not met!.".formatted(placedAdvancement.getParent().getAdvancementEntry().id().toString()))
                         .execute();
             } else {
                 new ClientFeedbackBuilder().source(source)

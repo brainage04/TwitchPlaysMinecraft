@@ -35,7 +35,7 @@ public class AdvancementUtils {
             return placedAdvancement.getAdvancement().display().get().getTitle();
         }
 
-        return Text.literal(AdvancementUtils.getCurrentAdvancement().getAdvancementEntry().id().toString());
+        return Text.literal(placedAdvancement.getAdvancementEntry().id().toString());
     }
 
     public static Text getAdvancementDescription(PlacedAdvancement placedAdvancement) {
@@ -54,7 +54,7 @@ public class AdvancementUtils {
         return client.getNetworkHandler().getAdvancementHandler().getManager().get(id);
     }
 
-    public static List<PlacedAdvancement> getAvailableAdvancements() {
+    public static List<PlacedAdvancement> getSelectableAdvancements() {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayerEntity player = client.player;
 
@@ -65,13 +65,23 @@ public class AdvancementUtils {
                 .collect(Collectors.toList());
     }
 
+    public static List<PlacedAdvancement> getVisibleAdvancements() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientPlayerEntity player = client.player;
+
+        if (player == null || client.getNetworkHandler() == null) return List.of();
+
+        return client.getNetworkHandler().getAdvancementHandler().getManager().getAdvancements().stream().toList();
+    }
+
+    // todo: update when advancement is done using mixin
     public static List<PlacedAdvancement> getAchievedAdvancements() {
         if (MinecraftClient.getInstance().player == null) return List.of();
         Map<AdvancementEntry, AdvancementProgress> advancementProgresses = MinecraftClient.getInstance().player.networkHandler.getAdvancementHandler().advancementProgresses;
 
         List<PlacedAdvancement> advancements = new ArrayList<>();
 
-        for (PlacedAdvancement placedAdvancement : getAvailableAdvancements()) {
+        for (PlacedAdvancement placedAdvancement : getVisibleAdvancements()) {
             if (advancementProgresses.get(placedAdvancement.getAdvancementEntry()).isDone()) {
                 advancements.add(placedAdvancement);
             }

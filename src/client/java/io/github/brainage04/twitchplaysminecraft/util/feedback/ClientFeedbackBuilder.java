@@ -13,17 +13,28 @@ public class ClientFeedbackBuilder extends FeedbackBuilder<FabricClientCommandSo
         source = SourceUtils.getSource();
     }
 
-    @Override
-    protected void sendFeedback() {
+    private void sendMinecraftFeedback() {
         if (source != null) {
             source.sendFeedback(text);
 
             if (source.getClient().player == null) return;
             source.getClient().player.playSound(soundEvent, volume, pitch);
         }
+    }
 
-        if (sendInTwitchChat) {
-            InstalledChatbot.getBot().sendChatMessage(text.getString());
+    private void sendTwitchFeedback() {
+        InstalledChatbot.getBot().sendChatMessage(text.getString());
+    }
+
+    @Override
+    protected void sendFeedback() {
+        switch (messageDestination) {
+            case MINECRAFT -> sendMinecraftFeedback();
+            case TWITCH -> sendTwitchFeedback();
+            case ALL -> {
+                sendTwitchFeedback();
+                sendMinecraftFeedback();
+            }
         }
     }
 

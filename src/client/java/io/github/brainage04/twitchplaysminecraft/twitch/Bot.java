@@ -71,8 +71,17 @@ public class Bot {
 
             String commandName = command.split(" ")[0];
             ToggleableCommand toggleableCommand = EnumUtils.getValueSafely(ToggleableCommand.class, commandName);
-            if (toggleableCommand != null) {
-                if (!toggleableCommand.enabled) {
+            if (toggleableCommand != null && getConfig().toggleCommandsConfig.enableTogglingCommands) {
+                if (getConfig().toggleCommandsConfig.disableAllCommands) {
+                    new ClientFeedbackBuilder().source(networkHandler)
+                            .messageType(MessageType.ERROR)
+                            .text("All commands has been disabled by the streamer!")
+                            .execute();
+
+                    return;
+                }
+
+                if (!toggleableCommand.isEnabled()) {
                     new ClientFeedbackBuilder().source(networkHandler)
                             .messageType(MessageType.ERROR)
                             .text("The \"%s\" command has been disabled by the streamer!")

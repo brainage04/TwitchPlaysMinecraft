@@ -21,35 +21,50 @@ public class ModConfig implements ConfigData {
     @ConfigEntry.Gui.CollapsibleObject public GoalConfig goalConfig = new GoalConfig();
 
     public static class ToggleCommandsConfig {
+        public boolean enableTogglingCommands = true;
+        public boolean disableAllCommands = false;
+
+        public boolean enableCommandQueueCommand = true;
+        public boolean enableRegenerateAuthUrlCommand = true;
+        public boolean enableStopItCommand = true;
+
         public boolean enableAttackCommand = true;
-        public boolean enableMineCommand = true;
-        public boolean enableStripMineCommand = true;
-        public boolean enableJumpPlaceCommand = true;
-        public boolean enableBridgeCommand = true;
-        public boolean enableUseCommand = true;
+
+        public boolean enableCraftCommand = true;
+
         public boolean enableDropCommand = true;
         public boolean enableDropHeldItemCommand = true;
-        public boolean enableLookCommand = true;
-        public boolean enableLookAtBlockCommand = true;
-        public boolean enableLookAtEntityCommand = true;
-        public boolean enableCraftCommand = true;
-        public boolean enableMoveItemCommand = true;
-        public boolean enableOpenInventoryCommand = true;
-        public boolean enableCloseScreenCommand = true;
-        public boolean enableHotbarCommand = true;
-        public boolean enableMoveCommand = true;
+
+        public boolean enableClearCurrentGoalCommand = true;
+        public boolean enableGetCurrentGoalCommand = true;
+        public boolean enableGetGoalCommand = true;
+        public boolean enableSelectableGoalsCommand = true;
+        public boolean enableSelectCurrentGoalCommand = true;
+
         public boolean enablePressKeyCommand = true;
         public boolean enableHoldKeyCommand = true;
         public boolean enableReleaseKeyCommand = true;
         public boolean enableReleaseAllKeysCommand = true;
-        public boolean enableAvailableGoalsCommand = true;
-        public boolean enableGetGoalInfoCommand = true;
-        public boolean enableGetCurrentGoalCommand = true;
-        public boolean enableSetCurrentGoalCommand = true;
-        public boolean enableClearCurrentGoalCommand = true;
+
+        public boolean enableLookCommand = true;
+        public boolean enableLookAtBlockCommand = true;
+        public boolean enableLookAtEntityCommand = true;
+
+        public boolean enableMineCommand = true;
+        public boolean enableStripMineCommand = true;
+
+        public boolean enableMoveCommand = true;
+
+        public boolean enableCloseScreenCommand = true;
+        public boolean enableMoveItemCommand = true;
+        public boolean enableOpenInventoryCommand = true;
+
+        public boolean enableBridgeCommand = true;
+        public boolean enableJumpPlaceCommand = true;
+        public boolean enableUseCommand = true;
+
+        public boolean enableHotbarCommand = true;
         public boolean enableLocateStructureCommand = true;
-        public boolean enableRegenerateAuthUrlCommand = true;
-        public boolean enableCommandQueueCommand = true;
     }
 
     public static class CommandQueueConfig {
@@ -63,10 +78,11 @@ public class ModConfig implements ConfigData {
     }
 
     public static class GoalConfig {
+        public boolean displayRecipeGoals = false;
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public GoalConfig() {
-            this.coreSettings = new CoreSettings(1, "Advancement Tracking HUD", true, -5, 5, ElementAnchor.TOPRIGHT, false, 100);
+            this.coreSettings = new CoreSettings(1, "Goal HUD", true, -5, 5, ElementAnchor.TOPRIGHT, false, 100);
         }
     }
 

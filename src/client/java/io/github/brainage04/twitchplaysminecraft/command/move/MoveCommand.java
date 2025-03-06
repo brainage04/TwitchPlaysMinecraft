@@ -1,6 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.command.move;
 
-import io.github.brainage04.twitchplaysminecraft.command.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.EnumUtils;
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;

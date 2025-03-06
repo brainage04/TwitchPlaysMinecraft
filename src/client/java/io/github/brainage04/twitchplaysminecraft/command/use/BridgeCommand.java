@@ -1,6 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.command.use;
 
-import io.github.brainage04.twitchplaysminecraft.command.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
@@ -23,6 +23,18 @@ public class BridgeCommand {
     private static int blocksPlacedLimit = Integer.MAX_VALUE;
 
     public static int stop(FabricClientCommandSource source) {
+        // this stops the player from falling off accidentally
+        GameOptions options = source.getClient().options;
+        new KeyBindingBuilder().source(source)
+                .keys(options.useKey, options.backKey, options.rightKey)
+                .pressed(false)
+                .execute();
+        new KeyBindingBuilder().source(source)
+                .keys(options.sneakKey)
+                .pressed(false)
+                .extraTickDelay(10)
+                .execute();
+
         ReleaseAllKeysCommand.execute(source);
 
         isRunning = false;

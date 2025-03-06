@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.command;
+package io.github.brainage04.twitchplaysminecraft.command.key;
 
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
