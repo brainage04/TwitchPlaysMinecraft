@@ -11,6 +11,7 @@ import io.github.brainage04.twitchplaysminecraft.command.attack.AttackCommand;
 import io.github.brainage04.twitchplaysminecraft.command.goal.*;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
+import io.github.brainage04.twitchplaysminecraft.command.move.MoveCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.CloseScreenCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.OpenInventoryCommand;
@@ -53,31 +54,60 @@ public class ClientCommands {
                 )
         ));
 
+        MoveCommand.initialize();
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("move")
+                                .then(argument("direction", StringArgumentType.string())
+                                        .suggests(ClientSuggestionProviders.MOVE_DIRECTION_SUGGESTIONS)
+                                        .then(argument("amount", IntegerArgumentType.integer())
+                                                .then(literal("blocks")
+                                                        .executes(context ->
+                                                                MoveCommand.executeDistance(
+                                                                        context.getSource(),
+                                                                        StringArgumentType.getString(context, "direction"),
+                                                                        IntegerArgumentType.getInteger(context, "amount")
+                                                                )
+                                                        )
+                                                )
+                                                .then(literal("seconds")
+                                                        .executes(context ->
+                                                                MoveCommand.executeTime(
+                                                                        context.getSource(),
+                                                                        StringArgumentType.getString(context, "direction"),
+                                                                        IntegerArgumentType.getInteger(context, "amount")
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                )
+        );
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("stopit")
+                                .executes(context ->
+                                        StopItCommand.execute(
+                                                context.getSource()
+                                        )
+                                )
+                )
+        );
+
         // world interaction commands
         AttackCommand.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("attack")
-                                // todo: replace with stopit
-                                .then(literal("stop")
-                                        .executes(context ->
-                                                AttackCommand.stop(
-                                                        context.getSource()
-                                                )
+                                .executes(context ->
+                                        AttackCommand.execute(
+                                                context.getSource()
                                         )
                                 )
-                                .then(literal("start")
+                                .then(argument("entity", ClientIdentifierArgumentType.identifier())
+                                        .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
                                         .executes(context ->
                                                 AttackCommand.execute(
-                                                        context.getSource()
-                                                )
-                                        )
-                                        .then(argument("entity", ClientIdentifierArgumentType.identifier())
-                                                .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
-                                                .executes(context ->
-                                                        AttackCommand.execute(
-                                                                context.getSource(),
-                                                                ClientIdentifierArgumentType.getIdentifier(context, "entity")
-                                                        )
+                                                        context.getSource(),
+                                                        ClientIdentifierArgumentType.getIdentifier(context, "entity")
                                                 )
                                         )
                                 )
@@ -368,7 +398,7 @@ public class ClientCommands {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("move")
                                 .then(argument("direction", StringArgumentType.string())
-                                        .suggests(ClientSuggestionProviders.MOVEMENT_DIRECTION_SUGGESTIONS)
+                                        .suggests(ClientSuggestionProviders.MOVE_DIRECTION_SUGGESTIONS)
                                         .executes(context ->
                                                 KeyBindingCommands.executeHold(
                                                         context.getSource(),

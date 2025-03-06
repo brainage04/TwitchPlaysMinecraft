@@ -6,6 +6,8 @@ import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageTy
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.item.BlockItem;
 
@@ -14,8 +16,21 @@ public class JumpPlaceCommand {
     private static int blocksPlaced = 0;
     private static int blocksPlacedLimit = Integer.MAX_VALUE;
 
-    public static void incrementBlocksPlaced() {
+    public static int stop(FabricClientCommandSource source) {
+        ReleaseAllKeysCommand.execute(source);
+
+        isRunning = false;
+        blocksPlaced = 0;
+        blocksPlacedLimit = Integer.MAX_VALUE;
+
+        return 1;
+    }
+
+    public static void incrementBlocksPlaced(MinecraftClient client) {
         if (!isRunning) return;
+
+        ClientPlayerEntity player = client.player;
+        if (player == null) return;
 
         blocksPlaced++;
         if (blocksPlaced < blocksPlacedLimit) {
@@ -27,11 +42,7 @@ public class JumpPlaceCommand {
                     .text("Placed %d/%d.".formatted(blocksPlaced, blocksPlacedLimit))
                     .execute();
 
-            ReleaseAllKeysCommand.execute(SourceUtils.getSource());
-
-            isRunning = false;
-            blocksPlaced = 0;
-            blocksPlacedLimit = Integer.MAX_VALUE;
+            stop(SourceUtils.getSource(player));
         }
     }
 
@@ -61,5 +72,9 @@ public class JumpPlaceCommand {
                 .execute();
 
         return 1;
+    }
+
+    public static boolean isRunning() {
+        return isRunning;
     }
 }

@@ -33,6 +33,11 @@ public class DropCommand {
     public static int executeDropAll(FabricClientCommandSource source) {
         source.getPlayer().dropSelectedItem(true);
 
+        new ClientFeedbackBuilder().source(source)
+                .messageType(MessageType.INFO)
+                .text("Dropped entire stack.")
+                .execute();
+
         return 1;
     }
 

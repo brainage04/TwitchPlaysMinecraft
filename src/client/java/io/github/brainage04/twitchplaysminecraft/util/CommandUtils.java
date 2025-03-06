@@ -8,7 +8,7 @@ import java.util.Map;
 public class CommandUtils {
     public static final int millisecondsBetweenSteps = 100;
 
-    public static Thread currentInteractionThread;
+    private static Thread currentInteractionThread;
 
     public static void interruptCurrentInteractionThread() {
         if (currentInteractionThread == null) return;

@@ -25,36 +25,22 @@ import net.minecraft.world.World;
 import java.util.*;
 
 public class MineCommand {
-    private static boolean isMining = false;
+    private static boolean isRunning = false;
     private static final TreeSet<BlockPos> blocks = new TreeSet<>();
     private static int ticksSinceLastBlockBreak = 0;
     private static final int secondsSinceLastBlockBreakLimit = 15;
 
-    private static void stop() {
-        isMining = false;
-        ticksSinceLastBlockBreak = 0;
-    }
-
     public static void initialize() {
         ClientPlayerBlockBreakEvents.AFTER.register(((clientWorld, clientPlayerEntity, blockPos, blockState) -> {
-            if (!isMining) return;
-
+            if (!isRunning) return;
             ticksSinceLastBlockBreak = 0;
 
-            if (blocks.isEmpty()) {
-                new ClientFeedbackBuilder().source(clientPlayerEntity)
-                        .messageType(MessageType.SUCCESS)
-                        .text("Finished mining blocks.")
-                        .execute();
-
-                ReleaseAllKeysCommand.execute(SourceUtils.getSource(clientPlayerEntity));
-
-                stop();
-            }
+            if (!blocks.isEmpty()) return;
+            stop(SourceUtils.getSource(clientPlayerEntity));
         }));
         
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            if (!isMining) return;
+            if (!isRunning) return;
             if (client.player == null) return;
 
             ticksSinceLastBlockBreak++;
@@ -64,7 +50,7 @@ public class MineCommand {
                         .text("No blocks mined for %d seconds! Stopping...".formatted(secondsSinceLastBlockBreakLimit))
                         .execute();
 
-                stop();
+                stop(SourceUtils.getSource(client.player));
             }
 
             if (blocks.isEmpty()) {
@@ -73,7 +59,7 @@ public class MineCommand {
                         .text("Still mining with no blocks left to mine - this shouldn't happen!")
                         .execute();
 
-                stop();
+                stop(SourceUtils.getSource(client.player));
 
                 return;
             }
@@ -85,6 +71,21 @@ public class MineCommand {
 
             client.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target);
         });
+    }
+
+
+    public static int stop(FabricClientCommandSource source) {
+        isRunning = false;
+        ticksSinceLastBlockBreak = 0;
+
+        ReleaseAllKeysCommand.execute(source);
+
+        new ClientFeedbackBuilder().source(source)
+                .messageType(MessageType.SUCCESS)
+                .text("Mining cancelled.")
+                .execute();
+
+        return 1;
     }
 
     public static void updateBlocks(ClientPlayerEntity player, Block desiredBlock, int limit) {
@@ -131,6 +132,18 @@ public class MineCommand {
     );
 
     public static int execute(FabricClientCommandSource source, String blockName, int count) {
+        ClientPlayerEntity player = source.getPlayer();
+        if (player == null) return 0;
+
+        if (isRunning) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("You are already mining something!")
+                    .execute();
+
+            return 0;
+        }
+
         if (INVALID_BLOCKS.contains(blockName.toLowerCase())) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -153,7 +166,7 @@ public class MineCommand {
         // repeat process and increment radius up to 20
 
         int radius = 3;
-        updateBlocks(source.getPlayer(), block, count);
+        updateBlocks(player, block, count);
         if (blocks.size() < count) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.INFO)
@@ -164,7 +177,7 @@ public class MineCommand {
 
             radius++;
             while (radius <= 20) {
-                updateBlocks(source.getPlayer(), block, count);
+                updateBlocks(player, block, count);
                 if (blocks.size() >= count) break;
 
                 radius++;
@@ -202,9 +215,12 @@ public class MineCommand {
                         .append(" blocks..."))
                 .execute();
 
-        isMining = true;
-
+        isRunning = true;
 
         return 1;
+    }
+
+    public static boolean isRunning() {
+        return isRunning;
     }
 }

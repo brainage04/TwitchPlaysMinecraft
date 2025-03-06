@@ -35,51 +35,6 @@ public class AttackCommand {
     // difference in Y coordinates from player and target is positive
     private static boolean prevAutoJump = false;
 
-    private static void start(MinecraftClient client) {
-        if (client.player == null) return;
-
-        isRunning = true;
-
-        prevAutoJump = client.options.getAutoJump().getValue();
-        client.options.getAutoJump().setValue(true);
-    }
-
-    public static int stop(FabricClientCommandSource source) {
-        if (!isRunning) {
-            new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.ERROR)
-                    .text("You are not attacking anything!")
-                    .execute();
-
-            return 0;
-        }
-
-        isRunning = false;
-        ticksSinceLastAttack = 0;
-        target = null;
-        path = null;
-        pathIndex = 0;
-
-        ReleaseAllKeysCommand.execute(source);
-        MinecraftClient.getInstance().options.getAutoJump().setValue(prevAutoJump);
-
-        new ClientFeedbackBuilder().source(source)
-                .messageType(MessageType.SUCCESS)
-                .text("Attack cancelled.")
-                .execute();
-
-        return 1;
-    }
-
-    private static double getIdealDistance(ClientPlayerEntity player, LivingEntity target) {
-        double defaultValue = 1;
-
-        if (!(target instanceof HostileEntity hostileEntity)) return defaultValue;
-        if (hostileEntity.getAttacker() == null) return defaultValue;
-        if (hostileEntity.getAttacker().getUuid() != player.getUuid()) return defaultValue;
-
-        return player.getEntityInteractionRange() - 1;
-    }
     public static void initialize() {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isRunning) return;
@@ -169,9 +124,46 @@ public class AttackCommand {
         });
     }
 
+    public static int stop(FabricClientCommandSource source) {
+        isRunning = false;
+        ticksSinceLastAttack = 0;
+        target = null;
+        path = null;
+        pathIndex = 0;
+
+        ReleaseAllKeysCommand.execute(source);
+        MinecraftClient.getInstance().options.getAutoJump().setValue(prevAutoJump);
+
+        new ClientFeedbackBuilder().source(source)
+                .messageType(MessageType.SUCCESS)
+                .text("Attack cancelled.")
+                .execute();
+
+        return 1;
+    }
+
+    private static double getIdealDistance(ClientPlayerEntity player, LivingEntity target) {
+        double defaultValue = 1;
+
+        if (!(target instanceof HostileEntity hostileEntity)) return defaultValue;
+        if (hostileEntity.getAttacker() == null) return defaultValue;
+        if (hostileEntity.getAttacker().getUuid() != player.getUuid()) return defaultValue;
+
+        return player.getEntityInteractionRange() - 1;
+    }
+
     public static <T extends LivingEntity> int execute(FabricClientCommandSource source, Class<T> entityClass) {
         ClientPlayerEntity player = source.getPlayer();
         if (player == null) return 0;
+
+        if (isRunning) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("You are already attacking something!")
+                    .execute();
+
+            return 0;
+        }
 
         // find nearest mobs (within 16 blocks)
         int radius = 16;
@@ -222,7 +214,10 @@ public class AttackCommand {
                     .execute();
         }
 
-        start(source.getClient());
+        isRunning = true;
+
+        prevAutoJump = source.getClient().options.getAutoJump().getValue();
+        source.getClient().options.getAutoJump().setValue(true);
 
         return 1;
     }
@@ -250,5 +245,9 @@ public class AttackCommand {
 
     public static int execute(FabricClientCommandSource source) {
         return execute(source, LivingEntity.class);
+    }
+
+    public static boolean isRunning() {
+        return isRunning;
     }
 }

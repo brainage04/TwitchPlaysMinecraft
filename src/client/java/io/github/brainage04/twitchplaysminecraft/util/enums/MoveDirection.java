@@ -6,7 +6,7 @@ import net.minecraft.client.option.KeyBinding;
 
 import java.util.function.Function;
 
-public enum MovementDirection implements NamedEnum {
+public enum MoveDirection implements NamedEnum {
     FORWARD(options -> options.forwardKey),
     BACK(options -> options.backKey),
     LEFT(options -> options.leftKey),
@@ -14,7 +14,7 @@ public enum MovementDirection implements NamedEnum {
 
     public final Function<GameOptions, KeyBinding> function;
 
-    MovementDirection(Function<GameOptions, KeyBinding> function) {
+    MoveDirection(Function<GameOptions, KeyBinding> function) {
         this.function = function;
     }
 }

@@ -16,7 +16,15 @@ import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.startN
 import static io.github.brainage04.twitchplaysminecraft.util.ThreadUtils.sleepSafely;
 
 public class CraftCommand {
+    private static boolean isRunning = false;
+
     private static List<AnimatedResultButton> visibleButtons;
+
+    public static int stop(FabricClientCommandSource source) {
+        isRunning = false;
+
+        return 1;
+    }
 
     public static int execute(FabricClientCommandSource source, String itemName, int count) {
         if (!(source.getClient().currentScreen instanceof CraftingScreen craftingScreen)) {
@@ -184,5 +192,9 @@ public class CraftCommand {
         }));
 
         return 1;
+    }
+
+    public static boolean isRunning() {
+        return isRunning;
     }
 }
