@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RunnableScheduler {
-    public static final int startDelayTicks = 2;
-
     private static class ScheduledTask {
         public final Runnable runnable;
         public int ticksPassed;

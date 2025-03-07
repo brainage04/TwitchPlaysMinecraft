@@ -1,9 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.command.use;
 
-import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
-import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
-import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -13,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
+// todo: test
 public class UseCommand {
     private static boolean isRunning = false;
     public static int currentUses = 0;
@@ -20,19 +18,13 @@ public class UseCommand {
 
     private static boolean prevIsUsingItem = false;
 
-    public static int stop(FabricClientCommandSource source) {
-        ReleaseAllKeysCommand.execute(source);
-
+    public static int stop() {
         isRunning = false;
-        currentUses = 0;
 
         return 1;
     }
 
     private static void incrementCurrentUses(MinecraftClient client) {
-        ClientPlayerEntity player = client.player;
-        if (player == null) return;
-
         currentUses++;
 
         if (currentUses < maxUses) {
@@ -46,7 +38,9 @@ public class UseCommand {
                     .text("Used %d/%d.".formatted(currentUses, maxUses))
                     .execute();
 
-            stop(SourceUtils.getSource(player));
+            client.options.useKey.reset();
+
+            stop();
         }
     }
 
@@ -65,7 +59,9 @@ public class UseCommand {
                         .text("No item in hand to use!")
                         .execute();
 
-                stop(SourceUtils.getSource(player));
+                client.options.useKey.reset();
+
+                stop();
 
                 return;
             }
@@ -73,9 +69,6 @@ public class UseCommand {
             int useTime = stack.getItem().getMaxUseTime(stack, player);
 
             if (useTime > 1) {
-                // just simulate right click for long use items
-                new KeyBindingBuilder().keys(client.options.useKey).execute();
-
                 // monitor for item use start
                 if (!prevIsUsingItem && player.isUsingItem()) {
                     prevIsUsingItem = true;
@@ -94,11 +87,8 @@ public class UseCommand {
     }
 
     public static int execute(FabricClientCommandSource source, int count) {
-        ClientPlayerEntity player = source.getPlayer();
-        if (player == null) return 0;
-
-        Hand hand = player.preferredHand == null ? Hand.MAIN_HAND : player.preferredHand;
-        ItemStack stack = player.getStackInHand(hand);
+        Hand hand = source.getPlayer().preferredHand == null ? Hand.MAIN_HAND : source.getPlayer().preferredHand;
+        ItemStack stack = source.getPlayer().getStackInHand(hand);
         if (stack.isEmpty()) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -111,12 +101,15 @@ public class UseCommand {
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text(Text.literal("Attempting to use ")
-                        .append(player.getMainHandStack().getFormattedName())
+                        .append(source.getPlayer().getMainHandStack().getFormattedName())
                         .append(" %d times...".formatted(count)))
                 .execute();
 
         isRunning = true;
+        currentUses = 0;
         maxUses = count;
+
+        source.getClient().options.useKey.setPressed(true);
 
         return 1;
     }

@@ -128,12 +128,9 @@ public class AttackCommand {
         });
     }
 
+    @SuppressWarnings("SameReturnValue")
     public static int stop(FabricClientCommandSource source) {
         isRunning = false;
-        ticksSinceLastAttack = 0;
-        target = null;
-        path = null;
-        pathIndex = 0;
 
         ReleaseAllKeysCommand.execute(source);
         MinecraftClient.getInstance().options.getAutoJump().setValue(prevAutoJump);
@@ -222,6 +219,9 @@ public class AttackCommand {
 
         prevAutoJump = source.getClient().options.getAutoJump().getValue();
         source.getClient().options.getAutoJump().setValue(true);
+
+        ticksSinceLastAttack = 0;
+        pathIndex = 0;
 
         return 1;
     }

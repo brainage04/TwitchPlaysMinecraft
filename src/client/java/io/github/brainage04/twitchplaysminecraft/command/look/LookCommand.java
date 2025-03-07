@@ -7,21 +7,14 @@ import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBui
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 public class LookCommand {
-    private static LookDirection getLookDirectionSafely(String value) {
-        try {
-            return LookDirection.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
     public static int execute(FabricClientCommandSource source, String lookDirectionString, int degrees) {
-        LookDirection lookDirection = getLookDirectionSafely(lookDirectionString.toUpperCase());
+        LookDirection lookDirection = EnumUtils.getValueSafely(LookDirection.class, lookDirectionString.toUpperCase());
         if (lookDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("Invalid direction! Valid directions: %s.".formatted(EnumUtils.joinEnumValues(LookDirection.class)))
                     .execute();
+
             return 0;
         }
 

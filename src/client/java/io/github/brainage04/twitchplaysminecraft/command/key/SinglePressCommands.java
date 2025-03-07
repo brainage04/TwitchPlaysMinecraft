@@ -1,4 +1,4 @@
-package io.github.brainage04.twitchplaysminecraft.command;
+package io.github.brainage04.twitchplaysminecraft.command.key;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
@@ -6,25 +6,15 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
 
-public class HotbarCommand {
-    public static int execute(FabricClientCommandSource source, int index) {
-        if (index < 0 | index > 8) {
-            new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.ERROR)
-                    .text("Index %d out of bounds (Bounds: 0-8)".formatted(index))
-                    .execute();
-
-            return 0;
-        }
-
-        KeyBinding key = source.getClient().options.hotbarKeys[index];
-
+@SuppressWarnings("SameReturnValue")
+public class SinglePressCommands {
+    public static int execute(FabricClientCommandSource source, KeyBinding key) {
         key.timesPressed++;
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
                 .text(Text.translatable(key.getTranslationKey())
-                        .append(" selected."))
+                        .append(" pressed."))
                 .execute();
 
         return 1;

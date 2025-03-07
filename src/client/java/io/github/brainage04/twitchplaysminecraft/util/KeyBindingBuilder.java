@@ -1,15 +1,14 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
+import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
 
 import java.util.Arrays;
-
-import static io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler.startDelayTicks;
-import static io.github.brainage04.twitchplaysminecraft.util.TextUtils.combineTextArray;
 
 public class KeyBindingBuilder {
     private FabricClientCommandSource source = SourceUtils.getSource();
@@ -48,8 +47,22 @@ public class KeyBindingBuilder {
         String message2 = keys.length > 1 ? "keys" : "key";
 
         RunnableScheduler.scheduleTask(() -> {
+            GameOptions options = source.getClient().options;
             for (KeyBinding key : keys) {
-                key.setPressed(pressed);
+                if (key.equals(options.inventoryKey)
+                        || key.equals(options.swapHandsKey)
+                        || key.equals(options.pickItemKey)
+                        || key.equals(options.dropKey)) {
+                    Text text = Text.literal("The ")
+                            .append(Text.translatable(key.getTranslationKey()))
+                            .append(" key cannot be held, so it will be pressed instead. This message probably shouldn't be appearing!");
+
+                    TwitchPlaysMinecraft.LOGGER.info(text.getString());
+
+                    key.timesPressed++;
+                } else {
+                    key.setPressed(pressed);
+                }
             }
 
             if (printLogs) {
@@ -58,10 +71,10 @@ public class KeyBindingBuilder {
                 new ClientFeedbackBuilder().source(source)
                         .messageType(MessageType.SUCCESS)
                         .text(Text.literal("Player is %s holding the ".formatted(message))
-                                .append(combineTextArray(keyNames))
+                                .append(TextUtils.combineTextArray(keyNames))
                                 .append(" %s.".formatted(message2)))
                         .execute();
             }
-        }, startDelayTicks + extraTickDelay);
+        }, 1 + extraTickDelay);
     }
 }

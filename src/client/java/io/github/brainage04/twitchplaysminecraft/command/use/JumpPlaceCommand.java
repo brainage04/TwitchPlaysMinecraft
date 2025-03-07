@@ -20,8 +20,6 @@ public class JumpPlaceCommand {
         ReleaseAllKeysCommand.execute(source);
 
         isRunning = false;
-        blocksPlaced = 0;
-        blocksPlacedLimit = Integer.MAX_VALUE;
 
         return 1;
     }
@@ -64,6 +62,7 @@ public class JumpPlaceCommand {
                 .execute();
 
         isRunning = true;
+        blocksPlaced = 0;
         blocksPlacedLimit = count;
 
         new ClientFeedbackBuilder().source(source)

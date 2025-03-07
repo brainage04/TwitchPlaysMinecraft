@@ -7,9 +7,14 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 @SuppressWarnings("SameReturnValue")
 public class DropCommand {
     public static int execute(FabricClientCommandSource source, int count) {
+        // todo: test
+        source.getClient().options.dropKey.timesPressed += count;
+
+        /*
         for (int i = 0; i < count; i++) {
             source.getPlayer().dropSelectedItem(false);
         }
+         */
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)

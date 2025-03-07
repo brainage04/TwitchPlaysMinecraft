@@ -3,6 +3,7 @@ package io.github.brainage04.twitchplaysminecraft.command.craft;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.gui.screen.ingame.CraftingScreen;
 import net.minecraft.client.gui.screen.recipebook.AnimatedResultButton;
 import net.minecraft.client.gui.screen.recipebook.RecipeAlternativesWidget;
@@ -15,12 +16,20 @@ import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.millis
 import static io.github.brainage04.twitchplaysminecraft.util.CommandUtils.startNewCurrentInteractionThread;
 import static io.github.brainage04.twitchplaysminecraft.util.ThreadUtils.sleepSafely;
 
+// todo: convert from thread-based to tick-based
+@SuppressWarnings("SameReturnValue")
 public class CraftCommand {
     private static boolean isRunning = false;
 
     private static List<AnimatedResultButton> visibleButtons;
 
-    public static int stop(FabricClientCommandSource source) {
+    public static void initialize() {
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+
+        });
+    }
+
+    public static int stop() {
         isRunning = false;
 
         return 1;

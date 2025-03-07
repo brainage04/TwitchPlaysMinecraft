@@ -35,3 +35,5 @@ accessible class net/minecraft/client/world/ClientChunkManager$ClientChunkMap
 accessible field net/minecraft/client/world/ClientChunkManager$ClientChunkMap chunks Ljava/util/concurrent/atomic/AtomicReferenceArray;
 accessible field net/minecraft/world/chunk/Chunk blockEntities Ljava/util/Map;
 accessible field net/minecraft/block/spawner/MobSpawnerLogic spawnEntry Lnet/minecraft/block/spawner/MobSpawnerEntry;
+accessible field net/minecraft/client/option/KeyBinding timesPressed I
+accessible method net/minecraft/client/option/KeyBinding reset ()V

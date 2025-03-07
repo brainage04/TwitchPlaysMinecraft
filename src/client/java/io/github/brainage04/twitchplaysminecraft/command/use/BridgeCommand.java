@@ -38,8 +38,6 @@ public class BridgeCommand {
         ReleaseAllKeysCommand.execute(source);
 
         isRunning = false;
-        blocksPlaced = 0;
-        blocksPlacedLimit = Integer.MAX_VALUE;
 
         return 1;
     }
@@ -65,9 +63,6 @@ public class BridgeCommand {
     }
 
     public static int execute(FabricClientCommandSource source, String cardinalDirectionString, int count) {
-        ClientPlayerEntity player = source.getPlayer();
-        if (player == null) return 0;
-
         CardinalDirection cardinalDirection = EnumUtils.getValueSafely(CardinalDirection.class, cardinalDirectionString.toLowerCase());
         if (cardinalDirection == null) {
             new ClientFeedbackBuilder().source(source)
@@ -78,7 +73,7 @@ public class BridgeCommand {
             return 0;
         }
 
-        if (!(player.getMainHandStack().getItem() instanceof BlockItem)) {
+        if (!(source.getPlayer().getMainHandStack().getItem() instanceof BlockItem)) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("You are not holding a block!")
@@ -89,9 +84,10 @@ public class BridgeCommand {
 
         // look and move in opposite direction of cardinal direction
         int offset = cardinalDirection.isDiagonal() ? 0 : 45;
-        player.setYaw(cardinalDirection.getYaw() - 180 + offset);
+        source.getPlayer().setYaw(cardinalDirection.getYaw() - 180 + offset);
+
         // look almost straight down
-        player.setPitch(77.5F);
+        source.getPlayer().setPitch(77.5F);
 
         GameOptions options = source.getClient().options;
         List<KeyBinding> keys = new ArrayList<>(List.of(options.useKey, options.sneakKey, options.backKey));
@@ -107,6 +103,7 @@ public class BridgeCommand {
                 .execute();
 
         isRunning = true;
+        blocksPlaced = 0;
         blocksPlacedLimit = count;
 
         return 1;

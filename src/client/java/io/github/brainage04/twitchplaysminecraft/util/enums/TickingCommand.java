@@ -4,7 +4,7 @@ import io.github.brainage04.twitchplaysminecraft.command.craft.CraftCommand;
 import io.github.brainage04.twitchplaysminecraft.command.attack.AttackCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
-import io.github.brainage04.twitchplaysminecraft.command.move.MoveCommand;
+import io.github.brainage04.twitchplaysminecraft.command.move.MoveDirectionCommands;
 import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.BridgeCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.JumpPlaceCommand;
@@ -18,13 +18,13 @@ import java.util.function.Supplier;
 public enum TickingCommand implements NamedEnum {
     ATTACK(AttackCommand::isRunning, AttackCommand::stop),
     BRIDGE(BridgeCommand::isRunning, BridgeCommand::stop),
-    CRAFT(CraftCommand::isRunning, CraftCommand::stop),
+    CRAFT(CraftCommand::isRunning, source -> CraftCommand.stop()),
     JUMPPLACE(JumpPlaceCommand::isRunning, JumpPlaceCommand::stop),
     MINE(MineCommand::isRunning, MineCommand::stop),
     STRIPMINE(StripMineCommand::isRunning, StripMineCommand::stop),
-    MOVE(MoveCommand::isRunning, MoveCommand::stop),
-    MOVEITEM(MoveItemCommand::isRunning, MoveItemCommand::stop),
-    USE(UseCommand::isRunning, UseCommand::stop);
+    MOVE(MoveDirectionCommands::isRunning, MoveDirectionCommands::stop),
+    MOVEITEM(MoveItemCommand::isRunning, source -> MoveItemCommand.stop()),
+    USE(UseCommand::isRunning, source -> UseCommand.stop());
 
     public final Supplier<Boolean> isRunningSupplier;
     public final Consumer<FabricClientCommandSource> stopConsumer;

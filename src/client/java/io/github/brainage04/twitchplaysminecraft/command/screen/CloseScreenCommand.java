@@ -11,9 +11,11 @@ public class CloseScreenCommand {
                     .text("You are not currently using a screen!")
                     .messageType(MessageType.ERROR)
                     .execute();
+
             return 0;
         }
 
+        // close screen on main thread
         source.getClient().execute(() -> source.getClient().currentScreen.close());
 
         return 1;

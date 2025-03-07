@@ -1,14 +1,12 @@
 package io.github.brainage04.twitchplaysminecraft.command.screen;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
-import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
-import io.github.brainage04.twitchplaysminecraft.util.enums.ActionType;
-import io.github.brainage04.twitchplaysminecraft.util.EnumUtils;
 import io.github.brainage04.twitchplaysminecraft.util.enums.MoveItemType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -18,102 +16,130 @@ public class MoveItemCommand {
     private static int ticks = 0;
     private static int first = -1;
     private static int second = -1;
-
     private static MoveItemType moveItemType = null;
-    private static ActionType actionType = null;
+    private static int prevSelectedSlot = -1;
 
     public static void initialize() {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isRunning) return;
-            if (client.player == null) return;
-            if (first < 0 || first > 8) return;
-            if (second < 0 || second > 8) return;
+            if (first < 0) return;
+            if (second < 0) return;
             if (moveItemType == null) return;
+            if (client.player == null) return;
 
-            // todo: test without delay for funsies
             switch (moveItemType) {
                 case HOTBAR -> {
-                    // swap hotbar slots
-                    client.player.getInventory().selectedSlot = first;
-                    client.execute(() -> client.options.swapHandsKey.setPressed(true));
+                    if (client.currentScreen != null) {
+                        stop();
+                    }
 
-                    client.player.getInventory().selectedSlot = second;
-                    client.execute(() -> client.options.swapHandsKey.setPressed(true));
+                    switch (ticks) {
+                        case 1 -> client.player.getInventory().setSelectedSlot(first);
+                        case 2 -> client.options.swapHandsKey.timesPressed++;
+                        case 3 -> client.player.getInventory().setSelectedSlot(second);
+                        case 4 -> client.options.swapHandsKey.timesPressed++;
+                        case 5 -> client.player.getInventory().setSelectedSlot(first);
+                        case 6 -> client.options.swapHandsKey.timesPressed++;
+                        case 7 -> {
+                            client.player.getInventory().setSelectedSlot(prevSelectedSlot);
 
-                    client.player.getInventory().selectedSlot = first;
-                    client.execute(() -> client.options.swapHandsKey.setPressed(true));
+                            new ClientFeedbackBuilder().source(client.player)
+                                    .messageType(MessageType.SUCCESS)
+                                    .text("Swapped contents of slots %d and %d.".formatted(first, second))
+                                    .execute();
 
-                    stop(SourceUtils.getSource(client.player));
+                            stop();
+                        }
+                    }
                 }
                 case INVENTORY -> {
-                    if (actionType == null) return;
-                    if (!(client.currentScreen instanceof HandledScreen<? extends ScreenHandler> handledScreen)) return;
+                    if (client.currentScreen == null) stop();
+                    else if (!(client.currentScreen instanceof HandledScreen<? extends ScreenHandler>)) stop();
 
-                    // swap inventory slots
+                    HandledScreen<? extends ScreenHandler> handledScreen = (HandledScreen<? extends ScreenHandler>) client.currentScreen;
+
                     Slot slot1 = handledScreen.getScreenHandler().getSlot(first);
-                    if (!slot1.hasStack()) {
-                        new ClientFeedbackBuilder().source(client.player)
-                                .messageType(MessageType.ERROR)
-                                .text("There is nothing in slot %d".formatted(slot1.id))
-                                .execute();
-
-                        return;
-                    }
-
                     Slot slot2 = handledScreen.getScreenHandler().getSlot(second);
-                    if (slot2.canInsert(slot1.getStack())) {
-                        new ClientFeedbackBuilder().source(client.player)
-                                .messageType(MessageType.ERROR)
-                                .text("You cannot move items to slot %d as this is an output slot!".formatted(slot1.id))
-                                .execute();
 
-                        return;
-                    }
-                    boolean shouldSwap = slot2.hasStack();
+                    switch (ticks) {
+                        case 1 -> handledScreen.onMouseClick(slot1, slot1.getIndex(), 0, SlotActionType.PICKUP);
+                        case 2 -> {
+                            handledScreen.onMouseClick(slot2, slot2.getIndex(), 0, SlotActionType.PICKUP);
 
-                    if (actionType == ActionType.QUICKMOVE) {
-                        handledScreen.onMouseClick(slot1, slot1.id, 0, SlotActionType.QUICK_MOVE);
+                            if (handledScreen.getScreenHandler().getCursorStack().isEmpty()) {
+                                new ClientFeedbackBuilder().source(client.player)
+                                        .messageType(MessageType.SUCCESS)
+                                        .text("Moved contents of slot %d to slot %d.".formatted(first, second))
+                                        .execute();
 
-                        return;
-                    } else {
-                        handledScreen.onMouseClick(slot1, slot1.id, 0, SlotActionType.PICKUP);
-                    }
+                                stop();
+                            }
+                        }
+                        case 3 -> {
+                            handledScreen.onMouseClick(slot1, slot1.getIndex(), 0, SlotActionType.PICKUP);
 
-                    handledScreen.onMouseClick(slot2, slot2.id, 0, SlotActionType.PICKUP);
+                            new ClientFeedbackBuilder().source(client.player)
+                                    .messageType(MessageType.SUCCESS)
+                                    .text("Swapped contents of slots %d and %d.".formatted(first, second))
+                                    .execute();
 
-                    if (actionType == ActionType.SWAP && shouldSwap) {
-                        handledScreen.onMouseClick(slot1, slot1.id, 0, SlotActionType.PICKUP);
+                            stop();
+                        }
                     }
                 }
             }
+
+            ticks++;
         });
     }
 
-    public static int stop(FabricClientCommandSource source) {
+    public static int stop() {
         isRunning = false;
-        ticks = 0;
-        first = -1;
-        second = -1;
-        moveItemType = null;
-        actionType = null;
-
-        new ClientFeedbackBuilder().source(source)
-                .messageType(MessageType.SUCCESS)
-                .text("Stopped moving items.")
-                .execute();
 
         return 1;
     }
 
-    public static int execute(FabricClientCommandSource source, int first, int second, String actionTypeString) {
-        ActionType actionType = EnumUtils.getValueSafely(ActionType.class, actionTypeString);
-        if (actionType == null) {
+    private static boolean isHotbarSlotInvalid(FabricClientCommandSource source, int slotIndex, String slotString) {
+        if (slotIndex < 0 || slotIndex > 8) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text("Invalid action! Valid actions: %s.".formatted(EnumUtils.joinEnumValues(ActionType.class)))
+                    .text("%s index must range from 0-8!".formatted(slotString))
                     .execute();
-            return 0;
+
+            return true;
         }
+
+        return false;
+    }
+
+    private static boolean isScreenSlotInvalid(FabricClientCommandSource source, HandledScreen<? extends ScreenHandler> handledScreen, int slotIndex, boolean checkContents) {
+        if (slotIndex >= handledScreen.getScreenHandler().slots.size()) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("Slot %d is out of bounds! (Valid range: 0-%d)".formatted(slotIndex, handledScreen.getScreenHandler().slots.size() - 1))
+                    .execute();
+
+            return true;
+        }
+
+        if (checkContents) {
+            Slot slot = handledScreen.getScreenHandler().getSlot(slotIndex);
+            if (!slot.hasStack()) {
+                new ClientFeedbackBuilder().source(source)
+                        .messageType(MessageType.ERROR)
+                        .text("There is nothing in slot %d!".formatted(slotIndex))
+                        .execute();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static int execute(FabricClientCommandSource source, int first, int second) {
+        ClientPlayerEntity player = source.getPlayer();
+        if (player == null) return 0;
 
         if (source.getClient().currentScreen == null) {
             if (first == second) {
@@ -125,38 +151,16 @@ public class MoveItemCommand {
                 return 0;
             }
 
-            if (first < 0 || first > 8) {
-                new ClientFeedbackBuilder().source(source)
-                        .messageType(MessageType.ERROR)
-                        .text("First index must range from 0-8!")
-                        .execute();
-
-                return 0;
-            }
-
-            if (second < 0 || second > 8) {
-                new ClientFeedbackBuilder().source(source)
-                        .messageType(MessageType.ERROR)
-                        .text("Second index must range from 0-8!")
-                        .execute();
-
-                return 0;
-            }
-
-            isRunning = true;
-
-            MoveItemCommand.first = first;
-            MoveItemCommand.second = second;
+            if (isHotbarSlotInvalid(source, first, "First")) return 0;
+            if (isHotbarSlotInvalid(source, second, "Second")) return 0;
 
             moveItemType = MoveItemType.HOTBAR;
-        } else if (source.getClient().currentScreen instanceof HandledScreen<? extends ScreenHandler>) {
-            isRunning = true;
-
-            MoveItemCommand.first = first;
-            MoveItemCommand.second = second;
+            prevSelectedSlot = player.getInventory().selectedSlot;
+        } else if (source.getClient().currentScreen instanceof HandledScreen<? extends ScreenHandler> handledScreen) {
+            if (isScreenSlotInvalid(source, handledScreen, first, true)) return 0;
+            if (isScreenSlotInvalid(source, handledScreen, second, false)) return 0;
 
             moveItemType = MoveItemType.INVENTORY;
-            MoveItemCommand.actionType = actionType;
         } else {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -165,6 +169,13 @@ public class MoveItemCommand {
 
             return 0;
         }
+
+        isRunning = true;
+
+        ticks = 0;
+
+        MoveItemCommand.first = first;
+        MoveItemCommand.second = second;
 
         return 1;
     }

@@ -8,7 +8,6 @@ import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBui
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 
 @SuppressWarnings("SameReturnValue")
@@ -21,9 +20,6 @@ public class StripMineCommand {
 
     public static int stop(FabricClientCommandSource source) {
         isRunning = false;
-        blocksBroken = 0;
-        blocksBrokenLimit = Integer.MAX_VALUE;
-        ticksSinceLastBlockBreak = 0;
 
         ReleaseAllKeysCommand.execute(source);
 
@@ -68,10 +64,22 @@ public class StripMineCommand {
         });
     }
 
-    public static int execute(FabricClientCommandSource source, int blocksToBreak) {
-        ClientPlayerEntity player = source.getPlayer();
-        if (player == null) return 0;
+    @SuppressWarnings("SameReturnValue")
+    public static int execute(FabricClientCommandSource source) {
+        GameOptions options = source.getClient().options;
+        new KeyBindingBuilder().source(source)
+                .keys(options.sneakKey, options.forwardKey, options.attackKey)
+                .execute();
 
+        new ClientFeedbackBuilder().source(source)
+                .messageType(MessageType.INFO)
+                .text("Player is now strip mining...")
+                .execute();
+
+        return 1;
+    }
+
+    public static int execute(FabricClientCommandSource source, int blocksToBreak) {
         if (isRunning) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -83,24 +91,22 @@ public class StripMineCommand {
 
         // 25 pitch allows breaking of both top
         // and bottom block without having to move camera
-        player.setPitch(25);
+        source.getPlayer().setPitch(25);
 
         GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source).keys(options.sneakKey, options.forwardKey, options.attackKey).execute();
-
-        String text = "Player is now strip mining";
-        if (blocksToBreak < Integer.MAX_VALUE) {
-            text += " for %d blocks".formatted(blocksBrokenLimit);
-        }
-        text += "...";
+        new KeyBindingBuilder().source(source)
+                .keys(options.sneakKey, options.forwardKey, options.attackKey)
+                .execute();
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
-                .text(text)
+                .text("Player is now strip mining for %d blocks...".formatted(blocksBrokenLimit))
                 .execute();
 
         isRunning = true;
+        blocksBroken = 0;
         blocksBrokenLimit = blocksToBreak;
+        ticksSinceLastBlockBreak = 0;
 
         return 1;
     }
