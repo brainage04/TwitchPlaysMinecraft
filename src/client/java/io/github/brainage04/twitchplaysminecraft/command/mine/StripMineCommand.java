@@ -1,6 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.command.mine;
 
 import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
 import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
@@ -9,6 +10,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
 import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
 
 @SuppressWarnings("SameReturnValue")
 public class StripMineCommand {
@@ -93,14 +95,15 @@ public class StripMineCommand {
         // and bottom block without having to move camera
         source.getPlayer().setPitch(25);
 
-        GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source)
-                .keys(options.sneakKey, options.forwardKey, options.attackKey)
-                .execute();
+        ToggleKeyCommands.toggleKeys(source, new KeyBinding[]{
+                source.getClient().options.attackKey,
+                source.getClient().options.sneakKey,
+                source.getClient().options.forwardKey
+        }, false);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
-                .text("Player is now strip mining for %d blocks...".formatted(blocksBrokenLimit))
+                .text("Player is now strip mining %d blocks...".formatted(blocksBrokenLimit))
                 .execute();
 
         isRunning = true;

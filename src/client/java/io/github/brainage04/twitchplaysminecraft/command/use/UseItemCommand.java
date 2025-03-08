@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
 // todo: test
-public class UseCommand {
+public class UseItemCommand {
     private static boolean isRunning = false;
     public static int currentUses = 0;
     private static int maxUses = 0;
@@ -38,7 +38,7 @@ public class UseCommand {
                     .text("Used %d/%d.".formatted(currentUses, maxUses))
                     .execute();
 
-            client.options.useKey.reset();
+            client.options.useKey.setPressed(false);
 
             stop();
         }
@@ -59,7 +59,7 @@ public class UseCommand {
                         .text("No item in hand to use!")
                         .execute();
 
-                client.options.useKey.reset();
+                client.options.useKey.setPressed(false);
 
                 stop();
 

@@ -8,8 +8,10 @@ import net.minecraft.client.option.KeyBinding;
 public class ReleaseAllKeysCommand {
     @SuppressWarnings("SameReturnValue")
     public static int execute(FabricClientCommandSource source, boolean printLogs) {
+        ToggleKeyCommands.removeAllKeys();
+
         for (KeyBinding key : source.getClient().options.allKeys) {
-            key.reset();
+            key.setPressed(false);
         }
 
         if (printLogs) {

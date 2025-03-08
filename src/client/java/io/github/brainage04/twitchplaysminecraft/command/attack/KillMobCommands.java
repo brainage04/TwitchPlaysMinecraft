@@ -23,7 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class AttackCommand {
+public class KillMobCommands {
     private static boolean isRunning = false;
     private static int ticksSinceLastAttack = 0;
     private static LivingEntity target = null;
@@ -153,7 +153,7 @@ public class AttackCommand {
         return player.getEntityInteractionRange() - 1;
     }
 
-    public static <T extends LivingEntity> int execute(FabricClientCommandSource source, Class<T> entityClass) {
+    public static <T extends LivingEntity> int executeMelee(FabricClientCommandSource source, Class<T> entityClass) {
         ClientPlayerEntity player = source.getPlayer();
         if (player == null) return 0;
 
@@ -226,7 +226,7 @@ public class AttackCommand {
         return 1;
     }
 
-    public static int execute(FabricClientCommandSource source, Identifier entityClassId) {
+    public static int executeMelee(FabricClientCommandSource source, Identifier entityClassId) {
         EntityType<?> entityType = Registries.ENTITY_TYPE.get(entityClassId);
         //noinspection ConstantValue
         if (entityType == null) return 0;
@@ -236,7 +236,7 @@ public class AttackCommand {
             @SuppressWarnings("unchecked")
             Class<? extends LivingEntity> livingEntityClass = (Class<? extends LivingEntity>) entityClass;
 
-            return execute(source, livingEntityClass);
+            return executeMelee(source, livingEntityClass);
         } else {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -247,8 +247,8 @@ public class AttackCommand {
         }
     }
 
-    public static int execute(FabricClientCommandSource source) {
-        return execute(source, LivingEntity.class);
+    public static int executeMelee(FabricClientCommandSource source) {
+        return executeMelee(source, LivingEntity.class);
     }
 
     public static boolean isRunning() {

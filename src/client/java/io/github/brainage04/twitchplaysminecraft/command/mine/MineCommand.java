@@ -1,8 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.command.mine;
 
 import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
 import io.github.brainage04.twitchplaysminecraft.util.BlockUtils;
-import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
@@ -12,7 +12,7 @@ import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
@@ -76,7 +76,6 @@ public class MineCommand {
 
     public static int stop(FabricClientCommandSource source) {
         isRunning = false;
-        ticksSinceLastBlockBreak = 0;
 
         ReleaseAllKeysCommand.execute(source);
 
@@ -132,9 +131,6 @@ public class MineCommand {
     );
 
     public static int execute(FabricClientCommandSource source, String blockName, int count) {
-        ClientPlayerEntity player = source.getPlayer();
-        if (player == null) return 0;
-
         if (isRunning) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -164,9 +160,8 @@ public class MineCommand {
         // check for blocks within reach (radius of 3)
         // when block is found, perform flood fill algorithm to get all blocks in the same vein
         // repeat process and increment radius up to 20
-
         int radius = 3;
-        updateBlocks(player, block, count);
+        updateBlocks(source.getPlayer(), block, count);
         if (blocks.size() < count) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.INFO)
@@ -177,7 +172,7 @@ public class MineCommand {
 
             radius++;
             while (radius <= 20) {
-                updateBlocks(player, block, count);
+                updateBlocks(source.getPlayer(), block, count);
                 if (blocks.size() >= count) break;
 
                 radius++;
@@ -202,20 +197,23 @@ public class MineCommand {
                     .execute();
         }
 
-        GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source)
-                .printLogs(false)
-                .keys(options.attackKey, options.sneakKey, options.forwardKey)
-                .execute();
+        // todo: keep your distance similar to KillMobCommand
+        //  otherwise you will be headsnapping 180 degrees back and forth if you are directly above the block
+        ToggleKeyCommands.toggleKeys(source, new KeyBinding[]{
+                source.getClient().options.attackKey,
+                source.getClient().options.sneakKey,
+                source.getClient().options.forwardKey
+        }, false);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
                 .text(Text.literal("Player is now mining %d ".formatted(blocks.size()))
                         .append(block.getName())
-                        .append(" blocks..."))
+                        .append("..."))
                 .execute();
 
         isRunning = true;
+        ticksSinceLastBlockBreak = 0;
 
         return 1;
     }

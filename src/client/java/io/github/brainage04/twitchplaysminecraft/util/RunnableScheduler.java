@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RunnableScheduler {
+    public static final int MINIMUM_TICK_DELAY = 2;
+
     private static class ScheduledTask {
         public final Runnable runnable;
         public int ticksPassed;
@@ -38,12 +40,16 @@ public class RunnableScheduler {
         });
     }
 
-    public static void scheduleTask(Runnable runnable, int delay) {
-        if (delay < 1) {
+    public static void scheduleTask(Runnable runnable, int extraTickDelay) {
+        if (MINIMUM_TICK_DELAY + extraTickDelay < 1) {
             TwitchPlaysMinecraft.LOGGER.error("Runnable scheduled for less than 1 tick in the future - cancelling!");
             return;
         }
 
-        scheduledTasks.add(new ScheduledTask(runnable, delay));
+        scheduledTasks.add(new ScheduledTask(runnable, MINIMUM_TICK_DELAY + extraTickDelay));
+    }
+
+    public static void scheduleTask(Runnable runnable) {
+        scheduledTasks.add(new ScheduledTask(runnable, MINIMUM_TICK_DELAY));
     }
 }

@@ -9,6 +9,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 public class BlockUtils {
     public static Vec3d getFacePos(BlockPos pos, Direction face) {
         return pos.toCenterPos().add(face.getDoubleVector().multiply(0.5));
@@ -17,11 +21,13 @@ public class BlockUtils {
     public static BlockHitResult raycastToBlockFace(ClientPlayerEntity player, Vec3d target) {
         return player.getWorld().raycast(new RaycastContext(
                 player.getEyePos(), target,
-                RaycastContext.ShapeType.COLLIDER, // Only hit blocks, not fluids
-                RaycastContext.FluidHandling.NONE, // Ignore fluids
-                player // The entity performing the raycast (needed for exclusion)
+                RaycastContext.ShapeType.COLLIDER,
+                RaycastContext.FluidHandling.NONE,
+                player
         ));
     }
+
+    private record FaceResult(Direction direction, double distance) {}
 
     /**
      * Performs world raycasts to block faces at pos {@code pos} where applicable and determines
@@ -29,43 +35,38 @@ public class BlockUtils {
      * @return The Direction from which the face can be seen if the player can see the block face, {@code null} otherwise
      */
     public static Direction canSeeBlockFace(ClientPlayerEntity player, BlockPos pos) {
-        Vec3d west = getFacePos(pos, Direction.WEST);
-        if (player.getX() < west.getX()) {
-            BlockHitResult westResult = raycastToBlockFace(player, west);
-            if (pos.equals(westResult.getBlockPos())) return Direction.WEST;
-        }
-
-        Vec3d east = getFacePos(pos, Direction.EAST);
-        if (player.getX() > east.getX()) {
-            BlockHitResult eastResult = raycastToBlockFace(player, east);
-            if (pos.equals(eastResult.getBlockPos())) return Direction.EAST;
-        }
+        List<FaceResult> visibleFaces = new ArrayList<>();
 
         Vec3d up = getFacePos(pos, Direction.UP);
-        if (player.getY() < up.getY()) {
-            BlockHitResult upResult = raycastToBlockFace(player, up);
-            if (pos.equals(upResult.getBlockPos())) return Direction.UP;
-        }
-
         Vec3d down = getFacePos(pos, Direction.DOWN);
-        if (player.getY() > down.getY()) {
-            BlockHitResult downResult = raycastToBlockFace(player, down);
-            if (pos.equals(downResult.getBlockPos())) return Direction.DOWN;
+        if (player.getEyeY() > up.getY()) {
+            if (up.equals(raycastToBlockFace(player, up).getPos())) visibleFaces.add(new FaceResult(Direction.UP, player.getEyePos().squaredDistanceTo(up)));
+        } else if (player.getEyeY() < down.getY()) {
+            if (down.equals(raycastToBlockFace(player, down).getPos())) visibleFaces.add(new FaceResult(Direction.DOWN, player.getEyePos().squaredDistanceTo(down)));
         }
 
         Vec3d north = getFacePos(pos, Direction.NORTH);
-        if (player.getZ() < north.getZ()) {
-            BlockHitResult northResult = raycastToBlockFace(player, north);
-            if (pos.equals(northResult.getBlockPos())) return Direction.NORTH;
-        }
-
         Vec3d south = getFacePos(pos, Direction.SOUTH);
-        if (player.getZ() > south.getZ()) {
-            BlockHitResult southResult = raycastToBlockFace(player, south);
-            if (pos.equals(southResult.getBlockPos())) return Direction.SOUTH;
+        if (player.getZ() < north.getZ()) {
+            if (north.equals(raycastToBlockFace(player, north).getPos())) visibleFaces.add(new FaceResult(Direction.NORTH, player.getEyePos().squaredDistanceTo(north)));
+        } else if (player.getZ() > south.getZ()) {
+            if (south.equals(raycastToBlockFace(player, south).getPos())) visibleFaces.add(new FaceResult(Direction.SOUTH, player.getEyePos().squaredDistanceTo(south)));
         }
 
-        return null;
+        Vec3d west = getFacePos(pos, Direction.WEST);
+        Vec3d east = getFacePos(pos, Direction.EAST);
+        if (player.getX() < west.getX()) {
+            if (west.equals(raycastToBlockFace(player, west).getPos())) visibleFaces.add(new FaceResult(Direction.WEST, player.getEyePos().squaredDistanceTo(west)));
+        } else if (player.getX() > east.getX()) {
+            if (east.equals(raycastToBlockFace(player, east).getPos())) visibleFaces.add(new FaceResult(Direction.EAST, player.getEyePos().squaredDistanceTo(east)));
+        }
+
+        if (visibleFaces.isEmpty()) return null;
+
+        return visibleFaces.stream()
+                .min(Comparator.comparingDouble(faceResult -> faceResult.distance))
+                .map(faceResult -> faceResult.direction)
+                .orElse(null);
     }
 
     public static Vec3d searchCuboid(World world, ClientPlayerEntity player, Block targetBlock, int radius, boolean outlineOnly) {

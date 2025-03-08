@@ -6,9 +6,10 @@ import io.github.brainage04.twitchplaysminecraft.util.enums.LookDirection;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
-public class LookCommand {
+public class RotateCommand {
     public static int execute(FabricClientCommandSource source, String lookDirectionString, int degrees) {
-        LookDirection lookDirection = EnumUtils.getValueSafely(LookDirection.class, lookDirectionString.toUpperCase());
+        lookDirectionString = lookDirectionString.toLowerCase();
+        LookDirection lookDirection = EnumUtils.getValueSafely(LookDirection.class, lookDirectionString);
         if (lookDirection == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -23,7 +24,7 @@ public class LookCommand {
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
-                .text("Now looking %s %d degrees.".formatted(lookDirectionString.toLowerCase(), degrees))
+                .text("Now looking %s %d degrees.".formatted(lookDirectionString, degrees))
                 .execute();
 
         return 1;

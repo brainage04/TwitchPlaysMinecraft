@@ -42,14 +42,6 @@ public class MoveDirectionCommands {
         });
     }
 
-    public static int executeHold(FabricClientCommandSource source, KeyBinding key) {
-        new KeyBindingBuilder().source(source)
-                .keys(key)
-                .execute();
-
-        return 1;
-    }
-
     public static int executeTime(FabricClientCommandSource source, KeyBinding key, int ticks) {
         new KeyBindingBuilder().source(source)
                 .keys(key)

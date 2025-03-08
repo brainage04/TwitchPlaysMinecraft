@@ -5,7 +5,6 @@ import io.github.brainage04.twitchplaysminecraft.util.EntityUtils;
 import io.github.brainage04.twitchplaysminecraft.util.MathUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -16,17 +15,13 @@ import net.minecraft.util.Identifier;
 import java.util.Comparator;
 import java.util.List;
 
-public class LookAtEntityCommand {
+public class FaceEntityCommand {
     public static int execute(FabricClientCommandSource source, String entityString) {
-        ClientPlayerEntity player = source.getClient().player;
-        if (player == null) return 0;
-
         entityString = entityString.toLowerCase();
         EntityType<?> entityType = Registries.ENTITY_TYPE.get(Identifier.of(entityString));
-        //noinspection ConstantValue
-        if (entityType == null) {
+        if (entityType == EntityType.PIG && !entityString.equals("pig")) {
             new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.SUCCESS)
+                    .messageType(MessageType.ERROR)
                     .text("No such entity \"%s\" exists!".formatted(entityString))
                     .execute();
             return 0;
@@ -34,11 +29,12 @@ public class LookAtEntityCommand {
 
         // find nearest mobs (within 20 blocks)
         int radius = 20;
-        List<LivingEntity> nearbyLivingEntities = EntityUtils.getEntities(LivingEntity.class, player, radius);
+        List<LivingEntity> nearbyLivingEntities = EntityUtils.getEntities(LivingEntity.class, source.getPlayer(), radius)
+                .stream().filter(entity -> entity.getType() == entityType).toList();
 
         if (nearbyLivingEntities.isEmpty()) {
             new ClientFeedbackBuilder().source(source)
-                    .text("There are no living entities within %d blocks!".formatted(radius))
+                    .text("There are no %ss within %d blocks!".formatted(entityString, radius))
                     .messageType(MessageType.ERROR)
                     .execute();
 
@@ -47,10 +43,10 @@ public class LookAtEntityCommand {
 
         // if mobs exist, find the closest one
         LivingEntity target = nearbyLivingEntities.stream()
-                .min(Comparator.comparingDouble(e -> MathUtils.distanceToSquared(e.getPos(), player.getPos())))
+                .min(Comparator.comparingDouble(e -> MathUtils.distanceToSquared(e.getPos(), source.getPlayer().getPos())))
                 .orElse(nearbyLivingEntities.getFirst());
 
-        player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target.getPos());
+        source.getPlayer().lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target.getPos());
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)

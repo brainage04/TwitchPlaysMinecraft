@@ -150,5 +150,10 @@ As you may have noticed, some of these goals already exist as advancements (e.g.
 For this reason, advancements are used for goals, and goals that do not have advancements in the base game are added by this mod.
 
 # Todo
-Implement stopit command (requires command refactor - all commands must share a single `isRunning` variable)
-Remove server-side stuff (mod should be client-side only)
+HitMobCommand - melee will be easy
+ranged will be extremely difficult at longer distances (e.g. Ender Dragon)
+
+RespawnCommand - clicks the respawn button if player is on Respawn screen (whatever the class is)
+
+BuildNetherPortalCommand - builds a nether portal (ideally with 1 bucket using the speedrun strat, assuming there is enough lava nearby - this will also be extremely difficult)
+FillEndPortalCommand - fills the nearest end portal frames with eyes of ender (until none are left in hand/inventory)

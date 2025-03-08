@@ -1,5 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.mixin.client;
 
+import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
 import io.github.brainage04.twitchplaysminecraft.util.CommandUtils;
 import net.minecraft.client.gui.screen.Screen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinScreen {
     @Inject(at = @At("TAIL"), method = "close")
     private void injected(CallbackInfo ci) {
+        ToggleKeyCommands.resetTicks();
         CommandUtils.interruptCurrentInteractionThread();
     }
 }

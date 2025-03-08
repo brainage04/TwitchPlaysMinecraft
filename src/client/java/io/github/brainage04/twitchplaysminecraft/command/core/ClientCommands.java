@@ -6,17 +6,17 @@ import io.github.brainage04.twitchplaysminecraft.TwitchPlaysMinecraft;
 import io.github.brainage04.twitchplaysminecraft.command.*;
 import io.github.brainage04.twitchplaysminecraft.command.admin.RegenerateAuthUrlCommand;
 import io.github.brainage04.twitchplaysminecraft.command.admin.CommandQueueCommand;
-import io.github.brainage04.twitchplaysminecraft.command.admin.ScheduleCommandCommand;
 import io.github.brainage04.twitchplaysminecraft.command.admin.StopItCommand;
 import io.github.brainage04.twitchplaysminecraft.command.argument.ClientIdentifierArgumentType;
-import io.github.brainage04.twitchplaysminecraft.command.attack.AttackCommand;
+import io.github.brainage04.twitchplaysminecraft.command.attack.KillMobCommands;
 import io.github.brainage04.twitchplaysminecraft.command.craft.CraftCommand;
 import io.github.brainage04.twitchplaysminecraft.command.drop.DropCommand;
 import io.github.brainage04.twitchplaysminecraft.command.goal.*;
 import io.github.brainage04.twitchplaysminecraft.command.key.*;
-import io.github.brainage04.twitchplaysminecraft.command.look.LookAtBlockCommand;
-import io.github.brainage04.twitchplaysminecraft.command.look.LookAtEntityCommand;
-import io.github.brainage04.twitchplaysminecraft.command.look.LookCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.FaceBlockCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.FaceCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.FaceEntityCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.RotateCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.MoveDirectionCommands;
@@ -25,11 +25,12 @@ import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.QuickMoveCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.BridgeCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.JumpPlaceCommand;
-import io.github.brainage04.twitchplaysminecraft.command.use.UseCommand;
+import io.github.brainage04.twitchplaysminecraft.command.use.UseItemCommand;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
+import io.github.brainage04.twitchplaysminecraft.util.enums.key.IfKey;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.MoveDirectionKeys;
-import io.github.brainage04.twitchplaysminecraft.util.enums.key.SinglePressKey;
+import io.github.brainage04.twitchplaysminecraft.util.enums.key.WhileKey;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.ToggleKey;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -110,28 +111,6 @@ public class ClientCommands {
         );
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("schedulecommand")
-                                .then(argument("command", StringArgumentType.string())
-                                        .executes(context ->
-                                                ScheduleCommandCommand.execute(
-                                                        context.getSource(),
-                                                        StringArgumentType.getString(context, "command")
-                                                )
-                                        )
-                                        .then(argument("delay", IntegerArgumentType.integer())
-                                                .executes(context ->
-                                                        ScheduleCommandCommand.execute(
-                                                                context.getSource(),
-                                                                StringArgumentType.getString(context, "command"),
-                                                                IntegerArgumentType.getInteger(context, "delay")
-                                                        )
-                                                )
-                                        )
-                                )
-                )
-        );
-
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("stopit")
                                 .executes(context ->
                                         StopItCommand.execute(
@@ -142,22 +121,27 @@ public class ClientCommands {
         );
 
         // attack commands
-        AttackCommand.initialize();
+        KillMobCommands.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("attack")
-                                .executes(context ->
-                                        AttackCommand.execute(
-                                                context.getSource()
-                                        )
-                                )
-                                .then(argument("entity", ClientIdentifierArgumentType.identifier())
-                                        .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
+                        literal("killnearestmob")
+                                .then(literal("melee")
                                         .executes(context ->
-                                                AttackCommand.execute(
-                                                        context.getSource(),
-                                                        ClientIdentifierArgumentType.getIdentifier(context, "entity")
+                                                KillMobCommands.executeMelee(
+                                                        context.getSource()
                                                 )
                                         )
+                                        .then(argument("entity", ClientIdentifierArgumentType.identifier())
+                                                .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
+                                                .executes(context ->
+                                                        KillMobCommands.executeMelee(
+                                                                context.getSource(),
+                                                                ClientIdentifierArgumentType.getIdentifier(context, "entity")
+                                                        )
+                                                )
+                                        )
+                                )
+                                .then(literal("ranged")
+                                    // todo: implement this
                                 )
                 )
         );
@@ -332,6 +316,19 @@ public class ClientCommands {
         );
 
         // key commands
+        for (IfKey ifKey : IfKey.values()) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal(ifKey.getName())
+                                    .executes(context ->
+                                            IfKeyCommands.execute(
+                                                    context.getSource(),
+                                                    ifKey.function.apply(context.getSource().getClient().options)
+                                            )
+                                    )
+                    )
+            );
+        }
+
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("releaseallkeys")
                                 .executes(context ->
@@ -343,17 +340,38 @@ public class ClientCommands {
                 )
         );
 
-        for (SinglePressKey singlePressKey : SinglePressKey.values()) {
-            List<String> names = new ArrayList<>(List.of(singlePressKey.getName()));
-            names.addAll(List.of(singlePressKey.otherNames));
+        ToggleKeyCommands.initialize();
+        for (ToggleKey toggleKey : ToggleKey.values()) {
+            List<String> names = new ArrayList<>(List.of(toggleKey.getName()));
+            names.addAll(List.of(toggleKey.otherNames));
+
+            for (String name : names) {
+                for (String prefix : new String[]{"toggle", "hold"}) {
+                    ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                                    literal(prefix + name)
+                                            .executes(context ->
+                                                    ToggleKeyCommands.execute(
+                                                            context.getSource(),
+                                                            toggleKey.function.apply(context.getSource().getClient().options)
+                                                    )
+                                            )
+                            )
+                    );
+                }
+            }
+        }
+
+        for (WhileKey whileKey : WhileKey.values()) {
+            List<String> names = new ArrayList<>(List.of(whileKey.getName()));
+            names.addAll(List.of(whileKey.otherNames));
 
             for (String name : names) {
                 ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                                 literal(name)
                                         .executes(context ->
-                                                SinglePressCommands.execute(
+                                                WhileKeyCommands.execute(
                                                         context.getSource(),
-                                                        singlePressKey.function.apply(context.getSource().getClient().options)
+                                                        whileKey.function.apply(context.getSource().getClient().options)
                                                 )
                                         )
                         )
@@ -361,57 +379,62 @@ public class ClientCommands {
             }
         }
 
-        for (ToggleKey toggleKey : ToggleKey.values()) {
+        // look commands
+        for (String name : new String[]{"face", "look"}) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                            literal(toggleKey.getName())
-                                    .executes(context ->
-                                            ToggleCommands.execute(
-                                                    context.getSource(),
-                                                    toggleKey.function.apply(context.getSource().getClient().options)
+                            literal(name)
+                                    .then(argument("direction", StringArgumentType.string())
+                                            .suggests(ClientSuggestionProviders.CARDINAL_DIRECTION_SUGGESTIONS)
+                                            .executes(context ->
+                                                    FaceCommand.execute(
+                                                            context.getSource(),
+                                                            StringArgumentType.getString(context, "direction")
+                                                    )
                                             )
                                     )
                     )
             );
         }
 
-        // look commands
+        for (String prefix : new String[]{"face", "lookat"}) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal(prefix + "block")
+                                    .then(argument("blockName", StringArgumentType.string())
+                                            .executes(context ->
+                                                    FaceBlockCommand.execute(
+                                                            context.getSource(),
+                                                            StringArgumentType.getString(context, "blockName")
+                                                    )
+                                            )
+                                    )
+                    )
+            );
+
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal(prefix + "entity")
+                                    .then(argument("entityName", StringArgumentType.string())
+                                            .executes(context ->
+                                                    FaceEntityCommand.execute(
+                                                            context.getSource(),
+                                                            StringArgumentType.getString(context, "entityName")
+                                                    )
+                                            )
+                                    )
+                    )
+            );
+        }
+
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("look")
+                        literal("rotate")
                                 .then(argument("direction", StringArgumentType.string())
                                         .suggests(ClientSuggestionProviders.LOOK_DIRECTION_SUGGESTIONS)
                                         .then(argument("degrees", IntegerArgumentType.integer(1))
                                                 .executes(context ->
-                                                        LookCommand.execute(
+                                                        RotateCommand.execute(
                                                                 context.getSource(),
                                                                 StringArgumentType.getString(context, "direction"),
                                                                 IntegerArgumentType.getInteger(context, "degrees")
                                                         )
-                                                )
-                                        )
-                                )
-                )
-        );
-
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("lookatblock")
-                                .then(argument("blockName", StringArgumentType.string())
-                                        .executes(context ->
-                                                LookAtBlockCommand.execute(
-                                                        context.getSource(),
-                                                        StringArgumentType.getString(context, "blockName")
-                                                )
-                                        )
-                                )
-                )
-        );
-
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("lookatentity")
-                                .then(argument("entityName", StringArgumentType.string())
-                                        .executes(context ->
-                                                LookAtEntityCommand.execute(
-                                                        context.getSource(),
-                                                        StringArgumentType.getString(context, "entityName")
                                                 )
                                         )
                                 )
@@ -467,12 +490,6 @@ public class ClientCommands {
         for (MoveDirectionKeys moveDirectionKeys : MoveDirectionKeys.values()) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                             literal(moveDirectionKeys.getName())
-                                    .executes(context ->
-                                            MoveDirectionCommands.executeHold(
-                                                    context.getSource(),
-                                                    moveDirectionKeys.function.apply(context.getSource().getClient().options)
-                                            )
-                                    )
                                     .then(argument("amount", IntegerArgumentType.integer())
                                             .then(literal("blocks")
                                                     .executes(context ->
@@ -585,18 +602,18 @@ public class ClientCommands {
                 )
         );
 
-        UseCommand.initialize();
+        UseItemCommand.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("use")
+                        literal("useitem")
                                 .executes(context ->
-                                        UseCommand.execute(
+                                        UseItemCommand.execute(
                                                 context.getSource(),
                                                 1
                                         )
                                 )
                                 .then(argument("count", IntegerArgumentType.integer())
                                         .executes(context ->
-                                                UseCommand.execute(
+                                                UseItemCommand.execute(
                                                         context.getSource(),
                                                         IntegerArgumentType.getInteger(context, "count")
                                                 )

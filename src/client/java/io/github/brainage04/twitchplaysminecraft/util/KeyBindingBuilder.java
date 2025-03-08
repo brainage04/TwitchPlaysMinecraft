@@ -75,6 +75,6 @@ public class KeyBindingBuilder {
                                 .append(" %s.".formatted(message2)))
                         .execute();
             }
-        }, 1 + extraTickDelay);
+        }, extraTickDelay);
     }
 }

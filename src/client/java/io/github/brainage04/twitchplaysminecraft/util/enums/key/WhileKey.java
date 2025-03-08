@@ -6,22 +6,20 @@ import net.minecraft.client.option.KeyBinding;
 
 import java.util.function.Function;
 
-public enum SinglePressKey implements NamedEnum {
-    JUMP(options -> options.jumpKey),
+public enum WhileKey implements NamedEnum {
     INVENTORY(options -> options.inventoryKey, new String[]{"openinventory"}),
     SWAPHANDS(options -> options.swapHandsKey),
-    ATTACK(options -> options.attackKey),
     PICKITEM(options -> options.pickItemKey, new String[]{"pickblock"});
 
     public final Function<GameOptions, KeyBinding> function;
     public final String[] otherNames;
 
-    SinglePressKey(Function<GameOptions, KeyBinding> function) {
+    WhileKey(Function<GameOptions, KeyBinding> function) {
         this.function = function;
         this.otherNames = new String[0];
     }
 
-    SinglePressKey(Function<GameOptions, KeyBinding> function, String[] otherNames) {
+    WhileKey(Function<GameOptions, KeyBinding> function, String[] otherNames) {
         this.function = function;
         this.otherNames = otherNames;
     }

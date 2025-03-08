@@ -7,15 +7,17 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
 
 @SuppressWarnings("SameReturnValue")
-public class ToggleCommands {
+// "while" keys are processed in while blocks as the name suggests
+// they tend to function as the operating system determines
+// (e.g. holding down will perform the action once, then ~20 times/second after a short delay until released)
+public class WhileKeyCommands {
     public static int execute(FabricClientCommandSource source, KeyBinding key) {
-        key.setPressed(!key.isPressed());
+        source.getClient().execute(() -> key.timesPressed++);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
-                .text(Text.literal("Toggled ")
-                        .append(Text.translatable(key.getTranslationKey()))
-                        .append(" %s.".formatted(key.isPressed() ? "on" : "off")))
+                .text(Text.translatable(key.getTranslationKey())
+                        .append(" pressed."))
                 .execute();
 
         return 1;

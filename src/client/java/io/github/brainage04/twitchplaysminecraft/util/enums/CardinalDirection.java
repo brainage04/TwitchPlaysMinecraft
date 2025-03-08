@@ -12,14 +12,10 @@ public enum CardinalDirection implements NamedEnum {
     WEST(90),
     NORTHWEST(135);
 
-    private final int yaw;
+    public final int yaw;
 
     CardinalDirection(int yaw) {
         this.yaw = yaw;
-    }
-
-    public int getYaw() {
-        return yaw;
     }
 
     public boolean isDiagonal() {

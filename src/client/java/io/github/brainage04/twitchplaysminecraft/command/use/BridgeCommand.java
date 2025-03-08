@@ -84,7 +84,7 @@ public class BridgeCommand {
 
         // look and move in opposite direction of cardinal direction
         int offset = cardinalDirection.isDiagonal() ? 0 : 45;
-        source.getPlayer().setYaw(cardinalDirection.getYaw() - 180 + offset);
+        source.getPlayer().setYaw(cardinalDirection.yaw - 180 + offset);
 
         // look almost straight down
         source.getPlayer().setPitch(77.5F);

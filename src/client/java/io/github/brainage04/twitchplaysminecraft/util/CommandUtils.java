@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 public class CommandUtils {
+
+    // todo: this stuff is really only used in the craft command at this point.
+    //  should replace with a tick-based system at some point
     public static final int millisecondsBetweenSteps = 100;
 
     private static Thread currentInteractionThread;
