@@ -10,9 +10,9 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import java.util.*;
 
-// i can't believe this works but it does
-public class PathfindCommand {
-    public static int executePathfind(FabricClientCommandSource source, BlockPos target) {
+// i can't believe i got this to work
+public class FindPathCommand {
+    public static int execute(FabricClientCommandSource source, BlockPos target) {
         MinecraftClient client = source.getClient();
         ClientPlayerEntity player = client.player;
         if (player == null) return 0;
@@ -38,7 +38,7 @@ public class PathfindCommand {
         }
     }
 
-    private static List<BlockPos> findPath(BlockPos start, BlockPos target, World world) {
+    public static List<BlockPos> findPath(BlockPos start, BlockPos target, World world) {
         PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.fCost));
         Map<BlockPos, Node> allNodes = new HashMap<>();
         Set<BlockPos> closedSet = new HashSet<>();
@@ -75,6 +75,7 @@ public class PathfindCommand {
                 }
             }
         }
+
         return null;
     }
 

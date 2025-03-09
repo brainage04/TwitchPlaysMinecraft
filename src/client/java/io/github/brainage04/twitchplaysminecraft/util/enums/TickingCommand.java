@@ -5,6 +5,7 @@ import io.github.brainage04.twitchplaysminecraft.command.attack.KillMobCommands;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.MoveDirectionCommands;
+import io.github.brainage04.twitchplaysminecraft.command.move.MoveToCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.BridgeCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.JumpPlaceCommand;
@@ -23,6 +24,7 @@ public enum TickingCommand implements NamedEnum {
     MINE(MineCommand::isRunning, MineCommand::stop),
     STRIPMINE(StripMineCommand::isRunning, StripMineCommand::stop),
     MOVE(MoveDirectionCommands::isRunning, MoveDirectionCommands::stop),
+    MOVETO(MoveToCommand::isRunning, MoveToCommand::stop),
     MOVEITEM(MoveItemCommand::isRunning, source -> MoveItemCommand.stop()),
     USEITEM(UseItemCommand::isRunning, source -> UseItemCommand.stop());
 

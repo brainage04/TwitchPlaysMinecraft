@@ -175,15 +175,7 @@ public class KillMobCommands {
                 .orElse(entities.getFirst());
 
         // Compute A* path
-        path = PathFindingUtils.calculatePathToMob(player, target);
-        if (path == null || path.isEmpty()) {
-            new ClientFeedbackBuilder().source(source)
-                    .text("Path to mob could not be found!")
-                    .messageType(MessageType.ERROR)
-                    .execute();
-
-            return 0;
-        }
+        path = List.of();
 
         // attempt to find best possible weapon in hotbar
         List<ItemStack> hotbar = source.getPlayer().getInventory().main.subList(0, 9);
@@ -207,7 +199,6 @@ public class KillMobCommands {
         source.getClient().options.getAutoJump().setValue(true);
 
         isRunning = true;
-
         ticksSinceLastAttack = 0;
         pathIndex = 0;
 

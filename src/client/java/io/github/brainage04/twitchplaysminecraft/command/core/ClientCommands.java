@@ -20,8 +20,9 @@ import io.github.brainage04.twitchplaysminecraft.command.look.FaceEntityCommand;
 import io.github.brainage04.twitchplaysminecraft.command.look.LookCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
+import io.github.brainage04.twitchplaysminecraft.command.move.MoveToCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.MoveDirectionCommands;
-import io.github.brainage04.twitchplaysminecraft.command.move.PathfindCommand;
+import io.github.brainage04.twitchplaysminecraft.command.move.FindPathCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.CloseScreenCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.QuickMoveCommand;
@@ -520,10 +521,24 @@ public class ClientCommands {
         }
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                literal("pathfind")
+                literal("findpath")
                         .then(argument("pos", ClientBlockPosArgumentType.blockPos())
                                 .executes(context ->
-                                        PathfindCommand.executePathfind(
+                                        FindPathCommand.execute(
+                                                context.getSource(),
+                                                ClientBlockPosArgumentType.getBlockPos(context, "pos")
+                                        )
+                                )
+                        )
+                )
+        );
+
+        MoveToCommand.initialize();
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                literal("moveto")
+                        .then(argument("pos", ClientBlockPosArgumentType.blockPos())
+                                .executes(context ->
+                                        MoveToCommand.execute(
                                                 context.getSource(),
                                                 ClientBlockPosArgumentType.getBlockPos(context, "pos")
                                         )
