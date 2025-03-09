@@ -7,6 +7,7 @@ import io.github.brainage04.twitchplaysminecraft.command.*;
 import io.github.brainage04.twitchplaysminecraft.command.admin.RegenerateAuthUrlCommand;
 import io.github.brainage04.twitchplaysminecraft.command.admin.CommandQueueCommand;
 import io.github.brainage04.twitchplaysminecraft.command.admin.StopItCommand;
+import io.github.brainage04.twitchplaysminecraft.command.argument.ClientBlockPosArgumentType;
 import io.github.brainage04.twitchplaysminecraft.command.argument.ClientIdentifierArgumentType;
 import io.github.brainage04.twitchplaysminecraft.command.attack.KillMobCommands;
 import io.github.brainage04.twitchplaysminecraft.command.craft.CraftCommand;
@@ -16,10 +17,11 @@ import io.github.brainage04.twitchplaysminecraft.command.key.*;
 import io.github.brainage04.twitchplaysminecraft.command.look.FaceBlockCommand;
 import io.github.brainage04.twitchplaysminecraft.command.look.FaceCommand;
 import io.github.brainage04.twitchplaysminecraft.command.look.FaceEntityCommand;
-import io.github.brainage04.twitchplaysminecraft.command.look.RotateCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.LookCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.MoveDirectionCommands;
+import io.github.brainage04.twitchplaysminecraft.command.move.PathfindCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.CloseScreenCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.QuickMoveCommand;
@@ -28,6 +30,7 @@ import io.github.brainage04.twitchplaysminecraft.command.use.JumpPlaceCommand;
 import io.github.brainage04.twitchplaysminecraft.command.use.UseItemCommand;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
+import io.github.brainage04.twitchplaysminecraft.util.enums.LookDirection;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.IfKey;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.MoveDirectionKeys;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.WhileKey;
@@ -124,25 +127,29 @@ public class ClientCommands {
         KillMobCommands.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                         literal("killnearestmob")
-                                .then(literal("melee")
+                                .executes(context ->
+                                        KillMobCommands.executeMelee(
+                                                context.getSource()
+                                        )
+                                )
+                                .then(argument("entity", ClientIdentifierArgumentType.identifier())
+                                        .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
                                         .executes(context ->
                                                 KillMobCommands.executeMelee(
-                                                        context.getSource()
+                                                        context.getSource(),
+                                                        ClientIdentifierArgumentType.getIdentifier(context, "entity")
                                                 )
                                         )
-                                        .then(argument("entity", ClientIdentifierArgumentType.identifier())
-                                                .suggests(ClientSuggestionProviders.LIVING_ENTITY_TYPES)
-                                                .executes(context ->
-                                                        KillMobCommands.executeMelee(
-                                                                context.getSource(),
-                                                                ClientIdentifierArgumentType.getIdentifier(context, "entity")
-                                                        )
-                                                )
-                                        )
+                                )
+                                // todo: implement this
+                                /*
+                                .then(literal("melee")
+
                                 )
                                 .then(literal("ranged")
-                                    // todo: implement this
+
                                 )
+                                 */
                 )
         );
 
@@ -333,8 +340,7 @@ public class ClientCommands {
                         literal("releaseallkeys")
                                 .executes(context ->
                                         ReleaseAllKeysCommand.execute(
-                                                context.getSource(),
-                                                true
+                                                context.getSource()
                                         )
                                 )
                 )
@@ -424,22 +430,21 @@ public class ClientCommands {
             );
         }
 
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                        literal("rotate")
-                                .then(argument("direction", StringArgumentType.string())
-                                        .suggests(ClientSuggestionProviders.LOOK_DIRECTION_SUGGESTIONS)
-                                        .then(argument("degrees", IntegerArgumentType.integer(1))
-                                                .executes(context ->
-                                                        RotateCommand.execute(
-                                                                context.getSource(),
-                                                                StringArgumentType.getString(context, "direction"),
-                                                                IntegerArgumentType.getInteger(context, "degrees")
-                                                        )
-                                                )
-                                        )
-                                )
-                )
-        );
+        for (LookDirection lookDirection : LookDirection.values()) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal("look" + lookDirection.getName())
+                                    .then(argument("degrees", IntegerArgumentType.integer(1))
+                                            .executes(context ->
+                                                    LookCommand.execute(
+                                                            context.getSource(),
+                                                            lookDirection,
+                                                            IntegerArgumentType.getInteger(context, "degrees")
+                                                    )
+                                            )
+                                    )
+                    )
+            );
+        }
 
         // mine commands
         MineCommand.initialize();
@@ -513,6 +518,19 @@ public class ClientCommands {
                     )
             );
         }
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                literal("pathfind")
+                        .then(argument("pos", ClientBlockPosArgumentType.blockPos())
+                                .executes(context ->
+                                        PathfindCommand.executePathfind(
+                                                context.getSource(),
+                                                ClientBlockPosArgumentType.getBlockPos(context, "pos")
+                                        )
+                                )
+                        )
+                )
+        );
 
         // screen commands
         for (String string : closeScreenCommands) {

@@ -15,17 +15,17 @@ import java.util.Set;
 public class ToggleKeyCommands {
     private static final Set<KeyBinding> toggledKeys = new HashSet<>();
 
-    public static void addKey(KeyBinding key) {
-        toggledKeys.add(key);
-
+    public static boolean addKey(KeyBinding key) {
+        boolean success = toggledKeys.add(key);
         resetTicks();
+        return success;
     }
 
-    public static void removeKey(KeyBinding key) {
-        toggledKeys.remove(key);
+    public static boolean removeKey(KeyBinding key) {
+        boolean success = toggledKeys.remove(key);
         key.setPressed(false);
-
         resetTicks();
+        return success;
     }
 
     public static void removeAllKeys() {
@@ -77,9 +77,61 @@ public class ToggleKeyCommands {
         }
     }
 
+    public static void addKey(FabricClientCommandSource source, KeyBinding key, boolean printLogs) {
+        boolean success = addKey(key);
+
+        if (printLogs) {
+            if (success) {
+                new ClientFeedbackBuilder().source(source)
+                        .messageType(MessageType.SUCCESS)
+                        .text(Text.translatable(key.getTranslationKey())
+                                .append(" toggled on."))
+                        .execute();
+            } else {
+                new ClientFeedbackBuilder().source(source)
+                        .messageType(MessageType.ERROR)
+                        .text(Text.translatable(key.getTranslationKey())
+                                .append(" is already toggled on!"))
+                        .execute();
+            }
+        }
+    }
+
+    public static void removeKey(FabricClientCommandSource source, KeyBinding key, boolean printLogs) {
+        boolean success = removeKey(key);
+
+        if (printLogs) {
+            if (success) {
+                new ClientFeedbackBuilder().source(source)
+                        .messageType(MessageType.SUCCESS)
+                        .text(Text.translatable(key.getTranslationKey())
+                                .append(" toggled off."))
+                        .execute();
+            } else {
+                new ClientFeedbackBuilder().source(source)
+                        .messageType(MessageType.ERROR)
+                        .text(Text.translatable(key.getTranslationKey())
+                                .append(" is already toggled off!"))
+                        .execute();
+            }
+        }
+    }
+
     public static void toggleKeys(FabricClientCommandSource source, KeyBinding[] keys, boolean printLogs) {
         for (KeyBinding key : keys) {
             toggleKey(source, key, printLogs);
+        }
+    }
+
+    public static void addKeys(FabricClientCommandSource source, KeyBinding[] keys, boolean printLogs) {
+        for (KeyBinding key : keys) {
+            addKey(source, key, printLogs);
+        }
+    }
+
+    public static void removeKeys(FabricClientCommandSource source, KeyBinding[] keys, boolean printLogs) {
+        for (KeyBinding key : keys) {
+            removeKey(source, key, printLogs);
         }
     }
 

@@ -6,25 +6,23 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.option.KeyBinding;
 
 public class ReleaseAllKeysCommand {
-    @SuppressWarnings("SameReturnValue")
-    public static int execute(FabricClientCommandSource source, boolean printLogs) {
+    public static void releaseAllKeys(FabricClientCommandSource source) {
         ToggleKeyCommands.removeAllKeys();
 
         for (KeyBinding key : source.getClient().options.allKeys) {
             key.setPressed(false);
         }
-
-        if (printLogs) {
-            new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.SUCCESS)
-                    .text("All keys released.")
-                    .execute();
-        }
-
-        return 1;
     }
 
-    public static void execute(FabricClientCommandSource source) {
-        execute(source, false);
+    @SuppressWarnings("SameReturnValue")
+    public static int execute(FabricClientCommandSource source) {
+        releaseAllKeys(source);
+
+        new ClientFeedbackBuilder().source(source)
+                .messageType(MessageType.SUCCESS)
+                .text("All keys untoggled and released.")
+                .execute();
+
+        return 1;
     }
 }

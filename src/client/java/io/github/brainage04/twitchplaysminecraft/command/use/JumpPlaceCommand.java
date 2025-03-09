@@ -1,7 +1,6 @@
 package io.github.brainage04.twitchplaysminecraft.command.use;
 
-import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
-import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
+import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
@@ -9,6 +8,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.item.BlockItem;
 
 public class JumpPlaceCommand {
@@ -17,7 +17,11 @@ public class JumpPlaceCommand {
     private static int blocksPlacedLimit = Integer.MAX_VALUE;
 
     public static int stop(FabricClientCommandSource source) {
-        ReleaseAllKeysCommand.execute(source);
+        GameOptions options = source.getClient().options;
+        ToggleKeyCommands.removeKeys(source, new KeyBinding[]{
+                options.jumpKey,
+                options.useKey
+        }, false);
 
         isRunning = false;
 
@@ -56,10 +60,12 @@ public class JumpPlaceCommand {
         // look straight down
         source.getPlayer().setPitch(90);
 
+        // hold jump and right click
         GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source)
-                .keys(options.useKey, options.jumpKey)
-                .execute();
+        ToggleKeyCommands.addKeys(source, new KeyBinding[]{
+                options.jumpKey,
+                options.useKey
+        }, false);
 
         isRunning = true;
         blocksPlaced = 0;

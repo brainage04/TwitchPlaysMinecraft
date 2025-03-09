@@ -1,6 +1,5 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
-import io.github.brainage04.twitchplaysminecraft.hud.GoalHud;
 import net.minecraft.advancement.AdvancementDisplay;
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.AdvancementProgress;
@@ -25,7 +24,6 @@ public class AdvancementUtils {
 
     public static void setCurrentAdvancement(PlacedAdvancement currentAdvancement) {
         AdvancementUtils.currentAdvancement = currentAdvancement;
-        GoalHud.updateLines();
     }
 
     public static Text getAdvancementName(PlacedAdvancement placedAdvancement) {

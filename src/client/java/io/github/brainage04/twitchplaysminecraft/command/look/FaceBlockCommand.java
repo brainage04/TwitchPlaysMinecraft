@@ -13,17 +13,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 public class FaceBlockCommand {
-    public static int execute(FabricClientCommandSource source, String blockString) {
-        blockString = blockString.toLowerCase();
-        Block block = Registries.BLOCK.get(Identifier.of(blockString));
-        if (block == Blocks.AIR && !blockString.equals("air")) {
-            new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.ERROR)
-                    .text("No such block \"%s\" exists!".formatted(blockString))
-                    .execute();
-            return 0;
-        }
-
+    public static Vec3d locateVisibleBlock(FabricClientCommandSource source, Block block) {
         // process for getting nearest block of specific type:
         // scan reachable area first (RxRxR, R=3, x2+1 = 7, so 7x7x7)
         // if nothing is found, increment R until 20 is reached (debug screen raycast distance)
@@ -40,11 +30,27 @@ public class FaceBlockCommand {
             radius++;
             while (radius <= 20) {
                 pos = BlockUtils.searchCuboid(source.getWorld(), source.getPlayer(), block, radius, true);
-                if (pos != null) break;
+                if (pos != null) return pos;
 
                 radius++;
             }
         }
+
+        return null;
+    }
+
+    public static int execute(FabricClientCommandSource source, String blockString) {
+        blockString = blockString.toLowerCase();
+        Block block = Registries.BLOCK.get(Identifier.of(blockString));
+        if (block == Blocks.AIR && !blockString.equals("air")) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("No such block \"%s\" exists!".formatted(blockString))
+                    .execute();
+            return 0;
+        }
+
+        Vec3d pos = locateVisibleBlock(source, block);
 
         if (pos == null) {
             new ClientFeedbackBuilder().source(source)

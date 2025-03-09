@@ -7,7 +7,6 @@ import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageTy
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
@@ -26,23 +25,23 @@ import java.util.stream.IntStream;
 public class KillMobCommands {
     private static boolean isRunning = false;
     private static int ticksSinceLastAttack = 0;
+    private static final int secondsSinceLastAttackLimit = 15;
     private static LivingEntity target = null;
     private static List<BlockPos> path = null;
     private static int pathIndex = 0;
 
     // use auto jump to avoid getting stuck if the
     // difference in Y coordinates from player and target is positive
-    private static boolean prevAutoJump = false;
 
     public static void initialize() {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isRunning) return;
             if (target == null) return;
-            if (path == null) return;
+            //if (path == null) return;
             if (client.player == null) return;
 
             ticksSinceLastAttack++;
-            if (ticksSinceLastAttack > 300) {
+            if (ticksSinceLastAttack > secondsSinceLastAttackLimit * 20) {
                 new ClientFeedbackBuilder().source(client)
                         .messageType(MessageType.ERROR)
                         .text("No hits landed for 15 seconds! Cancelling attack...")
@@ -86,7 +85,7 @@ public class KillMobCommands {
                  */
 
                 client.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target.getEyePos());
-                MinecraftClient.getInstance().options.forwardKey.setPressed(true);
+                client.options.forwardKey.setPressed(true);
 
                 return;
             }
@@ -102,18 +101,8 @@ public class KillMobCommands {
                 back = true;
             }
 
-            if (client.options.forwardKey.isPressed() != forward) {
-                new KeyBindingBuilder().keys(client.options.forwardKey)
-                        .pressed(forward)
-                        .printLogs(false)
-                        .execute();
-            }
-            if (client.options.backKey.isPressed() != back) {
-                new KeyBindingBuilder().keys(client.options.backKey)
-                        .pressed(back)
-                        .printLogs(false)
-                        .execute();
-            }
+            client.options.forwardKey.setPressed(forward);
+            client.options.backKey.setPressed(back);
 
             client.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target.getEyePos());
 
@@ -132,8 +121,7 @@ public class KillMobCommands {
     public static int stop(FabricClientCommandSource source) {
         isRunning = false;
 
-        ReleaseAllKeysCommand.execute(source);
-        MinecraftClient.getInstance().options.getAutoJump().setValue(prevAutoJump);
+        ReleaseAllKeysCommand.releaseAllKeys(source);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
@@ -215,10 +203,10 @@ public class KillMobCommands {
                     .execute();
         }
 
-        isRunning = true;
-
-        prevAutoJump = source.getClient().options.getAutoJump().getValue();
+        source.getClient().options.sprintKey.setPressed(true);
         source.getClient().options.getAutoJump().setValue(true);
+
+        isRunning = true;
 
         ticksSinceLastAttack = 0;
         pathIndex = 0;

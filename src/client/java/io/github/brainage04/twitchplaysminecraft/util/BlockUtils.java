@@ -1,7 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.util;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.*;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -18,11 +19,11 @@ public class BlockUtils {
         return pos.toCenterPos().add(face.getDoubleVector().multiply(0.5));
     }
 
-    public static BlockHitResult raycastToBlockFace(ClientPlayerEntity player, Vec3d target) {
+    public static BlockHitResult raycastToBlockFace(ClientPlayerEntity player, Vec3d target, boolean isFluid) {
         return player.getWorld().raycast(new RaycastContext(
                 player.getEyePos(), target,
-                RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE,
+                isFluid ? RaycastContext.ShapeType.OUTLINE : RaycastContext.ShapeType.COLLIDER,
+                isFluid ? RaycastContext.FluidHandling.SOURCE_ONLY : RaycastContext.FluidHandling.NONE,
                 player
         ));
     }
@@ -34,31 +35,31 @@ public class BlockUtils {
      * if the player can see the centers of any of the faces unobstructed by other blocks.
      * @return The Direction from which the face can be seen if the player can see the block face, {@code null} otherwise
      */
-    public static Direction canSeeBlockFace(ClientPlayerEntity player, BlockPos pos) {
+    public static Direction canSeeBlockFace(ClientPlayerEntity player, BlockPos pos, boolean isFluid) {
         List<FaceResult> visibleFaces = new ArrayList<>();
 
         Vec3d up = getFacePos(pos, Direction.UP);
         Vec3d down = getFacePos(pos, Direction.DOWN);
         if (player.getEyeY() > up.getY()) {
-            if (up.equals(raycastToBlockFace(player, up).getPos())) visibleFaces.add(new FaceResult(Direction.UP, player.getEyePos().squaredDistanceTo(up)));
+            if (up.equals(raycastToBlockFace(player, up, isFluid).getPos())) visibleFaces.add(new FaceResult(Direction.UP, player.getEyePos().squaredDistanceTo(up)));
         } else if (player.getEyeY() < down.getY()) {
-            if (down.equals(raycastToBlockFace(player, down).getPos())) visibleFaces.add(new FaceResult(Direction.DOWN, player.getEyePos().squaredDistanceTo(down)));
+            if (down.equals(raycastToBlockFace(player, down, isFluid).getPos())) visibleFaces.add(new FaceResult(Direction.DOWN, player.getEyePos().squaredDistanceTo(down)));
         }
 
         Vec3d north = getFacePos(pos, Direction.NORTH);
         Vec3d south = getFacePos(pos, Direction.SOUTH);
         if (player.getZ() < north.getZ()) {
-            if (north.equals(raycastToBlockFace(player, north).getPos())) visibleFaces.add(new FaceResult(Direction.NORTH, player.getEyePos().squaredDistanceTo(north)));
+            if (north.equals(raycastToBlockFace(player, north, isFluid).getPos())) visibleFaces.add(new FaceResult(Direction.NORTH, player.getEyePos().squaredDistanceTo(north)));
         } else if (player.getZ() > south.getZ()) {
-            if (south.equals(raycastToBlockFace(player, south).getPos())) visibleFaces.add(new FaceResult(Direction.SOUTH, player.getEyePos().squaredDistanceTo(south)));
+            if (south.equals(raycastToBlockFace(player, south, isFluid).getPos())) visibleFaces.add(new FaceResult(Direction.SOUTH, player.getEyePos().squaredDistanceTo(south)));
         }
 
         Vec3d west = getFacePos(pos, Direction.WEST);
         Vec3d east = getFacePos(pos, Direction.EAST);
         if (player.getX() < west.getX()) {
-            if (west.equals(raycastToBlockFace(player, west).getPos())) visibleFaces.add(new FaceResult(Direction.WEST, player.getEyePos().squaredDistanceTo(west)));
+            if (west.equals(raycastToBlockFace(player, west, isFluid).getPos())) visibleFaces.add(new FaceResult(Direction.WEST, player.getEyePos().squaredDistanceTo(west)));
         } else if (player.getX() > east.getX()) {
-            if (east.equals(raycastToBlockFace(player, east).getPos())) visibleFaces.add(new FaceResult(Direction.EAST, player.getEyePos().squaredDistanceTo(east)));
+            if (east.equals(raycastToBlockFace(player, east, isFluid).getPos())) visibleFaces.add(new FaceResult(Direction.EAST, player.getEyePos().squaredDistanceTo(east)));
         }
 
         if (visibleFaces.isEmpty()) return null;
@@ -82,13 +83,21 @@ public class BlockUtils {
                     if (outlineOnly && Math.abs(x) != radius && Math.abs(y) != radius && Math.abs(z) != radius) continue;
 
                     BlockPos pos = center.add(x, y, z);
-                    if (world.getBlockState(pos).getBlock() == targetBlock) {
+                    BlockState state = world.getBlockState(pos);
+                    Block block = state.getBlock();
+                    if (block == targetBlock) {
                         // each time new closest block is found, check if the player can raycast to any of the 3 closest faces without obstruction
                         // if they can, the block is visible on their screen and it counts
                         // otherwise, ignore the block
+                        boolean isFluid = targetBlock instanceof FluidBlock;
+                        if (isFluid) {
+                            String fluidId = Registries.FLUID.getId(world.getFluidState(pos).getFluid()).getPath();
+                            if (fluidId.contains("flowing")) continue;
+                        }
+
                         double distance = center.getSquaredDistance(pos);
                         if (distance >= closestDistance) continue;
-                        Direction face = canSeeBlockFace(player, pos);
+                        Direction face = canSeeBlockFace(player, pos, isFluid);
                         if (face == null) continue;
 
                         closestDistance = distance;

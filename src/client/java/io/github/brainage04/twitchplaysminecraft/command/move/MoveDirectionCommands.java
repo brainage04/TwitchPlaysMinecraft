@@ -2,7 +2,7 @@ package io.github.brainage04.twitchplaysminecraft.command.move;
 
 import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
-import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
+import io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -18,7 +18,7 @@ public class MoveDirectionCommands {
     private static int distance = 0;
 
     public static int stop(FabricClientCommandSource source) {
-        ReleaseAllKeysCommand.execute(source);
+        ReleaseAllKeysCommand.releaseAllKeys(source);
 
         isRunning = false;
 
@@ -43,15 +43,8 @@ public class MoveDirectionCommands {
     }
 
     public static int executeTime(FabricClientCommandSource source, KeyBinding key, int ticks) {
-        new KeyBindingBuilder().source(source)
-                .keys(key)
-                .printLogs(false)
-                .execute();
-        new KeyBindingBuilder().source(source)
-                .keys(key)
-                .pressed(false)
-                .extraTickDelay(ticks)
-                .execute();
+        key.setPressed(true);
+        RunnableScheduler.scheduleTask(() -> key.setPressed(false), ticks);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
@@ -64,10 +57,7 @@ public class MoveDirectionCommands {
     }
 
     public static int executeDistance(FabricClientCommandSource source, KeyBinding key, int blocks) {
-        new KeyBindingBuilder().source(source)
-                .keys(key)
-                .printLogs(false)
-                .execute();
+        key.setPressed(true);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)

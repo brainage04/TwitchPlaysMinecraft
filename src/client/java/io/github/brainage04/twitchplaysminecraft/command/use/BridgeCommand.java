@@ -1,8 +1,8 @@
 package io.github.brainage04.twitchplaysminecraft.command.use;
 
-import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
+import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
-import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
+import io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.enums.CardinalDirection;
 import io.github.brainage04.twitchplaysminecraft.util.EnumUtils;
@@ -22,20 +22,22 @@ public class BridgeCommand {
     private static int blocksPlaced = 0;
     private static int blocksPlacedLimit = Integer.MAX_VALUE;
 
+    private static float prevYaw = 0;
+    private static float prevPitch = 0;
+
     public static int stop(FabricClientCommandSource source) {
         // this stops the player from falling off accidentally
         GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source)
-                .keys(options.useKey, options.backKey, options.rightKey)
-                .pressed(false)
-                .execute();
-        new KeyBindingBuilder().source(source)
-                .keys(options.sneakKey)
-                .pressed(false)
-                .extraTickDelay(10)
-                .execute();
 
-        ReleaseAllKeysCommand.execute(source);
+        ToggleKeyCommands.removeKeys(source, new KeyBinding[]{
+                options.useKey,
+                options.backKey,
+                options.rightKey
+        }, false);
+        RunnableScheduler.scheduleTask(() -> ToggleKeyCommands.removeKey(source, options.sneakKey, false));
+
+        source.getPlayer().setYaw(prevYaw);
+        source.getPlayer().setPitch(prevPitch);
 
         isRunning = false;
 
@@ -82,6 +84,9 @@ public class BridgeCommand {
             return 0;
         }
 
+        prevYaw = source.getPlayer().getYaw();
+        prevPitch = source.getPlayer().getPitch();
+
         // look and move in opposite direction of cardinal direction
         int offset = cardinalDirection.isDiagonal() ? 0 : 45;
         source.getPlayer().setYaw(cardinalDirection.yaw - 180 + offset);
@@ -90,12 +95,12 @@ public class BridgeCommand {
         source.getPlayer().setPitch(77.5F);
 
         GameOptions options = source.getClient().options;
-        List<KeyBinding> keys = new ArrayList<>(List.of(options.useKey, options.sneakKey, options.backKey));
+
+        List<KeyBinding> keys = new ArrayList<>(List.of(options.useKey, options.backKey));
         if (!cardinalDirection.isDiagonal()) keys.add(options.rightKey);
 
-        new KeyBindingBuilder().source(source)
-                .keys(keys.toArray(KeyBinding[]::new))
-                .execute();
+        ToggleKeyCommands.addKey(source, options.sneakKey, false);
+        RunnableScheduler.scheduleTask(() -> ToggleKeyCommands.addKeys(source, keys.toArray(KeyBinding[]::new), false));
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
@@ -105,6 +110,8 @@ public class BridgeCommand {
         isRunning = true;
         blocksPlaced = 0;
         blocksPlacedLimit = count;
+
+
 
         return 1;
     }

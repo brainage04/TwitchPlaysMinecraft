@@ -16,6 +16,8 @@ public class ModConfig implements ConfigData {
     public int elementPadding = 2;
     public int screenMargin = 5;
 
+    public boolean cancelAllCommandsOnScreenOpen = false;
+
     @ConfigEntry.Gui.CollapsibleObject public ToggleCommandsConfig toggleCommandsConfig = new ToggleCommandsConfig();
     @ConfigEntry.Gui.CollapsibleObject public CommandQueueConfig commandQueueConfig = new CommandQueueConfig();
     @ConfigEntry.Gui.CollapsibleObject public GoalConfig goalConfig = new GoalConfig();
@@ -78,7 +80,6 @@ public class ModConfig implements ConfigData {
     }
 
     public static class GoalConfig {
-        public boolean displayRecipeGoals = false;
         @ConfigEntry.Gui.CollapsibleObject public CoreSettings coreSettings;
 
         public GoalConfig() {

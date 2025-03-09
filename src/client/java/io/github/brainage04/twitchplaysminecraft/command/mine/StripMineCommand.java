@@ -1,15 +1,13 @@
 package io.github.brainage04.twitchplaysminecraft.command.mine;
 
-import io.github.brainage04.twitchplaysminecraft.command.key.ReleaseAllKeysCommand;
 import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
-import io.github.brainage04.twitchplaysminecraft.util.KeyBindingBuilder;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
-import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 
 @SuppressWarnings("SameReturnValue")
@@ -21,14 +19,18 @@ public class StripMineCommand {
     private static final int secondsSinceLastBlockBreakLimit = 15;
 
     public static int stop(FabricClientCommandSource source) {
-        isRunning = false;
-
-        ReleaseAllKeysCommand.execute(source);
+        ToggleKeyCommands.removeKeys(source, new KeyBinding[]{
+                source.getClient().options.attackKey,
+                source.getClient().options.forwardKey
+        }, false);
+        RunnableScheduler.scheduleTask(() -> ToggleKeyCommands.removeKey(source, source.getClient().options.sneakKey, false));
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
                 .text("Mining cancelled.")
                 .execute();
+
+        isRunning = false;
 
         return 1;
     }
@@ -39,20 +41,20 @@ public class StripMineCommand {
 
             blocksBroken++;
             ticksSinceLastBlockBreak = 0;
+
+            if (blocksBroken >= blocksBrokenLimit) {
+                new ClientFeedbackBuilder().source(clientPlayerEntity)
+                        .messageType(MessageType.SUCCESS)
+                        .text("%d blocks have been mined. Stopping...".formatted(blocksBrokenLimit))
+                        .execute();
+
+                stop(SourceUtils.getSource(clientPlayerEntity));
+            }
         }));
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isRunning) return;
             if (client.player == null) return;
-
-            if (blocksBroken >= blocksBrokenLimit) {
-                new ClientFeedbackBuilder().source(client)
-                        .messageType(MessageType.SUCCESS)
-                        .text("%d blocks have been mined. Stopping...".formatted(blocksBrokenLimit))
-                        .execute();
-
-                stop(SourceUtils.getSource(client.player));
-            }
 
             ticksSinceLastBlockBreak++;
             if (ticksSinceLastBlockBreak >= secondsSinceLastBlockBreakLimit * 20) {
@@ -68,10 +70,11 @@ public class StripMineCommand {
 
     @SuppressWarnings("SameReturnValue")
     public static int execute(FabricClientCommandSource source) {
-        GameOptions options = source.getClient().options;
-        new KeyBindingBuilder().source(source)
-                .keys(options.sneakKey, options.forwardKey, options.attackKey)
-                .execute();
+        ToggleKeyCommands.addKeys(source, new KeyBinding[]{
+                source.getClient().options.sneakKey,
+                source.getClient().options.forwardKey,
+                source.getClient().options.attackKey
+        }, false);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
@@ -95,15 +98,15 @@ public class StripMineCommand {
         // and bottom block without having to move camera
         source.getPlayer().setPitch(25);
 
-        ToggleKeyCommands.toggleKeys(source, new KeyBinding[]{
+        ToggleKeyCommands.addKey(source, source.getClient().options.sneakKey, false);
+        RunnableScheduler.scheduleTask(() -> ToggleKeyCommands.addKeys(source, new KeyBinding[]{
                 source.getClient().options.attackKey,
-                source.getClient().options.sneakKey,
                 source.getClient().options.forwardKey
-        }, false);
+        }, false));
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
-                .text("Player is now strip mining %d blocks...".formatted(blocksBrokenLimit))
+                .text("Player is now strip mining %d blocks...".formatted(blocksToBreak))
                 .execute();
 
         isRunning = true;
