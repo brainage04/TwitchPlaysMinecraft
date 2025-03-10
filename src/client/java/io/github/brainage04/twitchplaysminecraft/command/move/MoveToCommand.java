@@ -1,6 +1,7 @@
 package io.github.brainage04.twitchplaysminecraft.command.move;
 
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.BlockUtils;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -41,7 +42,7 @@ public class MoveToCommand {
         });
     }
 
-    public static int stop(FabricClientCommandSource source) {
+    public static void stop(FabricClientCommandSource source) {
         isRunning = false;
 
         source.getClient().options.forwardKey.setPressed(false);
@@ -51,10 +52,13 @@ public class MoveToCommand {
                 .text("Stopped moving.")
                 .execute();
 
-        return 0;
     }
 
     public static int execute(FabricClientCommandSource source, BlockPos destination) {
+        while (!BlockUtils.isWalkable(destination, source.getWorld())) {
+            destination = destination.add(0, 1, 0);
+        }
+
         path = FindPathCommand.findPath(source.getPlayer().getBlockPos(), destination, source.getWorld());
 
         if (path == null || path.isEmpty()) {
@@ -68,11 +72,7 @@ public class MoveToCommand {
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
-                .text("Moving to position %d, %d, %d...".formatted(
-                        destination.getX(),
-                        destination.getY(),
-                        destination.getZ()
-                ))
+                .text("Moving to %s...".formatted(destination.toShortString()))
                 .execute();
 
         //source.getClient().options.sprintKey.setPressed(true);

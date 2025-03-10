@@ -25,7 +25,7 @@ public class BridgeCommand {
     private static float prevYaw = 0;
     private static float prevPitch = 0;
 
-    public static int stop(FabricClientCommandSource source) {
+    public static void stop(FabricClientCommandSource source) {
         // this stops the player from falling off accidentally
         GameOptions options = source.getClient().options;
 
@@ -41,7 +41,6 @@ public class BridgeCommand {
 
         isRunning = false;
 
-        return 1;
     }
 
     public static void incrementBlocksPlaced(MinecraftClient client) {

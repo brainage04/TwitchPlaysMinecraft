@@ -18,7 +18,7 @@ public class StripMineCommand {
     private static int ticksSinceLastBlockBreak = 0;
     private static final int secondsSinceLastBlockBreakLimit = 15;
 
-    public static int stop(FabricClientCommandSource source) {
+    public static void stop(FabricClientCommandSource source) {
         ToggleKeyCommands.removeKeys(source, new KeyBinding[]{
                 source.getClient().options.attackKey,
                 source.getClient().options.forwardKey
@@ -32,7 +32,6 @@ public class StripMineCommand {
 
         isRunning = false;
 
-        return 1;
     }
 
     public static void initialize() {

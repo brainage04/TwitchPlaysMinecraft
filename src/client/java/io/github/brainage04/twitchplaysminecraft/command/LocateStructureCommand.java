@@ -9,8 +9,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class LocateStructureCommand {
     public static int execute(FabricClientCommandSource source, String structureString) {
-        if (source.getWorld() == null) return 0;
-
+        structureString = structureString.toLowerCase();
         ImportantStructures structure = EnumUtils.getValueSafely(ImportantStructures.class, structureString);
         if (structure == null) {
             new ClientFeedbackBuilder().source(source)
@@ -20,14 +19,14 @@ public class LocateStructureCommand {
 
             return 0;
         }
-        structureString = StringUtils.snakeCaseToHumanReadable(structure.getName(), true, true);
+        structureString = StringUtils.snakeCaseToHumanReadable(structureString, true, false);
 
         BlockPos pos = structure.function.apply(source);
 
         if (pos == null) {
             new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.SUCCESS)
-                    .text("%s could not be found!".formatted(structureString))
+                    .messageType(MessageType.ERROR)
+                    .text("%s could not be found within any loaded chunks!".formatted(structureString))
                     .execute();
 
             return 0;
@@ -35,7 +34,7 @@ public class LocateStructureCommand {
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
-                .text("%s found at %d, %d, %d.".formatted(structureString, pos.getX(), pos.getY(), pos.getZ()))
+                .text("Potential %s found at %s.".formatted(structureString, pos.toShortString()))
                 .execute();
 
         return 1;

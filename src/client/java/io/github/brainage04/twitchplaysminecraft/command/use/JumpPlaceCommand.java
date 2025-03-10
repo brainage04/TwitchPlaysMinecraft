@@ -16,7 +16,7 @@ public class JumpPlaceCommand {
     private static int blocksPlaced = 0;
     private static int blocksPlacedLimit = Integer.MAX_VALUE;
 
-    public static int stop(FabricClientCommandSource source) {
+    public static void stop(FabricClientCommandSource source) {
         GameOptions options = source.getClient().options;
         ToggleKeyCommands.removeKeys(source, new KeyBinding[]{
                 options.jumpKey,
@@ -25,7 +25,6 @@ public class JumpPlaceCommand {
 
         isRunning = false;
 
-        return 1;
     }
 
     public static void incrementBlocksPlaced(MinecraftClient client) {

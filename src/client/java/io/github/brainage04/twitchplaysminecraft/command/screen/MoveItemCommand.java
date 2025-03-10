@@ -19,6 +19,7 @@ public class MoveItemCommand {
     private static MoveItemType moveItemType = null;
     private static int prevSelectedSlot = -1;
 
+    @SuppressWarnings("DuplicateBranchesInSwitch")
     public static void initialize() {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isRunning) return;
@@ -93,10 +94,9 @@ public class MoveItemCommand {
         });
     }
 
-    public static int stop() {
+    public static void stop() {
         isRunning = false;
 
-        return 1;
     }
 
     private static boolean isHotbarSlotInvalid(FabricClientCommandSource source, int slotIndex, String slotString) {

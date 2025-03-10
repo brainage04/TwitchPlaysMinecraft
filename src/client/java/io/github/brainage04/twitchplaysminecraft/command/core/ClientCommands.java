@@ -14,14 +14,11 @@ import io.github.brainage04.twitchplaysminecraft.command.craft.CraftCommand;
 import io.github.brainage04.twitchplaysminecraft.command.drop.DropCommand;
 import io.github.brainage04.twitchplaysminecraft.command.goal.*;
 import io.github.brainage04.twitchplaysminecraft.command.key.*;
-import io.github.brainage04.twitchplaysminecraft.command.look.FaceBlockCommand;
-import io.github.brainage04.twitchplaysminecraft.command.look.FaceCommand;
-import io.github.brainage04.twitchplaysminecraft.command.look.FaceEntityCommand;
-import io.github.brainage04.twitchplaysminecraft.command.look.LookCommand;
+import io.github.brainage04.twitchplaysminecraft.command.look.*;
 import io.github.brainage04.twitchplaysminecraft.command.mine.MineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.mine.StripMineCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.MoveToCommand;
-import io.github.brainage04.twitchplaysminecraft.command.move.MoveDirectionCommands;
+import io.github.brainage04.twitchplaysminecraft.command.move.MoveCommand;
 import io.github.brainage04.twitchplaysminecraft.command.move.FindPathCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.CloseScreenCommand;
 import io.github.brainage04.twitchplaysminecraft.command.screen.MoveItemCommand;
@@ -32,6 +29,7 @@ import io.github.brainage04.twitchplaysminecraft.command.use.UseItemCommand;
 import io.github.brainage04.twitchplaysminecraft.config.ModConfig;
 import io.github.brainage04.twitchplaysminecraft.hud.core.HUDElementEditor;
 import io.github.brainage04.twitchplaysminecraft.util.enums.LookDirection;
+import io.github.brainage04.twitchplaysminecraft.util.enums.LookStraightDirection;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.IfKey;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.MoveDirectionKeys;
 import io.github.brainage04.twitchplaysminecraft.util.enums.key.WhileKey;
@@ -39,7 +37,10 @@ import io.github.brainage04.twitchplaysminecraft.util.enums.key.ToggleKey;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +131,8 @@ public class ClientCommands {
                         literal("killnearestmob")
                                 .executes(context ->
                                         KillMobCommands.executeMelee(
-                                                context.getSource()
+                                                context.getSource(),
+                                                (EntityType<? extends Entity>) null
                                         )
                                 )
                                 .then(argument("entity", ClientIdentifierArgumentType.identifier())
@@ -142,15 +144,6 @@ public class ClientCommands {
                                                 )
                                         )
                                 )
-                                // todo: implement this
-                                /*
-                                .then(literal("melee")
-
-                                )
-                                .then(literal("ranged")
-
-                                )
-                                 */
                 )
         );
 
@@ -326,7 +319,7 @@ public class ClientCommands {
         // key commands
         for (IfKey ifKey : IfKey.values()) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                            literal(ifKey.getName())
+                            literal("press" + ifKey.getName())
                                     .executes(context ->
                                             IfKeyCommands.execute(
                                                     context.getSource(),
@@ -369,40 +362,19 @@ public class ClientCommands {
         }
 
         for (WhileKey whileKey : WhileKey.values()) {
-            List<String> names = new ArrayList<>(List.of(whileKey.getName()));
-            names.addAll(List.of(whileKey.otherNames));
-
-            for (String name : names) {
-                ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                                literal(name)
-                                        .executes(context ->
-                                                WhileKeyCommands.execute(
-                                                        context.getSource(),
-                                                        whileKey.function.apply(context.getSource().getClient().options)
-                                                )
-                                        )
-                        )
-                );
-            }
-        }
-
-        // look commands
-        for (String name : new String[]{"face", "look"}) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                            literal(name)
-                                    .then(argument("direction", StringArgumentType.string())
-                                            .suggests(ClientSuggestionProviders.CARDINAL_DIRECTION_SUGGESTIONS)
-                                            .executes(context ->
-                                                    FaceCommand.execute(
-                                                            context.getSource(),
-                                                            StringArgumentType.getString(context, "direction")
-                                                    )
+                            literal(whileKey.getName())
+                                    .executes(context ->
+                                            WhileKeyCommands.execute(
+                                                    context.getSource(),
+                                                    whileKey.function.apply(context.getSource().getClient().options)
                                             )
                                     )
                     )
             );
         }
 
+        // look commands
         for (String prefix : new String[]{"face", "lookat"}) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                             literal(prefix + "block")
@@ -431,16 +403,58 @@ public class ClientCommands {
             );
         }
 
+        for (String name : new String[]{"face", "look"}) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal(name)
+                                    .then(argument("direction", StringArgumentType.string())
+                                            .suggests(ClientSuggestionProviders.CARDINAL_DIRECTION_SUGGESTIONS)
+                                            .executes(context ->
+                                                    FaceCommand.execute(
+                                                            context.getSource(),
+                                                            StringArgumentType.getString(context, "direction")
+                                                    )
+                                            )
+                                    )
+                    )
+            );
+        }
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                        literal("lookat")
+                                .then(argument("pos", ClientBlockPosArgumentType.blockPos())
+                                        .executes(context ->
+                                                LookAtCommand.execute(
+                                                        context.getSource(),
+                                                        ClientBlockPosArgumentType.getBlockPos(context, "pos")
+                                                )
+                                        )
+                                )
+                )
+        );
+
         for (LookDirection lookDirection : LookDirection.values()) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
                             literal("look" + lookDirection.getName())
                                     .then(argument("degrees", IntegerArgumentType.integer(1))
                                             .executes(context ->
-                                                    LookCommand.execute(
+                                                    LookCommands.execute(
                                                             context.getSource(),
                                                             lookDirection,
                                                             IntegerArgumentType.getInteger(context, "degrees")
                                                     )
+                                            )
+                                    )
+                    )
+            );
+        }
+
+        for (LookStraightDirection lookStraightDirection : LookStraightDirection.values()) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal("lookstraight" + lookStraightDirection.getName())
+                                    .executes(context ->
+                                            LookStraightCommands.execute(
+                                                    context.getSource(),
+                                                    lookStraightDirection
                                             )
                                     )
                     )
@@ -492,14 +506,14 @@ public class ClientCommands {
         );
 
         // move commands
-        MoveDirectionCommands.initialize();
+        MoveCommand.initialize();
         for (MoveDirectionKeys moveDirectionKeys : MoveDirectionKeys.values()) {
             ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                            literal(moveDirectionKeys.getName())
+                            literal("move" + moveDirectionKeys.getName())
                                     .then(argument("amount", IntegerArgumentType.integer())
                                             .then(literal("blocks")
                                                     .executes(context ->
-                                                            MoveDirectionCommands.executeDistance(
+                                                            MoveCommand.executeDistance(
                                                                     context.getSource(),
                                                                     moveDirectionKeys.function.apply(context.getSource().getClient().options),
                                                                     IntegerArgumentType.getInteger(context, "amount")
@@ -508,7 +522,7 @@ public class ClientCommands {
                                             )
                                             .then(literal("ticks")
                                                     .executes(context ->
-                                                            MoveDirectionCommands.executeTime(
+                                                            MoveCommand.executeTime(
                                                                     context.getSource(),
                                                                     moveDirectionKeys.function.apply(context.getSource().getClient().options),
                                                                     IntegerArgumentType.getInteger(context, "amount")
@@ -520,18 +534,20 @@ public class ClientCommands {
             );
         }
 
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                literal("findpath")
-                        .then(argument("pos", ClientBlockPosArgumentType.blockPos())
-                                .executes(context ->
-                                        FindPathCommand.execute(
-                                                context.getSource(),
-                                                ClientBlockPosArgumentType.getBlockPos(context, "pos")
-                                        )
-                                )
-                        )
-                )
-        );
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                            literal("findpath")
+                                    .then(argument("pos", ClientBlockPosArgumentType.blockPos())
+                                            .executes(context ->
+                                                    FindPathCommand.execute(
+                                                            context.getSource(),
+                                                            ClientBlockPosArgumentType.getBlockPos(context, "pos")
+                                                    )
+                                            )
+                                    )
+                    )
+            );
+        }
 
         MoveToCommand.initialize();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(

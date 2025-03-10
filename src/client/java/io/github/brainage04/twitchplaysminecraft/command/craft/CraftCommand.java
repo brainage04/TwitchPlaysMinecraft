@@ -29,10 +29,9 @@ public class CraftCommand {
         });
     }
 
-    public static int stop() {
+    public static void stop() {
         isRunning = false;
 
-        return 1;
     }
 
     public static int execute(FabricClientCommandSource source, String itemName, int count) {

@@ -28,6 +28,14 @@ public class BlockUtils {
         ));
     }
 
+    public static boolean isWalkable(BlockPos pos, World world) {
+        boolean isPassable = !world.getBlockState(pos).isSolidBlock(world, pos);
+        boolean hasSupport = world.getBlockState(pos.down()).isSolidBlock(world, pos.down());
+        boolean headClear = !world.getBlockState(pos.up()).isSolidBlock(world, pos.up());
+
+        return isPassable && hasSupport && headClear;
+    }
+
     private record FaceResult(Direction direction, double distance) {}
 
     /**

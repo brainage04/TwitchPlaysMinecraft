@@ -1,31 +1,52 @@
 package io.github.brainage04.twitchplaysminecraft.command.move;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
+import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
+import io.github.brainage04.twitchplaysminecraft.util.BlockUtils;
+import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.*;
 
 // i can't believe i got this to work
 public class FindPathCommand {
     public static int execute(FabricClientCommandSource source, BlockPos target) {
-        MinecraftClient client = source.getClient();
-        ClientPlayerEntity player = client.player;
-        if (player == null) return 0;
+        // check if target block is actually loaded
+        Chunk targetChunk = source.getWorld().getChunk(target);
+        if (source.getWorld().isChunkLoaded(targetChunk.getPos().x, targetChunk.getPos().z)) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("%s is not inside of a loaded chunk!".formatted(target.toShortString()))
+                    .execute();
 
-        BlockPos start = player.getBlockPos();
-        World world = source.getWorld();
+            return 0;
+        }
 
-        List<BlockPos> path = findPath(start, target, world);
+        BlockPos start = source.getPlayer().getBlockPos();
+
+        while (source.getWorld().getBlockState(start).isSolidBlock(source.getWorld(), start)) {
+            start = start.add(0, 1, 0);
+        }
+
+        if (start.getSquaredDistance(target) > 100 * 100) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("%s is more than 100 blocks away! Please try finding a shorter distance path.".formatted(target.toShortString()))
+                    .execute();
+
+            return 0;
+        }
+
+        List<BlockPos> path = findPath(start, target, source.getWorld());
 
         if (path != null && !path.isEmpty()) {
             source.sendFeedback(Text.literal("Found path with " + path.size() + " steps"));
             for (BlockPos pos : path) {
-                client.worldRenderer.addParticle(
+                source.getClient().worldRenderer.addParticle(
                         ParticleTypes.FLAME,
                         pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
                         0, 0, 0
@@ -33,12 +54,18 @@ public class FindPathCommand {
             }
             return 1;
         } else {
-            source.sendFeedback(Text.literal("No path found to " + target.toShortString()));
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text("No path found to %s.".formatted(target.toShortString()))
+                    .execute();
+
             return 0;
         }
     }
 
     public static List<BlockPos> findPath(BlockPos start, BlockPos target, World world) {
+        if (world.getBlockState(target).isSolidBlock(world, target)) return null;
+
         PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.fCost));
         Map<BlockPos, Node> allNodes = new HashMap<>();
         Set<BlockPos> closedSet = new HashSet<>();
@@ -86,19 +113,19 @@ public class FindPathCommand {
         };
 
         for (BlockPos neighbor : horizontal) {
-            if (isWalkable(neighbor, world)) {
+            if (BlockUtils.isWalkable(neighbor, world)) {
                 neighbors.add(neighbor);
             }
 
             BlockPos up = neighbor.up();
             if (neighbor.getY() == pos.getY() &&
-                    isWalkable(up, world) &&
+                    BlockUtils.isWalkable(up, world) &&
                     world.getBlockState(neighbor).isSolidBlock(world, neighbor)) {
                 neighbors.add(up);
             }
 
             BlockPos down = neighbor.down();
-            if (isWalkable(down, world)) {
+            if (BlockUtils.isWalkable(down, world)) {
                 neighbors.add(down);
             }
         }
@@ -120,14 +147,6 @@ public class FindPathCommand {
         double penalty = (dot < 0) ? 2.0 : 0.0; // Heavy penalty for moving opposite
 
         return baseCost + penalty;
-    }
-
-    private static boolean isWalkable(BlockPos pos, World world) {
-        boolean isPassable = !world.getBlockState(pos).isSolidBlock(world, pos);
-        boolean hasSupport = world.getBlockState(pos.down()).isSolidBlock(world, pos.down());
-        boolean headClear = !world.getBlockState(pos.up()).isSolidBlock(world, pos.up());
-
-        return isPassable && hasSupport && headClear;
     }
 
     private static double heuristic(BlockPos a, BlockPos b) {

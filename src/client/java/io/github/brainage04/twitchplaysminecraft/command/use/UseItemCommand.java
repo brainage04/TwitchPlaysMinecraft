@@ -18,10 +18,9 @@ public class UseItemCommand {
 
     private static boolean prevIsUsingItem = false;
 
-    public static int stop() {
+    public static void stop() {
         isRunning = false;
 
-        return 1;
     }
 
     private static void incrementCurrentUses(MinecraftClient client) {
@@ -91,11 +90,14 @@ public class UseItemCommand {
         ItemStack stack = source.getPlayer().getStackInHand(hand);
         if (stack.isEmpty()) {
             new ClientFeedbackBuilder().source(source)
-                    .messageType(MessageType.ERROR)
-                    .text("No item in hand to use!")
+                    .messageType(MessageType.SUCCESS)
+                    .text(Text.translatable(source.getClient().options.useKey.getTranslationKey())
+                            .append(" pressed."))
                     .execute();
 
-            return 0;
+            source.getClient().options.useKey.timesPressed++;
+
+            return 1;
         }
 
         new ClientFeedbackBuilder().source(source)

@@ -14,8 +14,14 @@ import net.minecraft.text.Text;
 public class IfKeyCommands {
     public static int execute(FabricClientCommandSource source, KeyBinding key) {
         // key.timesPressed++; does not work. I have tried.
-        RunnableScheduler.scheduleTask(() -> key.setPressed(true));
-        RunnableScheduler.scheduleTask(() -> key.setPressed(false), 1);
+        RunnableScheduler.scheduleTask(() -> {
+            if (key.equals(source.getClient().options.attackKey)) {
+                source.getClient().doAttack();
+            }
+
+            key.setPressed(true);
+        });
+        RunnableScheduler.scheduleTask(() -> key.setPressed(false), 2);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)

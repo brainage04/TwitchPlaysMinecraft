@@ -2,7 +2,6 @@ package io.github.brainage04.twitchplaysminecraft.command.mine;
 
 import io.github.brainage04.twitchplaysminecraft.command.key.ToggleKeyCommands;
 import io.github.brainage04.twitchplaysminecraft.command.look.FaceBlockCommand;
-import io.github.brainage04.twitchplaysminecraft.util.RunnableScheduler;
 import io.github.brainage04.twitchplaysminecraft.util.SourceUtils;
 import io.github.brainage04.twitchplaysminecraft.command.util.feedback.MessageType;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
@@ -11,7 +10,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
@@ -48,11 +46,11 @@ public class MineCommand {
                 return;
             }
 
-            nextBlockPos = FaceBlockCommand.locateVisibleBlock(SourceUtils.getSource(clientPlayerEntity), block);
+            nextBlockPos = FaceBlockCommand.locateVisibleReachableBlock(SourceUtils.getSource(clientPlayerEntity), block);
             if (nextBlockPos == null) {
                 new ClientFeedbackBuilder().source(clientPlayerEntity)
                         .messageType(MessageType.ERROR)
-                        .text(Text.literal("No more visible ")
+                        .text(Text.literal("No more visible/reachable ")
                                 .append(block.getName())
                                 .append("! Stopping..."))
                         .execute();
@@ -73,6 +71,8 @@ public class MineCommand {
                         .execute();
 
                 stop(SourceUtils.getSource(client.player));
+
+                return;
             }
 
             if (nextBlockPos != null) {
@@ -82,12 +82,8 @@ public class MineCommand {
     }
 
 
-    public static int stop(FabricClientCommandSource source) {
-        ToggleKeyCommands.removeKeys(source, new KeyBinding[]{
-                source.getClient().options.attackKey,
-                source.getClient().options.forwardKey
-        }, false);
-        RunnableScheduler.scheduleTask(() -> ToggleKeyCommands.removeKey(source, source.getClient().options.sneakKey, false));
+    public static void stop(FabricClientCommandSource source) {
+        ToggleKeyCommands.removeKey(source, source.getClient().options.attackKey, false);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)
@@ -96,7 +92,6 @@ public class MineCommand {
 
         isRunning = false;
 
-        return 1;
     }
 
     private static final List<String> INVALID_BLOCKS = List.of(
@@ -129,28 +124,23 @@ public class MineCommand {
                     .messageType(MessageType.ERROR)
                     .text("Unknown block \"%s\"! Please try again.".formatted(blockName))
                     .execute();
+
             return 0;
         }
 
-        nextBlockPos = FaceBlockCommand.locateVisibleBlock(SourceUtils.getSource(source.getPlayer()), block);
+        nextBlockPos = FaceBlockCommand.locateVisibleReachableBlock(SourceUtils.getSource(source.getPlayer()), block);
         if (nextBlockPos == null) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
-                    .text(Text.literal("No visible ")
+                    .text(Text.literal("No visible/reachable ")
                             .append(block.getName())
-                            .append("! Stopping..."))
+                            .append("!"))
                     .execute();
 
-            stop(source);
+            return 0;
         }
 
-        // todo: keep your distance similar to KillMobCommand
-        //  otherwise you will be headsnapping 180 degrees back and forth if you are directly above the block
-        ToggleKeyCommands.addKey(source, source.getClient().options.sneakKey, false);
-        RunnableScheduler.scheduleTask(() -> ToggleKeyCommands.addKeys(source, new KeyBinding[]{
-                source.getClient().options.attackKey,
-                source.getClient().options.forwardKey
-        }, false));
+        ToggleKeyCommands.addKey(source, source.getClient().options.attackKey, false);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.INFO)
@@ -161,7 +151,7 @@ public class MineCommand {
 
         isRunning = true;
         blocksBroken = 0;
-        blocksBrokenLimit = 0;
+        blocksBrokenLimit = count;
         ticksSinceLastBlockBreak = 0;
 
         return 1;

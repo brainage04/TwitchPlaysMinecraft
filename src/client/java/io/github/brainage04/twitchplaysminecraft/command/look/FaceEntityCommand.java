@@ -6,8 +6,8 @@ import io.github.brainage04.twitchplaysminecraft.util.MathUtils;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -29,7 +29,7 @@ public class FaceEntityCommand {
 
         // find nearest mobs (within 20 blocks)
         int radius = 20;
-        List<LivingEntity> nearbyLivingEntities = EntityUtils.getEntities(LivingEntity.class, source.getPlayer(), radius)
+        List<Entity> nearbyLivingEntities = EntityUtils.getEntities(Entity.class, source.getWorld(), source.getPosition(), radius, source.getPlayer().getUuid())
                 .stream().filter(entity -> entity.getType() == entityType).toList();
 
         if (nearbyLivingEntities.isEmpty()) {
@@ -42,7 +42,7 @@ public class FaceEntityCommand {
         }
 
         // if mobs exist, find the closest one
-        LivingEntity target = nearbyLivingEntities.stream()
+        Entity target = nearbyLivingEntities.stream()
                 .min(Comparator.comparingDouble(e -> MathUtils.distanceToSquared(e.getPos(), source.getPlayer().getPos())))
                 .orElse(nearbyLivingEntities.getFirst());
 

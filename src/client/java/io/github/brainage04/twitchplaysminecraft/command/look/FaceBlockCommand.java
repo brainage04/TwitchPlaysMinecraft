@@ -39,6 +39,11 @@ public class FaceBlockCommand {
         return null;
     }
 
+    public static Vec3d locateVisibleReachableBlock(FabricClientCommandSource source, Block block) {
+        int radius = (int) Math.ceil(source.getPlayer().getBlockInteractionRange() + 1);
+        return BlockUtils.searchCuboid(source.getWorld(), source.getPlayer(), block, radius, false);
+    }
+
     public static int execute(FabricClientCommandSource source, String blockString) {
         blockString = blockString.toLowerCase();
         Block block = Registries.BLOCK.get(Identifier.of(blockString));

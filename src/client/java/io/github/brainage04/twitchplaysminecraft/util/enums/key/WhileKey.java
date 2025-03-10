@@ -7,20 +7,15 @@ import net.minecraft.client.option.KeyBinding;
 import java.util.function.Function;
 
 public enum WhileKey implements NamedEnum {
-    INVENTORY(options -> options.inventoryKey, new String[]{"openinventory"}),
+    INVENTORY(options -> options.inventoryKey),
+    OPENINVENTORY(options -> options.inventoryKey),
     SWAPHANDS(options -> options.swapHandsKey),
-    PICKITEM(options -> options.pickItemKey, new String[]{"pickblock"});
+    PICKITEM(options -> options.pickItemKey),
+    PICKBLOCK(options -> options.pickItemKey);
 
     public final Function<GameOptions, KeyBinding> function;
-    public final String[] otherNames;
 
     WhileKey(Function<GameOptions, KeyBinding> function) {
         this.function = function;
-        this.otherNames = new String[0];
-    }
-
-    WhileKey(Function<GameOptions, KeyBinding> function, String[] otherNames) {
-        this.function = function;
-        this.otherNames = otherNames;
     }
 }

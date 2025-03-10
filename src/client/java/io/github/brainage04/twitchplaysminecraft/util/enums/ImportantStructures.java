@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 public enum ImportantStructures implements NamedEnum {
     VILLAGE(LocateUtils::locateVillage),
+    RUINED_PORTAL(LocateUtils::locateRuinedPortal),
     LAVA_POOL(LocateUtils::locateLavaPool),
     BASTION(LocateUtils::locateBastion),
     NETHER_FORTRESS(LocateUtils::locateNetherFortress),

@@ -12,12 +12,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 @SuppressWarnings("SameReturnValue")
-public class MoveDirectionCommands {
+public class MoveCommand {
     private static boolean isRunning = false;
     private static BlockPos startPos = null;
     private static int distance = 0;
 
-    public static int stop(FabricClientCommandSource source) {
+    public static void stop(FabricClientCommandSource source) {
         ReleaseAllKeysCommand.releaseAllKeys(source);
 
         isRunning = false;
@@ -27,7 +27,6 @@ public class MoveDirectionCommands {
                 .text("Finished movement.")
                 .execute();
 
-        return 0;
     }
 
     public static void initialize() {

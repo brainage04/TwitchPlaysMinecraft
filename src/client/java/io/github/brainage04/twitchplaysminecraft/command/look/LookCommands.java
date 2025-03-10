@@ -5,10 +5,9 @@ import io.github.brainage04.twitchplaysminecraft.util.enums.LookDirection;
 import io.github.brainage04.twitchplaysminecraft.util.feedback.ClientFeedbackBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
-public class LookCommand {
+public class LookCommands {
     public static int execute(FabricClientCommandSource source, LookDirection lookDirection, int degrees) {
-        if (source.getClient().player == null) return 0;
-        lookDirection.consumer.accept(source.getClient().player, degrees);
+        lookDirection.consumer.accept(source.getPlayer(), degrees);
 
         new ClientFeedbackBuilder().source(source)
                 .messageType(MessageType.SUCCESS)

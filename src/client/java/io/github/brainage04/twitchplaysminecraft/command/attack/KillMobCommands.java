@@ -17,7 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -27,17 +26,11 @@ public class KillMobCommands {
     private static int ticksSinceLastAttack = 0;
     private static final int secondsSinceLastAttackLimit = 15;
     private static LivingEntity target = null;
-    private static List<BlockPos> path = null;
-    private static int pathIndex = 0;
-
-    // use auto jump to avoid getting stuck if the
-    // difference in Y coordinates from player and target is positive
 
     public static void initialize() {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (!isRunning) return;
             if (target == null) return;
-            //if (path == null) return;
             if (client.player == null) return;
 
             ticksSinceLastAttack++;
@@ -66,24 +59,6 @@ public class KillMobCommands {
             double distanceSquared = client.player.squaredDistanceTo(target);
 
             if (distanceSquared > client.player.getEntityInteractionRange()) {
-                // this has bugs so straight forward approach will do for now
-                /*
-                PathFindingUtils.visualizePath(client.player, path);
-
-                Vec3d nextPos = path.get(pathIndex).toCenterPos();
-                PathFindingUtils.guidePlayerAlongPath(client.player, new Vec3d(nextPos.getX(), client.player.getEyeY(), nextPos.getZ()));
-                if (client.player.squaredDistanceTo(nextPos) < 0.5) pathIndex++;
-                if (pathIndex >= path.size()) {
-                    new ClientFeedbackBuilder().source(SourceUtils.getSource(client.player))
-                            .messageType(MessageType.INFO)
-                            .text("Finished path finding but mob is not close enough to hit. Regenerating path...")
-                            .execute();
-
-                    path = PathFindingUtils.calculatePathToMob(client.player, target);
-                    pathIndex = 0;
-                }
-                 */
-
                 client.player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, target.getEyePos());
                 client.options.forwardKey.setPressed(true);
 
@@ -118,7 +93,7 @@ public class KillMobCommands {
     }
 
     @SuppressWarnings("SameReturnValue")
-    public static int stop(FabricClientCommandSource source) {
+    public static void stop(FabricClientCommandSource source) {
         isRunning = false;
 
         ReleaseAllKeysCommand.releaseAllKeys(source);
@@ -128,7 +103,6 @@ public class KillMobCommands {
                 .text("Attack cancelled.")
                 .execute();
 
-        return 1;
     }
 
     private static double getIdealDistance(ClientPlayerEntity player, LivingEntity target) {
@@ -141,10 +115,7 @@ public class KillMobCommands {
         return player.getEntityInteractionRange() - 1;
     }
 
-    public static <T extends LivingEntity> int executeMelee(FabricClientCommandSource source, Class<T> entityClass) {
-        ClientPlayerEntity player = source.getPlayer();
-        if (player == null) return 0;
-
+    public static int executeMelee(FabricClientCommandSource source, EntityType<? extends Entity> entityType) {
         if (isRunning) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
@@ -156,32 +127,50 @@ public class KillMobCommands {
 
         // find nearest mobs (within 16 blocks)
         int radius = 16;
-        List<T> entities = EntityUtils.getEntities(entityClass, player, radius);
+        List<? extends Entity> entities;
+        Text entityName;
+        if (entityType == null) {
+            entities = EntityUtils.getEntities(Entity.class, source.getWorld(), source.getPosition(), radius, source.getPlayer().getUuid());
+            entityName = Text.literal("living");
+        } else {
+            entities = EntityUtils.getEntities(entityType, source.getWorld(), source.getPosition(), radius, source.getPlayer().getUuid());
+            entityName = entityType.getName();
+        }
 
         if (entities.isEmpty()) {
-            String text = entityClass == LivingEntity.class ? "living entities" : "%s entities".formatted(entityClass.getName().replace("Entity", ""));
-
             new ClientFeedbackBuilder().source(source)
-                    .text("There are no %s within %d blocks!".formatted(text, radius))
                     .messageType(MessageType.ERROR)
+                    .text(Text.literal("There are no ")
+                            .append(entityName)
+                            .append(" entities within %d blocks!".formatted(radius)))
                     .execute();
 
             return 0;
         }
 
         // if mobs exist, find the closest one
-        target = entities.stream()
-                .min(Comparator.comparingDouble(e -> MathUtils.distanceToSquared(e.getPos(), player.getPos())))
-                .orElse(entities.getFirst());
+        Optional<? extends Entity> potentialTarget = entities.stream()
+                .min(Comparator.comparingDouble(e -> MathUtils.distanceToSquared(e.getPos(), source.getPlayer().getPos())));
+
+        if (!(potentialTarget.get() instanceof LivingEntity)) {
+            new ClientFeedbackBuilder().source(source)
+                    .messageType(MessageType.ERROR)
+                    .text(Text.empty().append(entityName)
+                            .append(" cannot be killed because it is not living!"))
+                    .execute();
+
+            return 0;
+        }
+
+        target = (LivingEntity) potentialTarget.get();
 
         // Compute A* path
-        path = List.of();
 
         // attempt to find best possible weapon in hotbar
         List<ItemStack> hotbar = source.getPlayer().getInventory().main.subList(0, 9);
         int bestItemIndex = IntStream.range(0, hotbar.size())
                 .boxed()
-                .max(Comparator.comparingDouble(i -> ItemStackUtils.getItemDps(player, hotbar.get(i))))
+                .max(Comparator.comparingDouble(i -> ItemStackUtils.getItemDps(source.getPlayer(), hotbar.get(i))))
                 .orElse(-1);
 
         if (bestItemIndex != -1) {
@@ -195,28 +184,18 @@ public class KillMobCommands {
                     .execute();
         }
 
-        source.getClient().options.sprintKey.setPressed(true);
+        //source.getClient().options.sprintKey.setPressed(true);
         source.getClient().options.getAutoJump().setValue(true);
 
         isRunning = true;
         ticksSinceLastAttack = 0;
-        pathIndex = 0;
 
         return 1;
     }
 
     public static int executeMelee(FabricClientCommandSource source, Identifier entityClassId) {
         EntityType<?> entityType = Registries.ENTITY_TYPE.get(entityClassId);
-        //noinspection ConstantValue
-        if (entityType == null) return 0;
-        Class<? extends Entity> entityClass = Registries.ENTITY_TYPE.get(entityClassId).getBaseClass();
-
-        if (LivingEntity.class.isAssignableFrom(entityClass)) {
-            @SuppressWarnings("unchecked")
-            Class<? extends LivingEntity> livingEntityClass = (Class<? extends LivingEntity>) entityClass;
-
-            return executeMelee(source, livingEntityClass);
-        } else {
+        if (entityType == EntityType.PIG && !entityClassId.getPath().equals("pig")) {
             new ClientFeedbackBuilder().source(source)
                     .messageType(MessageType.ERROR)
                     .text("Invalid entity! Valid entities: %s.".formatted(String.join(", ", ClientSuggestionProviders.livingEntityTypeStrings)))
@@ -224,10 +203,9 @@ public class KillMobCommands {
 
             return 0;
         }
-    }
 
-    public static int executeMelee(FabricClientCommandSource source) {
-        return executeMelee(source, LivingEntity.class);
+        // todo: fix
+        return executeMelee(source, entityType);
     }
 
     public static boolean isRunning() {

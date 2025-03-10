@@ -30,12 +30,11 @@ public class ModConfig implements ConfigData {
         public boolean enableRegenerateAuthUrlCommand = true;
         public boolean enableStopItCommand = true;
 
-        public boolean enableAttackCommand = true;
+        public boolean enableKillMobCommand = true;
 
         public boolean enableCraftCommand = true;
 
-        public boolean enableDropCommand = true;
-        public boolean enableDropHeldItemCommand = true;
+        public boolean enableDropCommands = true;
 
         public boolean enableClearCurrentGoalCommand = true;
         public boolean enableGetCurrentGoalCommand = true;
@@ -43,23 +42,30 @@ public class ModConfig implements ConfigData {
         public boolean enableSelectableGoalsCommand = true;
         public boolean enableSelectCurrentGoalCommand = true;
 
-        public boolean enablePressKeyCommand = true;
-        public boolean enableHoldKeyCommand = true;
-        public boolean enableReleaseKeyCommand = true;
+        public boolean enablePressKeyCommands = true;
         public boolean enableReleaseAllKeysCommand = true;
+        public boolean enableToggleKeyCommands = true;
 
-        public boolean enableLookCommand = true;
-        public boolean enableLookAtBlockCommand = true;
-        public boolean enableLookAtEntityCommand = true;
+        public boolean enableInventoryCommand = true;
+        public boolean enableSwapHandCommand = true;
+        public boolean enablePickItemCommand = true;
+
+        public boolean enableFaceBlockCommand = true;
+        public boolean enableFaceEntityCommand = true;
+        public boolean enableFaceCommand = true;
+        public boolean enableLookAtCommand = true;
+        public boolean enableLookDirectionCommand = true;
+        public boolean enableLookStraightCommand = true;
 
         public boolean enableMineCommand = true;
         public boolean enableStripMineCommand = true;
 
         public boolean enableMoveCommand = true;
+        public boolean enableMoveToCommand = true;
 
         public boolean enableCloseScreenCommand = true;
         public boolean enableMoveItemCommand = true;
-        public boolean enableOpenInventoryCommand = true;
+        public boolean enableQuickMoveCommand = true;
 
         public boolean enableBridgeCommand = true;
         public boolean enableJumpPlaceCommand = true;
